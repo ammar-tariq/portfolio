@@ -143,7 +143,7 @@ function projectContext(project: Partial<Project>, notes?: string) {
   };
 }
 
-async function generateGeminiJson(prompt: string) {
+export async function generateGeminiJson(prompt: string) {
   const apiKey = process.env.GEMINI_API_KEY?.trim();
   if (!apiKey) throw new Error("Add GEMINI_API_KEY to .env (Google AI Studio).");
   const model = process.env.GEMINI_MODEL?.trim() || "gemini-2.5-flash";

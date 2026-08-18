@@ -194,3 +194,50 @@ visitNotifySchema.index({ createdAt: 1 }, { expireAfterSeconds: 60 * 60 * 24 * 1
 
 export const VisitNotifyModel =
   mongoose.models.VisitNotify ?? mongoose.model("VisitNotify", visitNotifySchema);
+
+const applicationFileSchema = new Schema(
+  {
+    url: String,
+    publicId: String,
+  },
+  { _id: false },
+);
+
+const jobApplicationSchema = new Schema(
+  {
+    company: { type: String, required: true },
+    role: { type: String, required: true },
+    jobUrl: String,
+    location: String,
+    jd: { type: String, default: "" },
+    aboutCompany: { type: String, default: "" },
+    extraQuestions: { type: String, default: "" },
+    keywords: { type: [String], default: [] },
+    resume: { type: Schema.Types.Mixed, default: {} },
+    coverLetter: { type: String, default: "" },
+    answers: {
+      type: [
+        {
+          question: String,
+          answer: String,
+          createdAt: { type: Date, default: Date.now },
+        },
+      ],
+      default: [],
+    },
+    files: {
+      resumeTxt: applicationFileSchema,
+      resumeHtml: applicationFileSchema,
+      coverLetter: applicationFileSchema,
+      answers: applicationFileSchema,
+    },
+    status: { type: String, enum: ["draft", "applied", "archived"], default: "draft" },
+    warning: String,
+  },
+  { timestamps: true },
+);
+
+jobApplicationSchema.index({ createdAt: -1 });
+
+export const JobApplicationModel =
+  mongoose.models.JobApplication ?? mongoose.model("JobApplication", jobApplicationSchema);

@@ -1,5 +1,6 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { revalidateSite } from "@/lib/revalidate";
 import { requireAdmin } from "@/lib/admin";
 import { connectDb } from "@/lib/db";
@@ -7,6 +8,7 @@ import {
   ArchitectureModel,
   ExperienceModel,
   IndustryModel,
+  JobApplicationModel,
   OpenSourceModel,
   PrincipleModel,
   ProjectModel,
@@ -23,6 +25,15 @@ import {
   importOpenSourceRepoFromGithub,
   importProjectFromGithubRepo,
 } from "@/lib/github-import";
+import { getSiteContentForParams } from "@/lib/content";
+import {
+  applicationFromDoc,
+  destroyApplicationFiles,
+  generateApplicationMaterials,
+  generateScreeningAnswers,
+  uploadApplicationFiles,
+} from "@/lib/job-application";
+import type { ApplicationStatus } from "@/types/application";
 
 async function ready() {
   await requireAdmin();
@@ -285,4 +296,102 @@ export async function saveArchitecture(raw: ArchitectureContent) {
   await ready();
   await ArchitectureModel.findByIdAndUpdate("architecture", { _id: "architecture", ...raw }, { upsert: true });
   revalidateSite();
+}
+
+function revalidateApplications(id?: string) {
+  revalidatePath("/admin/applications");
+  if (id) revalidatePath(`/admin/applications/${id}`);
+}
+
+export async function generateJobApplication(input: {
+  company: string;
+  role: string;
+  jobUrl?: string;
+  location?: string;
+  jd: string;
+  aboutCompany?: string;
+  extraQuestions?: string;
+}): Promise<{ ok: true; id: string } | { ok: false; error: string }> {
+  await ready();
+  try {
+    const content = await getSiteContentForParams();
+    const generated = await generateApplicationMaterials({
+      content,
+      company: input.company,
+      role: input.role,
+      jobUrl: input.jobUrl,
+      location: input.location,
+      jd: input.jd,
+      aboutCompany: input.aboutCompany,
+      extraQuestions: input.extraQuestions,
+    });
+    const created = await JobApplicationModel.create({
+      company: input.company.trim(),
+      role: input.role.trim(),
+      jobUrl: input.jobUrl?.trim() || undefined,
+      location: input.location?.trim() || undefined,
+      jd: input.jd.trim(),
+      aboutCompany: input.aboutCompany?.trim() || "",
+      extraQuestions: input.extraQuestions?.trim() || "",
+      keywords: generated.keywords,
+      resume: generated.resume,
+      coverLetter: generated.coverLetter,
+      answers: generated.answers,
+      status: "draft",
+    });
+    const id = String(created._id);
+    const application = applicationFromDoc(created);
+    const uploaded = await uploadApplicationFiles(id, content, application);
+    created.files = uploaded.files;
+    created.warning = uploaded.warning;
+    await created.save();
+    revalidateApplications(id);
+    return { ok: true, id };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Could not generate the application.";
+    return { ok: false, error: message };
+  }
+}
+
+export async function answerApplicationQuestions(
+  id: string,
+  questions: string,
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  await ready();
+  try {
+    const doc = await JobApplicationModel.findById(id);
+    if (!doc) return { ok: false, error: "Application not found." };
+    const content = await getSiteContentForParams();
+    const existing = applicationFromDoc(doc);
+    const answers = await generateScreeningAnswers({ content, application: existing, questions });
+    const dated = answers.map((item) => ({ ...item, createdAt: new Date() }));
+    doc.extraQuestions = [String(doc.extraQuestions || "").trim(), questions.trim()].filter(Boolean).join("\n\n");
+    doc.answers = [...(doc.answers ?? []), ...dated];
+    const updated = applicationFromDoc(doc);
+    const uploaded = await uploadApplicationFiles(id, content, updated);
+    doc.files = uploaded.files;
+    doc.warning = uploaded.warning;
+    await doc.save();
+    revalidateApplications(id);
+    return { ok: true };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Could not answer those questions.";
+    return { ok: false, error: message };
+  }
+}
+
+export async function setApplicationStatus(id: string, status: ApplicationStatus) {
+  await ready();
+  await JobApplicationModel.findByIdAndUpdate(id, { status });
+  revalidateApplications(id);
+}
+
+export async function deleteJobApplication(id: string) {
+  await ready();
+  const doc = await JobApplicationModel.findById(id).lean();
+  if (doc) {
+    await destroyApplicationFiles(applicationFromDoc(doc).files);
+  }
+  await JobApplicationModel.deleteOne({ _id: id });
+  revalidateApplications();
 }

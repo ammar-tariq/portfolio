@@ -28,7 +28,7 @@ export async function uploadImage(input: {
   buffer?: Buffer;
   folder: string;
   filename?: string;
-  resourceType?: "image" | "video";
+  resourceType?: "image" | "video" | "raw";
   uniqueFilename?: boolean;
   overwrite?: boolean;
 }): Promise<UploadedAsset> {
@@ -38,7 +38,7 @@ export async function uploadImage(input: {
   configure();
   const options = {
     folder: input.folder,
-    resource_type: (input.resourceType ?? "image") as "image" | "video",
+    resource_type: (input.resourceType ?? "image") as "image" | "video" | "raw",
     use_filename: true,
     unique_filename: input.uniqueFilename ?? true,
     overwrite: input.overwrite ?? false,
@@ -61,10 +61,23 @@ export async function uploadImage(input: {
   return { url: result.secure_url, publicId: result.public_id };
 }
 
-export async function destroyImage(publicId?: string, resourceType: "image" | "video" = "image") {
+export async function destroyImage(publicId?: string, resourceType: "image" | "video" | "raw" = "image") {
   if (!publicId || !hasCloudinary()) return;
   configure();
   await cloudinary.uploader.destroy(publicId, { resource_type: resourceType });
+}
+
+export async function uploadRawFile(input: {
+  buffer: Buffer;
+  folder: string;
+  filename: string;
+}): Promise<UploadedAsset> {
+  return uploadImage({
+    ...input,
+    resourceType: "raw",
+    uniqueFilename: false,
+    overwrite: true,
+  });
 }
 
 export function cloudinaryShareUrl(url: string) {
