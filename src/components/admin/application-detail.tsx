@@ -254,6 +254,41 @@ export function ApplicationDetail({
         ) : null}
       </section>
 
+      <section className="grid gap-4 rounded-3xl border border-line bg-bg-elevated/40 p-5">
+        <p className="font-mono text-[11px] tracking-[0.16em] text-subtle uppercase">Inbox replies</p>
+        <p className="text-sm text-muted">
+          Pulled from Gmail for this thread. Full mail stays in Gmail; only a snippet is stored in Mongo.
+        </p>
+        {application.inboxStatus ? <p className="text-sm text-fg">Latest: {application.inboxStatus}</p> : null}
+        {application.replies.length === 0 ? (
+          <p className="text-sm text-muted">
+            No replies synced yet. Send via Gmail API, then wait for a push or tap Sync on the applications list.
+          </p>
+        ) : (
+          <ul className="divide-y divide-line border-y border-line text-sm">
+            {application.replies.map((item) => (
+              <li key={item.messageId} className="py-3">
+                <p className="text-fg">
+                  {item.classification}
+                  {item.receivedAt ? ` · ${new Date(item.receivedAt).toLocaleString()}` : ""}
+                </p>
+                <p className="mt-1 text-muted">{item.from}</p>
+                {item.subject ? <p className="mt-1 text-muted">{item.subject}</p> : null}
+                {item.snippet ? <p className="mt-2 whitespace-pre-wrap text-muted">{item.snippet}</p> : null}
+                <a
+                  href={`https://mail.google.com/mail/#all/${item.threadId}`}
+                  className="mt-2 inline-block text-accent"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Open in Gmail
+                </a>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+
       {application.keywords.length ? (
         <div>
           <p className="font-mono text-[11px] tracking-[0.16em] text-subtle uppercase">JD keywords used</p>

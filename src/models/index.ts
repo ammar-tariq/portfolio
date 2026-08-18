@@ -240,6 +240,21 @@ const jobApplicationSchema = new Schema(
       ],
       default: [],
     },
+    replies: {
+      type: [
+        {
+          messageId: String,
+          threadId: String,
+          from: String,
+          subject: String,
+          snippet: String,
+          classification: String,
+          receivedAt: Date,
+        },
+      ],
+      default: [],
+    },
+    inboxStatus: { type: String, enum: ["replied", "interview", "rejected", "offer"] },
     files: {
       resumeTxt: applicationFileSchema,
       resumeHtml: applicationFileSchema,
@@ -249,11 +264,27 @@ const jobApplicationSchema = new Schema(
     status: { type: String, enum: ["draft", "applied", "archived"], default: "draft" },
     warning: String,
     sentAt: Date,
+    lastReplyAt: Date,
   },
   { timestamps: true },
 );
 
 jobApplicationSchema.index({ createdAt: -1 });
+jobApplicationSchema.index({ "sends.threadId": 1 });
 
 export const JobApplicationModel =
   mongoose.models.JobApplication ?? mongoose.model("JobApplication", jobApplicationSchema);
+
+const gmailSyncSchema = new Schema(
+  {
+    _id: { type: String, default: "gmail" },
+    historyId: String,
+    watchExpiration: Date,
+    lastSyncAt: Date,
+    lastError: String,
+  },
+  { timestamps: true },
+);
+
+export const GmailSyncModel =
+  mongoose.models.GmailSync ?? mongoose.model("GmailSync", gmailSyncSchema);

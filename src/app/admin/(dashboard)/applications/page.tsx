@@ -1,13 +1,20 @@
 import Link from "next/link";
-import { JobApplicationModel } from "@/models";
+import { JobApplicationModel, GmailSyncModel } from "@/models";
 import { connectDb } from "@/lib/db";
 import { hasGemini } from "@/lib/env";
+import { hasGmailApi } from "@/lib/gmail";
 import { applicationFromDoc } from "@/lib/job-application";
 import { ApplicationForm } from "@/components/admin/application-form";
+import { GmailSyncButton } from "@/components/admin/gmail-sync-button";
+
+export const dynamic = "force-dynamic";
 
 export default async function ApplicationsPage() {
   await connectDb();
-  const docs = await JobApplicationModel.find().sort({ createdAt: -1 }).lean();
+  const [docs, sync] = await Promise.all([
+    JobApplicationModel.find().sort({ createdAt: -1 }).lean(),
+    hasGmailApi() ? GmailSyncModel.findById("gmail").lean() : Promise.resolve(null),
+  ]);
   const items = docs.map(applicationFromDoc);
 
   return (
@@ -25,6 +32,12 @@ export default async function ApplicationsPage() {
       <div className="mt-8">
         <ApplicationForm canGenerate={hasGemini()} />
       </div>
+      {hasGmailApi() ? (
+        <GmailSyncButton
+          lastSyncAt={sync?.lastSyncAt ? new Date(sync.lastSyncAt).toISOString() : undefined}
+          lastError={sync?.lastError || undefined}
+        />
+      ) : null}
       <ul className="mt-10 divide-y divide-line border-y border-line">
         {items.length === 0 ? (
           <li className="py-4 text-sm text-muted">No applications yet.</li>
@@ -37,7 +50,9 @@ export default async function ApplicationsPage() {
                 </p>
                 <p className="text-sm text-muted">
                   {item.status}
+                  {item.inboxStatus ? ` · ${item.inboxStatus}` : ""}
                   {item.sentAt ? ` · sent ${new Date(item.sentAt).toLocaleDateString()}` : ""}
+                  {item.lastReplyAt ? ` · reply ${new Date(item.lastReplyAt).toLocaleDateString()}` : ""}
                   {item.createdAt ? ` · ${new Date(item.createdAt).toLocaleDateString()}` : ""}
                   {item.keywords.length ? ` · ${item.keywords.length} keywords` : ""}
                 </p>

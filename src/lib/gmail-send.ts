@@ -1,6 +1,6 @@
 import nodemailer from "nodemailer";
 import MailComposer from "nodemailer/lib/mail-composer";
-import { google } from "googleapis";
+import { gmailClient, gmailUser, hasGmailApi } from "@/lib/gmail";
 
 export type OutboundAttachment = {
   filename: string;
@@ -23,18 +23,7 @@ export type SendMailResult = {
   from: string;
 };
 
-function gmailUser() {
-  return (process.env.GMAIL_USER || process.env.SMTP_USER || "").trim();
-}
-
-export function hasGmailApi() {
-  return Boolean(
-    process.env.GMAIL_CLIENT_ID?.trim() &&
-      process.env.GMAIL_CLIENT_SECRET?.trim() &&
-      process.env.GMAIL_REFRESH_TOKEN?.trim() &&
-      gmailUser(),
-  );
-}
+export { gmailUser, hasGmailApi } from "@/lib/gmail";
 
 export function hasSmtpSend() {
   return Boolean(process.env.SMTP_USER?.trim() && process.env.SMTP_PASS?.trim());
@@ -70,12 +59,7 @@ async function rawMime(input: SendMailInput & { from: string }) {
 }
 
 async function sendWithGmailApi(input: SendMailInput, from: string): Promise<SendMailResult> {
-  const auth = new google.auth.OAuth2(
-    process.env.GMAIL_CLIENT_ID!.trim(),
-    process.env.GMAIL_CLIENT_SECRET!.trim(),
-  );
-  auth.setCredentials({ refresh_token: process.env.GMAIL_REFRESH_TOKEN!.trim() });
-  const gmail = google.gmail({ version: "v1", auth });
+  const gmail = gmailClient();
   const mime = await rawMime({ ...input, from });
   const sent = await gmail.users.messages.send({
     userId: "me",

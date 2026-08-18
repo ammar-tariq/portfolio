@@ -563,3 +563,14 @@ export async function sendJobApplication(input: {
     return { ok: false, error: message };
   }
 }
+
+export async function syncGmailReplies(): Promise<
+  { ok: true; added: number; scanned: number } | { ok: false; error: string }
+> {
+  await requireAdmin();
+  const { syncGmailInbox } = await import("@/lib/gmail-sync");
+  const result = await syncGmailInbox({ renewWatch: true });
+  revalidateApplications();
+  if (!result.ok) return { ok: false, error: result.error || "Gmail sync failed." };
+  return { ok: true, added: result.added, scanned: result.scanned };
+}

@@ -10,7 +10,9 @@ import type {
   ApplicationProject,
   ApplicationSkillGroup,
   ApplicationSend,
+  ApplicationReply,
   GeneratedResume,
+  InboxStatus,
   JobApplication,
 } from "@/types/application";
 
@@ -38,6 +40,8 @@ export function applicationFromDoc(doc: unknown): JobApplication {
   const files = (data.files ?? {}) as Record<string, unknown>;
   const answers = Array.isArray(data.answers) ? data.answers : [];
   const sends = Array.isArray(data.sends) ? data.sends : [];
+  const replies = Array.isArray(data.replies) ? data.replies : [];
+  const inbox: InboxStatus[] = ["replied", "interview", "rejected", "offer"];
   return {
     id: str(data._id || data.id, 80),
     company: str(data.company, 160),
@@ -71,6 +75,22 @@ export function applicationFromDoc(doc: unknown): JobApplication {
         createdAt: row.createdAt ? str(row.createdAt, 80) : undefined,
       } satisfies ApplicationSend;
     }),
+    replies: replies.map((item) => {
+      const row = item as Record<string, unknown>;
+      const classification = inbox.includes(row.classification as InboxStatus)
+        ? (row.classification as InboxStatus)
+        : "replied";
+      return {
+        messageId: str(row.messageId, 200),
+        threadId: str(row.threadId, 200),
+        from: str(row.from, 300),
+        subject: str(row.subject, 300),
+        snippet: str(row.snippet, 500),
+        classification,
+        receivedAt: row.receivedAt ? str(row.receivedAt, 80) : undefined,
+      } satisfies ApplicationReply;
+    }),
+    inboxStatus: inbox.includes(data.inboxStatus as InboxStatus) ? (data.inboxStatus as InboxStatus) : undefined,
     files: {
       resumeTxt: asFile(files.resumeTxt),
       resumeHtml: asFile(files.resumeHtml),
@@ -80,6 +100,7 @@ export function applicationFromDoc(doc: unknown): JobApplication {
     status: data.status === "applied" || data.status === "archived" ? data.status : "draft",
     warning: str(data.warning, 400) || undefined,
     sentAt: data.sentAt ? str(data.sentAt, 80) : undefined,
+    lastReplyAt: data.lastReplyAt ? str(data.lastReplyAt, 80) : undefined,
     createdAt: data.createdAt ? str(data.createdAt, 80) : undefined,
     updatedAt: data.updatedAt ? str(data.updatedAt, 80) : undefined,
   };

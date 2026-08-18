@@ -1,5 +1,7 @@
 export type ApplicationStatus = "draft" | "applied" | "archived";
 
+export type InboxStatus = "none" | "replied" | "interview" | "rejected" | "offer";
+
 export type ApplicationFile = {
   url: string;
   publicId: string;
@@ -36,6 +38,16 @@ export type ApplicationSend = {
   createdAt?: string;
 };
 
+export type ApplicationReply = {
+  messageId: string;
+  threadId: string;
+  from: string;
+  subject: string;
+  snippet: string;
+  classification: InboxStatus;
+  receivedAt?: string;
+};
+
 export type ApplicationAnswer = {
   question: string;
   answer: string;
@@ -66,6 +78,8 @@ export type JobApplication = {
   coverLetter: string;
   answers: ApplicationAnswer[];
   sends: ApplicationSend[];
+  replies: ApplicationReply[];
+  inboxStatus?: InboxStatus;
   files: {
     resumeTxt?: ApplicationFile;
     resumeHtml?: ApplicationFile;
@@ -75,6 +89,7 @@ export type JobApplication = {
   status: ApplicationStatus;
   warning?: string;
   sentAt?: string;
+  lastReplyAt?: string;
   createdAt?: string;
   updatedAt?: string;
 };

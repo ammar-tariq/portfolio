@@ -4,7 +4,7 @@ const nextConfig: NextConfig = {
   output: "standalone",
   poweredByHeader: false,
   transpilePackages: ["three"],
-  serverExternalPackages: ["mongoose", "geoip-lite", "cloudinary", "google-play-scraper", "nodemailer"],
+  serverExternalPackages: ["mongoose", "geoip-lite", "cloudinary", "google-play-scraper", "nodemailer", "googleapis"],
   async headers() {
     return [
       {
