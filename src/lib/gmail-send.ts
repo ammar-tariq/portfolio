@@ -13,6 +13,7 @@ export type SendMailInput = {
   cc?: string;
   subject: string;
   text: string;
+  threadId?: string;
   attachments?: OutboundAttachment[];
 };
 
@@ -63,7 +64,10 @@ async function sendWithGmailApi(input: SendMailInput, from: string): Promise<Sen
   const mime = await rawMime({ ...input, from });
   const sent = await gmail.users.messages.send({
     userId: "me",
-    requestBody: { raw: toBase64Url(mime) },
+    requestBody: {
+      raw: toBase64Url(mime),
+      ...(input.threadId ? { threadId: input.threadId } : {}),
+    },
   });
   return {
     via: "gmail-api",

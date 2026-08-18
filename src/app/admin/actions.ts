@@ -498,6 +498,7 @@ export async function sendJobApplication(input: {
   body: string;
   attachResume?: boolean;
   attachAnswers?: boolean;
+  threadId?: string;
 }): Promise<{ ok: true } | { ok: false; error: string }> {
   await ready();
   if (!hasApplicationMail()) {
@@ -536,6 +537,7 @@ export async function sendJobApplication(input: {
       subject: input.subject,
       text: emailBodyWithAnswers(input.body.trim() || application.coverLetter, application.answers)
         || coverLetterText(content, application),
+      threadId: input.threadId,
       attachments,
     });
     const record = {

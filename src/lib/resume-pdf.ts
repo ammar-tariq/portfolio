@@ -73,6 +73,35 @@ export function resumePdfFilename(name: string, role?: string) {
   return title ? `${who} - ${title}.pdf` : `${who} Resume.pdf`;
 }
 
+export function coverLetterPdfFilename(name: string, company?: string) {
+  const safe = (value: string) =>
+    value.replace(/[\\/:*?"<>|]+/g, " ").replace(/\s+/g, " ").trim();
+  const who = safe(name) || "Cover Letter";
+  const where = company ? safe(company) : "";
+  return where ? `${who} - ${where} Cover Letter.pdf` : `${who} Cover Letter.pdf`;
+}
+
+export function answersPdfFilename(name: string, company?: string) {
+  const safe = (value: string) =>
+    value.replace(/[\\/:*?"<>|]+/g, " ").replace(/\s+/g, " ").trim();
+  const who = safe(name) || "Answers";
+  const where = company ? safe(company) : "";
+  return where ? `${who} - ${where} Answers.pdf` : `${who} Answers.pdf`;
+}
+
+export function pdfFileResponse(buffer: Buffer, filename: string) {
+  const ascii = filename.replace(/[^\x20-\x7E]/g, "_").replaceAll('"', "");
+  const encoded = encodeURIComponent(filename);
+  return new Response(new Uint8Array(buffer), {
+    headers: {
+      "Content-Type": "application/pdf",
+      "Content-Disposition": `inline; filename="${ascii}"; filename*=UTF-8''${encoded}`,
+      "Cache-Control": "private, no-store",
+      "X-Content-Type-Options": "nosniff",
+    },
+  });
+}
+
 class PdfWriter {
   private pdf!: PDFDocument;
   private page!: PDFPage;

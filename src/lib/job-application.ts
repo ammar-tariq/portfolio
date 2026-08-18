@@ -1,8 +1,6 @@
 import { generateGeminiJson } from "@/lib/draft-project";
 import { publicProjects } from "@/lib/project-helpers";
-import { hasCloudinary } from "@/lib/env";
-import { destroyImage, uploadRawFile, type UploadedAsset } from "@/lib/cloudinary";
-import { answersPdf, coverLetterPdf, resumePdf } from "@/lib/resume-pdf";
+import { destroyImage } from "@/lib/cloudinary";
 import type { SiteContent } from "@/types/content";
 import type {
   ApplicationAnswer,
@@ -28,11 +26,6 @@ function strList(value: unknown, maxItems = 24, maxLen = 160) {
     .map((item) => str(item, maxLen))
     .filter(Boolean)
     .slice(0, maxItems);
-}
-
-function fileFrom(asset?: UploadedAsset): ApplicationFile | undefined {
-  if (!asset?.url) return undefined;
-  return { url: asset.url, publicId: asset.publicId };
 }
 
 export function applicationFromDoc(doc: unknown): JobApplication {
@@ -484,36 +477,10 @@ export function answersText(application: JobApplication) {
     .join("\n\n---\n\n");
 }
 
-export async function uploadApplicationFiles(id: string, content: SiteContent, application: JobApplication) {
-  if (!hasCloudinary()) {
-    return { files: application.files, warning: "Cloudinary is not configured; files were not uploaded." };
-  }
-  const folder = `portfolio/applications/${id}`;
-  const qa = answersText(application);
-  const letter = application.coverLetter.trim();
-  const [resumePdfFile, coverLetterFile, answersFile] = await Promise.all([
-    resumePdf(content, application).then((buffer) =>
-      uploadRawFile({ buffer, folder, filename: "resume.pdf" }),
-    ),
-    letter
-      ? coverLetterPdf(content, application).then((buffer) =>
-          uploadRawFile({ buffer, folder, filename: "cover-letter.pdf" }),
-        )
-      : Promise.resolve(undefined),
-    qa
-      ? answersPdf(application).then((buffer) => uploadRawFile({ buffer, folder, filename: "answers.pdf" }))
-      : Promise.resolve(undefined),
-  ]);
-
-  return {
-    files: {
-      resumePdf: fileFrom(resumePdfFile),
-      resumeTxt: application.files.resumeTxt,
-      resumeHtml: application.files.resumeHtml,
-      coverLetter: fileFrom(coverLetterFile) ?? application.files.coverLetter,
-      answers: fileFrom(answersFile) ?? application.files.answers,
-    },
-  };
+export async function uploadApplicationFiles(_id: string, _content: SiteContent, application: JobApplication) {
+  // PDFs are generated on demand. Cloudinary blocks public PDF delivery by default
+  // (401 "deny or ACL failure"), so we do not upload them as raw assets.
+  return { files: application.files, warning: undefined as string | undefined };
 }
 
 export async function destroyApplicationFiles(files: JobApplication["files"]) {

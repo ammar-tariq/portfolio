@@ -22,9 +22,10 @@ export function ApplicationDetail({
 }) {
   const router = useRouter();
   const [questions, setQuestions] = useState("");
-  const [to, setTo] = useState("");
-  const [cc, setCc] = useState("");
-  const [subject, setSubject] = useState(defaultSubject);
+  const lastSend = application.sends.at(-1);
+  const [to, setTo] = useState(lastSend?.to ?? "");
+  const [cc, setCc] = useState(lastSend?.cc ?? "");
+  const [subject, setSubject] = useState(lastSend?.subject ?? defaultSubject);
   const autoBody = emailBodyWithAnswers(application.coverLetter, application.answers);
   const [autoBodySnapshot, setAutoBodySnapshot] = useState(autoBody);
   const [body, setBody] = useState(autoBody);
@@ -83,17 +84,29 @@ export function ApplicationDetail({
     router.refresh();
   }
 
-  async function onSend() {
+  async function onSend(options?: { resend?: boolean; from?: (typeof application.sends)[number] }) {
+    const prior = options?.from ?? (options?.resend ? application.sends.at(-1) : undefined);
+    const nextTo = prior?.to ?? to;
+    const nextCc = prior?.cc ?? cc;
+    const nextSubject = prior?.subject ?? subject;
+    if (options?.resend) {
+      const ok = confirm(`Resend to ${nextTo} with the current letter and attachments?`);
+      if (!ok) return;
+    }
     setBusy("send");
     setError("");
+    setTo(nextTo);
+    if (nextCc) setCc(nextCc);
+    if (nextSubject) setSubject(nextSubject);
     const result = await sendJobApplication({
       id: application.id,
-      to,
-      cc,
-      subject,
+      to: nextTo,
+      cc: nextCc,
+      subject: nextSubject,
       body,
       attachResume,
       attachAnswers,
+      threadId: prior?.threadId,
     });
     setBusy(null);
     if (!result.ok) {
@@ -114,29 +127,34 @@ export function ApplicationDetail({
   return (
     <div className="grid gap-8">
       <div className="flex flex-wrap items-center gap-3 text-sm">
-        {application.files.resumePdf ? (
-          <a href={application.files.resumePdf.url} className="text-accent" target="_blank" rel="noreferrer">
+        {application.resume.summary ? (
+          <a
+            href={`/admin/applications/${application.id}/files/resume`}
+            className="text-accent"
+            target="_blank"
+            rel="noreferrer"
+          >
             Resume PDF
           </a>
         ) : null}
-        {application.files.coverLetter ? (
-          <a href={application.files.coverLetter.url} className="text-accent" target="_blank" rel="noreferrer">
+        {application.coverLetter ? (
+          <a
+            href={`/admin/applications/${application.id}/files/cover-letter`}
+            className="text-accent"
+            target="_blank"
+            rel="noreferrer"
+          >
             Cover letter PDF
           </a>
         ) : null}
-        {application.files.answers ? (
-          <a href={application.files.answers.url} className="text-accent" target="_blank" rel="noreferrer">
+        {application.answers.length ? (
+          <a
+            href={`/admin/applications/${application.id}/files/answers`}
+            className="text-accent"
+            target="_blank"
+            rel="noreferrer"
+          >
             Answers PDF
-          </a>
-        ) : null}
-        {application.files.resumeTxt ? (
-          <a href={application.files.resumeTxt.url} className="text-muted hover:text-fg" target="_blank" rel="noreferrer">
-            Resume TXT
-          </a>
-        ) : null}
-        {application.files.resumeHtml ? (
-          <a href={application.files.resumeHtml.url} className="text-muted hover:text-fg" target="_blank" rel="noreferrer">
-            Resume HTML
           </a>
         ) : null}
         <a href={`/admin/applications/${application.id}/print`} className="text-muted hover:text-fg">
@@ -241,14 +259,26 @@ export function ApplicationDetail({
             Also attach answers as PDF
           </label>
         </div>
-        <button
-          type="button"
-          disabled={busy !== null || !canSend || !to.trim()}
-          onClick={() => void onSend()}
-          className="btn-solid inline-flex h-11 w-fit items-center justify-center rounded-full px-5 text-sm font-medium disabled:opacity-50"
-        >
-          {busy === "send" ? "Sending…" : "Send"}
-        </button>
+        <div className="flex flex-wrap items-center gap-3">
+          <button
+            type="button"
+            disabled={busy !== null || !canSend || !to.trim()}
+            onClick={() => void onSend()}
+            className="btn-solid inline-flex h-11 w-fit items-center justify-center rounded-full px-5 text-sm font-medium disabled:opacity-50"
+          >
+            {busy === "send" ? "Sending…" : "Send"}
+          </button>
+          {lastSend ? (
+            <button
+              type="button"
+              disabled={busy !== null || !canSend}
+              onClick={() => void onSend({ resend: true })}
+              className="inline-flex h-11 w-fit items-center justify-center rounded-full border border-line px-5 text-sm text-fg disabled:opacity-50"
+            >
+              {busy === "send" ? "Sending…" : `Resend to ${lastSend.to}`}
+            </button>
+          ) : null}
+        </div>
         {!canSend ? (
           <p className="text-sm text-muted">
             Add Gmail API env vars (GMAIL_CLIENT_ID, GMAIL_CLIENT_SECRET, GMAIL_REFRESH_TOKEN, GMAIL_USER) or SMTP_USER /
@@ -259,12 +289,22 @@ export function ApplicationDetail({
         {application.sends.length ? (
           <ul className="divide-y divide-line border-y border-line text-sm">
             {application.sends.map((item, index) => (
-              <li key={`${item.messageId ?? item.createdAt ?? index}`} className="py-3 text-muted">
-                <span className="text-fg">Sent to {item.to}</span>
-                {item.createdAt ? ` · ${new Date(item.createdAt).toLocaleString()}` : ""}
-                {` · ${item.via}`}
-                {item.threadId ? ` · thread ${item.threadId}` : ""}
-                {item.attached.length ? ` · ${item.attached.join(", ")}` : ""}
+              <li key={`${item.messageId ?? item.createdAt ?? index}`} className="flex flex-wrap items-center justify-between gap-3 py-3 text-muted">
+                <p>
+                  <span className="text-fg">Sent to {item.to}</span>
+                  {item.createdAt ? ` · ${new Date(item.createdAt).toLocaleString()}` : ""}
+                  {` · ${item.via}`}
+                  {item.threadId ? ` · thread ${item.threadId}` : ""}
+                  {item.attached.length ? ` · ${item.attached.join(", ")}` : ""}
+                </p>
+                <button
+                  type="button"
+                  disabled={busy !== null || !canSend}
+                  onClick={() => void onSend({ resend: true, from: item })}
+                  className="shrink-0 text-sm text-accent disabled:opacity-50"
+                >
+                  Resend
+                </button>
               </li>
             ))}
           </ul>
@@ -362,7 +402,7 @@ export function ApplicationDetail({
         <p className="font-mono text-[11px] tracking-[0.16em] text-subtle uppercase">Application questions</p>
         <p className="text-sm text-muted">
           Paste new screening questions, or generate from questions already in the JD / recruiter email. Answers are
-          included in the send-email body and saved as a PDF.
+          included in the send-email body.
         </p>
         <Field label="Questions">
           <TextArea

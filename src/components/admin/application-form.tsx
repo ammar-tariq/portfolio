@@ -148,8 +148,8 @@ export function ApplicationForm({
       <p className="font-mono text-[11px] tracking-[0.16em] text-subtle uppercase">New application</p>
       {!compact ? (
         <p className="text-sm text-muted">
-          Paste the job description or recruiter email. Gemini will tailor an ATS resume and cover letter, answer any
-          screening questions in that text, and save PDF copies to Cloudinary.
+          Paste the job description or recruiter email. Gemini will tailor an ATS resume and cover letter, and answer any
+          screening questions in that text.
         </p>
       ) : (
         <p className="text-sm text-muted">
