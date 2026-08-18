@@ -5,7 +5,7 @@ Full-stack personal site: Next.js 16, MongoDB Atlas, Cloudinary, and a GitHub-ga
 ## Run locally
 
 1. Copy `.env.example` to `.env` (only this file — do not create `.env.local`).
-2. Fill `MONGODB_URI`, `AUTH_SECRET` (`openssl rand -base64 32`), GitHub OAuth app credentials, `ADMIN_GITHUB_LOGIN`, and Cloudinary keys.
+2. Fill credentials (see [CREDENTIALS.md](CREDENTIALS.md) for every key). Minimum: `MONGODB_URI`, `AUTH_SECRET` (`openssl rand -base64 32`), GitHub OAuth app credentials, `ADMIN_GITHUB_LOGIN`, and Cloudinary keys.
 3. GitHub OAuth callback for local: `http://localhost:3000/api/auth/callback/github`.
 4. Seed the database, then run:
 

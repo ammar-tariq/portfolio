@@ -39,7 +39,7 @@ There is no separate backend process, Redis, or in-container reverse proxy.
 
 ## Environment variables
 
-Copy `.env.example` to `.env`. Never commit `.env`.
+Copy `.env.example` to `.env`. Never commit `.env`. Step-by-step creation of every key is in [CREDENTIALS.md](CREDENTIALS.md).
 
 Server-only (never `NEXT_PUBLIC_`):
 
