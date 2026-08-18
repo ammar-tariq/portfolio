@@ -48,6 +48,7 @@ jobs:
           image="$(echo "${{ env.REGISTRY }}/${{ github.repository }}" | tr '[:upper:]' '[:lower:]')"
           echo "IMAGE=${image}" >> "$GITHUB_ENV"
           echo "IMAGE_TAG=${{ github.sha }}" >> "$GITHUB_ENV"
+          echo "COMPOSE_B64=$(base64 -w0 deploy/docker-compose.yml)" >> "$GITHUB_ENV"
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
@@ -68,32 +69,44 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      - name: Copy Compose file to VPS
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USER }}
-          key: ${{ secrets.VPS_SSH_KEY }}
-          source: deploy/docker-compose.yml
-          target: /opt/apps/portfolio/production
-          strip_components: 1
-          overwrite: true
+      - name: Wait for SSH
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+        run: |
+          for attempt in 1 2 3 4 5; do
+            if python3 -c "import os, socket; s = socket.socket(socket.AF_INET, socket.SOCK_STREAM); s.settimeout(20); s.connect((os.environ['VPS_HOST'], 22)); s.close()"; then
+              echo "SSH port reachable"
+              exit 0
+            fi
+            echo "attempt ${attempt} failed; retrying in 15s"
+            sleep 15
+          done
+          echo "Could not reach VPS_HOST:22 from this runner (TCP timeout)."
+          echo "Check Hostinger hFirewall / IP allowlist — GitHub-hosted runner IPs rotate."
+          exit 1
 
+      # One SSH session (no separate SCP). GitHub-hosted runners hit Hostinger
+      # with rotating IPs; a 30s TCP dial often flakes even when sshd is up.
       - name: Deploy on VPS
         uses: appleboy/ssh-action@v1
         env:
           PORTFOLIO_IMAGE: ${{ env.IMAGE }}:${{ env.IMAGE_TAG }}
           GHCR_USER: ${{ github.actor }}
           GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          COMPOSE_B64: ${{ env.COMPOSE_B64 }}
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
-          envs: PORTFOLIO_IMAGE,GHCR_USER,GHCR_TOKEN
+          protocol: tcp4
+          timeout: 2m
+          envs: PORTFOLIO_IMAGE,GHCR_USER,GHCR_TOKEN,COMPOSE_B64
           script_stop: true
           command_timeout: 10m
           script: |
             set -euo pipefail
+            mkdir -p /opt/apps/portfolio/production
+            printf '%s' "${COMPOSE_B64}" | base64 -d > /opt/apps/portfolio/production/docker-compose.yml
             cd /opt/apps/portfolio/production
 
             previous_image=""

@@ -114,10 +114,10 @@ Root `docker-compose.yml` is **local only** (builds the image and publishes `300
 `GET /api/health` returns HTTP 200:
 
 ```json
-{ "status": "ok" }
+{ "status": "ok", "mongo": "connected" }
 ```
 
-Used by Docker `HEALTHCHECK` and the GitHub Actions deploy step. It does not query Mongo or external APIs.
+`mongo` is one of `connected`, `connecting`, `disconnected`, `disconnecting`, `not-configured`, or `unknown`. Docker's liveness check only requires HTTP 200. GitHub Actions also requires `mongo` to be `connected` (or `not-configured` for a fork with no `MONGODB_URI`).
 
 ## GHCR image naming
 
@@ -160,9 +160,9 @@ A merge into `main` is a push to `main` and will deploy. Pushes to `develop`, fe
 6. `npm run build`
 7. Docker build
 8. Push `ghcr.io/<owner>/<repo>:<GITHUB_SHA>`
-9. Copy `deploy/docker-compose.yml` to `/opt/apps/portfolio/production`
-10. SSH as `VPS_USER`, pull that exact image, `docker compose up -d` (no `compose down`)
-11. `GET /api/health` inside the container until it passes
+9. Wait until TCP/22 to the VPS is reachable (retries; GitHub runner IPs rotate)
+10. SSH as `VPS_USER` (IPv4, 2m connect timeout): write `docker-compose.yml`, pull that exact image, `docker compose up -d` (no `compose down`)
+11. `GET /api/health` inside the container until `status=ok` and Mongo is `connected` (or `not-configured`)
 
 Permissions: `contents: read`, `packages: write`. GHCR auth uses `GITHUB_TOKEN`.
 
@@ -199,6 +199,7 @@ Prepare these **once** (this repository does not SSH in or create them):
   - `MONGODB_URI`, Cloudinary
 - GitHub OAuth callback: `https://<SITE_HOST>/api/auth/callback/github`
 - Traefik: entrypoint `websecure`, resolver `letsencrypt`, global HTTP→HTTPS redirect
+- **SSH (TCP 22) reachable from the public internet.** GitHub-hosted runner IPs rotate; do not allowlist only your home IP in Hostinger hFirewall. A `dial tcp :22: i/o timeout` in Actions is this firewall (or a transient path), not a bad Compose file. On-box `ufw`/`fail2ban` are optional; the Hostinger panel firewall sits in front of them.
 
 The container listens on `0.0.0.0:3000` with HTTP only. Traefik terminates TLS.
 
