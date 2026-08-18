@@ -71,8 +71,15 @@ export function Hero() {
               {profile.lastName}
             </motion.span>
           </h1>
-          <p className="mt-8 max-w-md text-lg leading-relaxed text-muted md:text-xl">
+          <p className="mt-8 max-w-xl text-lg leading-relaxed text-muted md:text-xl">
             {profile.headline}
+          </p>
+          <p className="mt-5 max-w-xl text-sm leading-relaxed text-muted md:text-base">
+            <span className="text-fg">{profile.name}</span> is a personal portfolio website. Its
+            purpose is to present {profile.name}’s software engineering work — selected products,
+            case studies, and contact details — so clients and hiring teams can review that work and
+            get in touch. The site is public to browse. There is no visitor signup or consumer
+            account.
           </p>
           <div className="mt-10 flex flex-wrap items-center gap-3">
             <ButtonLink href="#portfolio">View portfolio</ButtonLink>

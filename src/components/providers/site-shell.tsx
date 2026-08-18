@@ -99,6 +99,12 @@ export function SiteShell({
             <a href={social.github} className="link-underline" data-cursor="external">
               GitHub
             </a>
+            <a href="/privacy" className="link-underline">
+              Privacy
+            </a>
+            <a href="/terms" className="link-underline">
+              Terms
+            </a>
           </div>
         </div>
       </footer>
