@@ -113,7 +113,13 @@ const copyFields: Record<
   engineering: { kind: "list", max: 220, items: 8, instruction: "3–8 engineering bullets: decisions, constraints, or notable implementations." },
   outcome: { kind: "text", max: 800, instruction: "Short paragraph of real results. Leave empty-ish claims out; do not invent numbers." },
   highlights: { kind: "list", max: 180, items: 8, instruction: "3–6 recruiter-facing highlights. Concrete, no fluff." },
-  technologies: { kind: "list", max: 80, items: 16, instruction: "Real stack items only, inferred from the case study. No padding." },
+  technologies: {
+    kind: "list",
+    max: 80,
+    items: 16,
+    instruction:
+      "Normalize ONLY the technologies the engineer already listed in the current field or notes. Expand abbreviations (rn→React Native, ts→TypeScript). Canonical names, one item each, no duplicates. Do not add Swift, Kotlin, Flutter, or anything else inferred from an App Store/Play Store description. If they listed nothing, return an empty list.",
+  },
 };
 
 function projectContext(project: Partial<Project>, notes?: string) {
@@ -173,6 +179,15 @@ export async function generateGeminiJson(prompt: string) {
   return parseJsonObject(text);
 }
 
+function techHints(value: unknown) {
+  const rows = Array.isArray(value) ? value : value != null ? [value] : [];
+  return strList(
+    rows.flatMap((item) => String(item).split(/[,;/|]+/)),
+    24,
+    80,
+  );
+}
+
 export async function rewriteProjectFieldWithGemini(input: {
   field: ProjectCopyField;
   project: Partial<Project>;
@@ -185,7 +200,21 @@ export async function rewriteProjectFieldWithGemini(input: {
     throw new Error("Add a title (or notes) first so Gemini has something to write about.");
   }
 
-  const current = input.project[input.field];
+  const current =
+    input.field === "technologies" ? techHints(input.project.technologies) : input.project[input.field];
+  if (input.field === "technologies") {
+    const noteText = str(input.notes, 4000);
+    if (
+      !(current as string[]).length &&
+      !/\b(react|native|node|nest|next|mongo|sql|firebase|swift|kotlin|flutter|aws|docker|graphql|redis|python|go|java|php|laravel|django|vue|angular|typescript|javascript|rn|ts)\b/i.test(
+        noteText,
+      )
+    ) {
+      throw new Error(
+        "Type a rough stack in Technologies (one per line), then Generate. Store listings are not used to guess the stack.",
+      );
+    }
+  }
   const prompt = `You rewrite one field of a developer-portfolio case study.
 
 Voice: first-person engineer, concrete, no marketing fluff, no invented metrics or logos.
@@ -197,6 +226,7 @@ ${spec.kind === "list" ? `Return JSON: { "value": ["item", "..."] } with at most
 
 If the current value is empty, generate it from the rest of the case study.
 If it already has text, rewrite/improve it. Keep facts that are already present. Do not invent numbers, clients, or store rankings.
+For technologies specifically: the current field (and notes) are the only allowed sources. Clean and expand what they wrote. Do not invent a stack from store copy.
 
 Current field value:
 ${JSON.stringify(current ?? (spec.kind === "list" ? [] : ""))}
@@ -234,6 +264,7 @@ Rules:
 - description is 1–3 sentences.
 - challenge, solution, outcome are short paragraphs.
 - architecture, engineering, highlights, technologies are string arrays.
+- technologies: only include items explicitly named in the notes. If the notes are an App Store/Play listing with no stack, return technologies as []. Never guess Swift/Kotlin/Flutter from a store page.
 - industries is an array of allowed ids only.
 - Leave URLs empty unless they appear in the notes.
 - slug is kebab-case.

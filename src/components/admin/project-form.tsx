@@ -80,6 +80,10 @@ export function ProjectForm({
           slug: slugify(project.slug || project.title),
           seoLabel: project.seoLabel || project.title,
           seoDescription: project.seoDescription || project.tagline || project.description,
+          technologies: project.technologies.map((item) => item.trim()).filter(Boolean),
+          architecture: project.architecture.map((item) => item.trim()).filter(Boolean),
+          engineering: (project.engineering ?? []).map((item) => item.trim()).filter(Boolean),
+          highlights: project.highlights.map((item) => item.trim()).filter(Boolean),
         },
         initial?.slug,
       );
@@ -164,6 +168,9 @@ export function ProjectForm({
       videoUrl: result.draft.videoUrl ?? current.videoUrl,
       ogImage: result.draft.ogImage ?? current.ogImage,
       ogImagePublicId: result.draft.ogImagePublicId ?? current.ogImagePublicId,
+      technologies: current.technologies.some((item) => item.trim())
+        ? current.technologies
+        : result.draft.technologies ?? [],
     }));
     if (result.warning) setDraftError(result.warning);
   }
@@ -236,8 +243,9 @@ export function ProjectForm({
       <div className="rounded-3xl border border-line bg-bg-elevated/40 p-5">
         <p className="font-mono text-[11px] tracking-[0.16em] text-subtle uppercase">Import from stores</p>
         <p className="mt-2 text-sm text-muted">
-          Paste a Play Store URL, an App Store URL, or both. Play Store fills Android screenshots, banner, and logo.
-          App Store fills iOS screenshots and logo. Video URLs from the listing are kept when present.
+          Paste a Play Store URL, an App Store URL, or both. Use a country in the App Store link
+          (for example /ae/app/ or /us/app/) if the app is not on the US store. Play Store fills Android
+          screenshots, banner, and logo. App Store fills iOS screenshots and logo.
         </p>
         <div className="mt-4 grid gap-3 md:grid-cols-2">
           <Field label="Play Store URL">
@@ -251,7 +259,7 @@ export function ProjectForm({
             <TextInput
               value={appStoreUrl}
               onChange={(event) => setAppStoreUrl(event.target.value)}
-              placeholder="https://apps.apple.com/app/…/id…"
+              placeholder="https://apps.apple.com/ae/app/…/id…"
             />
           </Field>
         </div>
@@ -402,8 +410,9 @@ export function ProjectForm({
       <LinesEditor
         label="Technologies"
         value={project.technologies}
-        onChange={(value) => update("technologies", value.filter(Boolean))}
-        action={geminiAction("technologies", project.technologies.filter(Boolean).length === 0)}
+        onChange={(value) => update("technologies", value)}
+        placeholder="One per line. Type a rough stack (rn, nest, mongo), then Generate."
+        action={geminiAction("technologies", project.technologies.filter((item) => item.trim()).length === 0)}
       />
       <div className="grid gap-4 md:grid-cols-2">
         <Field label="Live URL">
@@ -437,13 +446,13 @@ export function ProjectForm({
       <LinesEditor
         label="Architecture"
         value={project.architecture}
-        onChange={(v) => update("architecture", v.filter(Boolean))}
+        onChange={(v) => update("architecture", v)}
         action={geminiAction("architecture", project.architecture.filter(Boolean).length === 0)}
       />
       <LinesEditor
         label="Engineering"
         value={project.engineering ?? []}
-        onChange={(v) => update("engineering", v.filter(Boolean))}
+        onChange={(v) => update("engineering", v)}
         action={geminiAction("engineering", (project.engineering ?? []).filter(Boolean).length === 0)}
       />
       <Field label="Outcome" action={geminiAction("outcome", !project.outcome?.trim())}>
@@ -452,7 +461,7 @@ export function ProjectForm({
       <LinesEditor
         label="Highlights"
         value={project.highlights}
-        onChange={(v) => update("highlights", v.filter(Boolean))}
+        onChange={(v) => update("highlights", v)}
         action={geminiAction("highlights", project.highlights.filter(Boolean).length === 0)}
       />
       <Field label="Visual">

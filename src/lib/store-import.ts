@@ -6,10 +6,11 @@ import { draftProjectWithGemini } from "@/lib/draft-project";
 import type { Industry, Project, ProjectScreenshot } from "@/types/content";
 
 const PLAY_HOST = "play.google.com";
-const APPLE_HOSTS = new Set(["apps.apple.com", "itunes.apple.com"]);
+const APPLE_HOST_RE = /(^|\.)(apps\.apple\.com|itunes\.apple\.com)$/i;
 const IMAGE_HOSTS = [/^play-lh\.googleusercontent\.com$/i, /(^|\.)mzstatic\.com$/i];
 const USER_AGENT =
   "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36";
+const APP_STORE_COUNTRIES = ["us", "ae", "gb", "sa", "in", "pk", "ca", "au", "de"];
 
 type StoreListing = {
   title: string;
@@ -63,12 +64,35 @@ export function parsePlayAppId(raw: string) {
   return id;
 }
 
+function appleHost(hostname: string) {
+  return APPLE_HOST_RE.test(hostname.replace(/^www\./, ""));
+}
+
+function countryFromApplePath(pathname: string) {
+  const match = pathname.match(/^\/([a-z]{2})(\/|$)/i);
+  const code = match?.[1]?.toLowerCase();
+  if (!code || code === "app" || code === "id") return "";
+  return code;
+}
+
+function numericAppleId(url: URL) {
+  const fromPath = url.pathname.match(/\/id(\d+)/)?.[1];
+  if (fromPath) return fromPath;
+  const fromQuery = url.searchParams.get("id")?.match(/(\d+)/)?.[1];
+  return fromQuery ?? null;
+}
+
 export function parseAppStoreId(raw: string) {
+  const parsed = parseAppStoreRef(raw);
+  return parsed?.id ?? null;
+}
+
+function parseAppStoreRef(raw: string) {
   const url = parseHttpUrl(raw);
-  if (!url || !APPLE_HOSTS.has(url.hostname.replace(/^www\./, ""))) return null;
-  const match = url.pathname.match(/\/id(\d+)/) ?? url.searchParams.get("id")?.match(/^(\d+)$/);
-  const id = match?.[1];
-  return id ?? null;
+  if (!url || !appleHost(url.hostname)) return null;
+  const id = numericAppleId(url);
+  if (!id) return null;
+  return { id, country: countryFromApplePath(url.pathname), href: url.toString() };
 }
 
 function yearFrom(value?: string) {
@@ -118,38 +142,98 @@ async function fetchPlay(playUrl: string): Promise<StoreListing> {
   };
 }
 
-async function fetchAppStore(appStoreUrl: string): Promise<StoreListing> {
-  const id = parseAppStoreId(appStoreUrl);
-  if (!id) throw new Error("App Store URL must look like https://apps.apple.com/app/name/id123456789");
-  const response = await fetch(`https://itunes.apple.com/lookup?id=${id}&entity=software`, {
-    headers: { "User-Agent": USER_AGENT },
+type ItunesResult = {
+  kind?: string;
+  wrapperType?: string;
+  trackName?: string;
+  description?: string;
+  artworkUrl512?: string;
+  artworkUrl100?: string;
+  screenshotUrls?: string[];
+  ipadScreenshotUrls?: string[];
+  appletvScreenshotUrls?: string[];
+  primaryGenreName?: string;
+  releaseDate?: string;
+  trackViewUrl?: string;
+};
+
+async function itunesLookup(id: string, country?: string) {
+  const url = new URL("https://itunes.apple.com/lookup");
+  url.searchParams.set("id", id);
+  if (country) url.searchParams.set("country", country.toLowerCase());
+  const response = await fetch(url, {
+    headers: { "User-Agent": USER_AGENT, Accept: "application/json" },
+    cache: "no-store",
     signal: AbortSignal.timeout(15000),
   });
   if (!response.ok) throw new Error(`App Store lookup failed (${response.status})`);
-  const body = (await response.json()) as {
-    results?: {
-      trackName?: string;
-      description?: string;
-      artworkUrl512?: string;
-      artworkUrl100?: string;
-      screenshotUrls?: string[];
-      primaryGenreName?: string;
-      releaseDate?: string;
-      trackViewUrl?: string;
-    }[];
-  };
-  const app = body.results?.[0];
-  if (!app?.trackName) throw new Error("App Store listing was not found. Check the URL.");
+  const body = (await response.json()) as { results?: ItunesResult[] };
+  const app = (body.results ?? []).find(
+    (item) =>
+      Boolean(item.trackName) &&
+      (item.kind === "software" ||
+        item.wrapperType === "software" ||
+        Boolean(item.screenshotUrls?.length) ||
+        Boolean(item.artworkUrl512)),
+  );
+  return app ?? body.results?.find((item) => item.trackName) ?? null;
+}
+
+async function resolveAppleUrl(raw: string) {
+  const direct = parseAppStoreRef(raw);
+  if (direct) return direct;
+  const url = parseHttpUrl(raw);
+  if (!url) return null;
+  try {
+    const response = await fetch(url, {
+      headers: { "User-Agent": USER_AGENT, Accept: "text/html" },
+      cache: "no-store",
+      redirect: "follow",
+      signal: AbortSignal.timeout(15000),
+    });
+    return parseAppStoreRef(response.url) ?? parseAppStoreRef(raw);
+  } catch {
+    return parseAppStoreRef(raw);
+  }
+}
+
+async function fetchAppStore(appStoreUrl: string): Promise<StoreListing> {
+  const ref = await resolveAppleUrl(appStoreUrl);
+  if (!ref) {
+    throw new Error("App Store URL must look like https://apps.apple.com/ae/app/name/id123456789");
+  }
+  const countries = [...new Set([ref.country, ...APP_STORE_COUNTRIES].filter(Boolean))];
+  let app: ItunesResult | null = null;
+  let lastError = "";
+  for (const country of [...countries, ""]) {
+    try {
+      app = await itunesLookup(ref.id, country || undefined);
+      if (app?.trackName) break;
+    } catch (error) {
+      lastError = error instanceof Error ? error.message : "App Store lookup failed";
+    }
+  }
+  if (!app?.trackName) {
+    throw new Error(
+      lastError ||
+        `App Store listing ${ref.id} was not found. Use a country in the URL (for example /ae/app/ or /us/app/).`,
+    );
+  }
+  const shots = uniqueUrls([
+    ...(app.screenshotUrls ?? []),
+    ...(app.ipadScreenshotUrls ?? []),
+    ...(app.appletvScreenshotUrls ?? []),
+  ]);
   return {
     title: app.trackName,
     summary: (app.description ?? "").split("\n").find((line) => line.trim()) ?? app.trackName,
     description: app.description ?? "",
     icon: app.artworkUrl512 ?? app.artworkUrl100,
-    iosScreenshots: uniqueUrls(app.screenshotUrls ?? []),
+    iosScreenshots: shots,
     androidScreenshots: [],
     year: yearFrom(app.releaseDate),
     genre: app.primaryGenreName,
-    appStoreUrl: app.trackViewUrl?.split("?")[0] ?? `https://apps.apple.com/app/id${id}`,
+    appStoreUrl: app.trackViewUrl?.split("?")[0] ?? `https://apps.apple.com/app/id${ref.id}`,
   };
 }
 
@@ -337,6 +421,7 @@ export async function importProjectFromStoreUrls(input: {
         liveUrl: listing.playUrl,
         liveLabel: listing.playUrl ? "Play Store" : polished.liveLabel,
         appStoreUrl: listing.appStoreUrl,
+        technologies: [],
       };
     } catch (error) {
       errors.push(error instanceof Error ? error.message : "Gemini polish failed; used store copy.");

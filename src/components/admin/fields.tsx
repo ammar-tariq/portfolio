@@ -53,9 +53,7 @@ export function LinesEditor({
       <TextArea
         value={value.join("\n")}
         placeholder={placeholder ?? "One item per line"}
-        onChange={(event) =>
-          onChange(event.target.value.split("\n").map((line) => line.trimEnd()).filter((line, i, arr) => line || i < arr.length - 1))
-        }
+        onChange={(event) => onChange(event.target.value.split("\n").map((line) => line.trimEnd()))}
       />
     </Field>
   );
