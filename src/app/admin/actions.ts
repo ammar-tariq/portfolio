@@ -18,6 +18,11 @@ import { destroyImage } from "@/lib/cloudinary";
 import type { ArchitectureContent, Industry, Project, SiteSettings } from "@/types/content";
 import { draftProjectWithGemini } from "@/lib/draft-project";
 import { importProjectFromStoreUrls } from "@/lib/store-import";
+import {
+  importOpenSourceOwnerFromGithub,
+  importOpenSourceRepoFromGithub,
+  importProjectFromGithubRepo,
+} from "@/lib/github-import";
 
 async function ready() {
   await requireAdmin();
@@ -58,6 +63,21 @@ export async function importStoreProject(
     return { ok: true, ...imported };
   } catch (error) {
     const message = error instanceof Error ? error.message : "Could not import the store listing.";
+    return { ok: false, error: message };
+  }
+}
+
+export async function importGithubProject(
+  repoUrl: string,
+  industries: Industry[],
+): Promise<{ ok: true; draft: Partial<Project> } | { ok: false; error: string }> {
+  await requireAdmin();
+  try {
+    const draft = await importProjectFromGithubRepo(repoUrl, industries);
+    if (!draft.title) return { ok: false, error: "GitHub repo import did not return a project title." };
+    return { ok: true, draft };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Could not import the GitHub repo.";
     return { ok: false, error: message };
   }
 }
@@ -174,6 +194,64 @@ export async function saveOpenSource(raw: Record<string, unknown>) {
   const slug = slugify(String(raw.slug || raw.title || "repo"));
   await OpenSourceModel.findOneAndUpdate({ slug }, { ...raw, slug }, { upsert: true });
   revalidateSite();
+}
+
+export async function importOpenSourceRepo(repoUrl: string): Promise<{ ok: true; slug: string } | { ok: false; error: string }> {
+  await ready();
+  try {
+    const draft = await importOpenSourceRepoFromGithub(repoUrl);
+    await OpenSourceModel.findOneAndUpdate({ slug: draft.slug }, draft, { upsert: true, new: true });
+    revalidateSite();
+    return { ok: true, slug: draft.slug };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Could not import the GitHub repo.";
+    return { ok: false, error: message };
+  }
+}
+
+export async function importOpenSourceOwner(
+  owner: string,
+): Promise<{ ok: true; count: number } | { ok: false; error: string }> {
+  await ready();
+  try {
+    const repos = await importOpenSourceOwnerFromGithub(owner);
+    for (const [index, repo] of repos.entries()) {
+      await OpenSourceModel.findOneAndUpdate(
+        { slug: repo.slug },
+        { ...repo, sortOrder: index },
+        { upsert: true, new: true },
+      );
+    }
+    revalidateSite();
+    return { ok: true, count: repos.length };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Could not import repos from GitHub.";
+    return { ok: false, error: message };
+  }
+}
+
+export async function syncOpenSource(slug: string): Promise<{ ok: true } | { ok: false; error: string }> {
+  await ready();
+  const existing = await OpenSourceModel.findOne({ slug }).lean();
+  if (!existing?.repoUrl) return { ok: false, error: "This item does not have a GitHub repo URL to sync from." };
+  try {
+    const draft = await importOpenSourceRepoFromGithub(String(existing.repoUrl));
+    await OpenSourceModel.findOneAndUpdate(
+      { slug },
+      {
+        ...draft,
+        demoUrl: existing.demoUrl || draft.demoUrl,
+        demoLabel: existing.demoLabel || draft.demoLabel,
+        sortOrder: typeof existing.sortOrder === "number" ? existing.sortOrder : 0,
+      },
+      { upsert: true, new: true },
+    );
+    revalidateSite();
+    return { ok: true };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Could not sync this repo.";
+    return { ok: false, error: message };
+  }
 }
 
 export async function deleteOpenSource(slug: string) {

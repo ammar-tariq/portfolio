@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import type { Industry, Project, ProjectScreenshot, ProjectVisual } from "@/types/content";
-import { saveProject, draftProject, importStoreProject } from "@/app/admin/actions";
+import { saveProject, draftProject, importGithubProject, importStoreProject } from "@/app/admin/actions";
 import { Field, LinesEditor, TextArea, TextInput, Toggle } from "./fields";
 import { ImageUpload, MediaUpload } from "./image-upload";
 import { slugify } from "@/lib/project-helpers";
@@ -57,8 +57,10 @@ export function ProjectForm({
   const [notes, setNotes] = useState("");
   const [playUrl, setPlayUrl] = useState(initial?.liveUrl?.includes("play.google.com") ? initial.liveUrl : "");
   const [appStoreUrl, setAppStoreUrl] = useState(initial?.appStoreUrl ?? "");
+  const [repoUrl, setRepoUrl] = useState(initial?.github ?? "");
   const [drafting, setDrafting] = useState(false);
   const [importing, setImporting] = useState(false);
+  const [repoImporting, setRepoImporting] = useState(false);
   const [draftError, setDraftError] = useState("");
 
   function update<K extends keyof Project>(key: K, value: Project[K]) {
@@ -154,6 +156,39 @@ export function ProjectForm({
     if (result.warning) setDraftError(result.warning);
   }
 
+  async function importFromGithub() {
+    setRepoImporting(true);
+    setDraftError("");
+    const result = await importGithubProject(repoUrl, industries);
+    setRepoImporting(false);
+    if (!result.ok) {
+      setDraftError(result.error);
+      return;
+    }
+    setProject((current) => ({
+      ...current,
+      ...result.draft,
+      featured: current.featured,
+      listed: current.listed,
+      sortOrder: current.sortOrder,
+      screenshots: current.screenshots,
+      iosScreenshots: current.iosScreenshots,
+      androidScreenshots: current.androidScreenshots,
+      logo: current.logo,
+      logoPublicId: current.logoPublicId,
+      banner: current.banner,
+      bannerPublicId: current.bannerPublicId,
+      video: current.video,
+      videoPublicId: current.videoPublicId,
+      videoUrl: current.videoUrl,
+      ogImage: current.ogImage,
+      ogImagePublicId: current.ogImagePublicId,
+    }));
+    if (!notes.trim()) {
+      setNotes(`Imported from GitHub repo: ${repoUrl}`);
+    }
+  }
+
   return (
     <div className="grid gap-8">
       <div className="rounded-3xl border border-line bg-bg-elevated/40 p-5">
@@ -185,6 +220,28 @@ export function ProjectForm({
           className="btn-solid mt-4 inline-flex h-11 items-center justify-center rounded-full px-5 text-sm font-medium disabled:opacity-50"
         >
           {importing ? "Importing listing…" : "Import listing"}
+        </button>
+      </div>
+
+      <div className="rounded-3xl border border-line bg-bg-elevated/40 p-5">
+        <p className="font-mono text-[11px] tracking-[0.16em] text-subtle uppercase">Import from GitHub</p>
+        <p className="mt-2 text-sm text-muted">
+          Paste a repo URL to pull homepage, repo metadata, topics, and a Gemini-assisted case-study draft from the README.
+        </p>
+        <Field label="GitHub repo URL" className="mt-4">
+          <TextInput
+            value={repoUrl}
+            onChange={(event) => setRepoUrl(event.target.value)}
+            placeholder="https://github.com/owner/repo"
+          />
+        </Field>
+        <button
+          type="button"
+          disabled={repoImporting || !repoUrl.trim()}
+          onClick={() => void importFromGithub()}
+          className="btn-solid mt-4 inline-flex h-11 items-center justify-center rounded-full px-5 text-sm font-medium disabled:opacity-50"
+        >
+          {repoImporting ? "Importing repo…" : "Import repo"}
         </button>
       </div>
 
