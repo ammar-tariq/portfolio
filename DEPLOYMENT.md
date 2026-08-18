@@ -7,7 +7,7 @@ git push origin main
   → GitHub Actions (CI)
   → Docker image build
   → GitHub Container Registry (GHCR)
-  → SSH as `deploy` (not root)
+  → SSH as `VPS_USER` (not root)
   → Docker Compose on the VPS
   → Traefik (`proxy` network)
   → HTTPS site
@@ -178,20 +178,21 @@ Secrets (Actions → Secrets):
 | Secret | Value |
 | --- | --- |
 | `VPS_HOST` | VPS hostname or IP |
-| `VPS_USER` | SSH user (`deploy`, never `root`) |
+| `VPS_USER` | SSH user (non-root, in the `docker` group) |
 | `VPS_SSH_KEY` | Private key for that user |
+| `VPS_APP_DIR` | Absolute path to the Compose directory on the server |
 
-Do not put application secrets (`AUTH_SECRET`, `MONGODB_URI`, Cloudinary, SMTP) in GitHub unless you later choose to. They belong in `/opt/apps/portfolio/production/.env` on the VPS.
+Do not put application secrets (`AUTH_SECRET`, `MONGODB_URI`, Cloudinary, SMTP) in GitHub unless you later choose to. They belong in the production `.env` next to Compose on the server. Real paths stay in `LOCAL.md` (gitignored).
 
 ## VPS expectations
 
-Prepare these **once** (this repository does not SSH in or create them):
+Prepare these **once** (this repository does not SSH in or create them). Real host paths and the SSH username live in `LOCAL.md` (gitignored):
 
 - Ubuntu with Docker, Docker Compose, and Traefik already running
 - External Docker network named `proxy` (Traefik attached, `exposedByDefault: false`)
-- Deploy user `deploy` in the `docker` group
-- Directory `/opt/apps/portfolio/production` owned by `deploy`
-- File `/opt/apps/portfolio/production/.env` with production values, including:
+- A non-root SSH user in the `docker` group (`VPS_USER`)
+- Compose directory owned by that user (`VPS_APP_DIR`)
+- Production `.env` in that directory, including:
   - `SITE_HOST` — public hostname (no scheme)
   - `AUTH_URL=https://<SITE_HOST>`
   - `AUTH_TRUST_HOST=true`
@@ -200,7 +201,7 @@ Prepare these **once** (this repository does not SSH in or create them):
 - `PORTFOLIO_IMAGE` — set automatically by the deploy workflow; ensures manual `docker compose up -d` works without exporting it in your shell
 - GitHub OAuth callback: `https://<SITE_HOST>/api/auth/callback/github`
 - Traefik: entrypoint `websecure`, resolver `letsencrypt`, global HTTP→HTTPS redirect
-- **SSH (TCP 22) reachable from the public internet.** GitHub-hosted runner IPs rotate; do not allowlist only your home IP in Hostinger hFirewall. A `dial tcp :22: i/o timeout` in Actions is this firewall (or a transient path), not a bad Compose file. On-box `ufw`/`fail2ban` are optional; the Hostinger panel firewall sits in front of them.
+- **SSH (TCP 22) reachable from the public internet.** GitHub-hosted runner IPs rotate; do not allowlist only your home IP in the VPS provider firewall. A `dial tcp :22: i/o timeout` in Actions is this firewall (or a transient path), not a bad Compose file. On-box `ufw`/`fail2ban` are optional; the provider panel firewall sits in front of them.
 
 The container listens on `0.0.0.0:3000` with HTTP only. Traefik terminates TLS.
 
@@ -226,8 +227,8 @@ Or revert `main` to that commit and push (the workflow will deploy that SHA).
 | --- | --- |
 | Workflow never runs | Confirm the push was to `main`. Other branches are ignored. |
 | GHCR push 403 | Workflow permissions must be read/write; `packages: write` is already in the YAML. |
-| SSH fails | `VPS_HOST` / `VPS_USER` / `VPS_SSH_KEY`; user `deploy` must be able to SSH and run Docker. |
-| Compose copy fails | Directory `/opt/apps/portfolio/production` must already exist. |
+| SSH fails | `VPS_HOST` / `VPS_USER` / `VPS_SSH_KEY`; that user must be able to SSH and run Docker. |
+| Compose copy fails | `VPS_APP_DIR` must already exist on the server and be writable by `VPS_USER`. |
 | Container starts, Traefik 404 | `SITE_HOST` must match the public hostname; container must be on `proxy`; `traefik.enable=true`. |
 | Health check fails | `docker compose logs portfolio`; confirm `/api/health` inside the container. |
 | OAuth redirect mismatch | GitHub app callback and `AUTH_URL` must be `https://<SITE_HOST>`. |

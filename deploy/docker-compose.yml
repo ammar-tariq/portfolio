@@ -1,6 +1,5 @@
-# Production Compose for /opt/apps/portfolio/production
-# Traefik is already running on the host. This file only attaches the app to
-# the existing external `proxy` network. Do not publish ports.
+# Production Compose. Traefik is already running on the host. This file only
+# attaches the app to the existing external `proxy` network. Do not publish ports.
 
 services:
   portfolio:

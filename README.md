@@ -29,7 +29,7 @@ Share previews (WhatsApp, iMessage, Slack, Discord, LinkedIn, X, Telegram) use O
 
 Pushes to `main` run CI, publish a SHA-tagged image to GHCR, and deploy over SSH to Docker Compose behind Traefik. Other branches do not deploy.
 
-See [DEPLOYMENT.md](DEPLOYMENT.md) for environment variables, GitHub secrets, VPS layout (`/opt/apps/portfolio/production`), and rollback.
+See [DEPLOYMENT.md](DEPLOYMENT.md) for environment variables, GitHub secrets, and rollback. Keep real server paths in `LOCAL.md` (gitignored).
 
 GitHub OAuth callback: `https://your-domain.com/api/auth/callback/github`.
 

@@ -37,6 +37,10 @@ npm-debug.log*
 # used to (re)seed a database — never commit it to the public repo.
 /seed-data/
 
+# machine-specific server paths, hoster, SSH user — never commit
+/LOCAL.md
+/.local/
+
 # vercel
 .vercel
 

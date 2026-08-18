@@ -82,11 +82,11 @@ jobs:
             sleep 15
           done
           echo "Could not reach VPS_HOST:22 from this runner (TCP timeout)."
-          echo "Check Hostinger hFirewall / IP allowlist — GitHub-hosted runner IPs rotate."
+          echo "Check the VPS provider firewall / IP allowlist — GitHub-hosted runner IPs rotate."
           exit 1
 
-      # One SSH session (no separate SCP). GitHub-hosted runners hit Hostinger
-      # with rotating IPs; a 30s TCP dial often flakes even when sshd is up.
+      # One SSH session (no separate SCP). GitHub-hosted runners have rotating
+      # IPs; a 30s TCP dial often flakes even when sshd is up.
       - name: Deploy on VPS
         uses: appleboy/ssh-action@v1
         env:
@@ -94,20 +94,22 @@ jobs:
           GHCR_USER: ${{ github.actor }}
           GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           COMPOSE_B64: ${{ env.COMPOSE_B64 }}
+          VPS_APP_DIR: ${{ secrets.VPS_APP_DIR }}
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           protocol: tcp4
           timeout: 2m
-          envs: PORTFOLIO_IMAGE,GHCR_USER,GHCR_TOKEN,COMPOSE_B64
+          envs: PORTFOLIO_IMAGE,GHCR_USER,GHCR_TOKEN,COMPOSE_B64,VPS_APP_DIR
           script_stop: true
           command_timeout: 10m
           script: |
             set -euo pipefail
-            mkdir -p /opt/apps/portfolio/production
-            printf '%s' "${COMPOSE_B64}" | base64 -d > /opt/apps/portfolio/production/docker-compose.yml
-            cd /opt/apps/portfolio/production
+            : "${VPS_APP_DIR:?Set the VPS_APP_DIR GitHub secret to the Compose directory on the server}"
+            mkdir -p "${VPS_APP_DIR}"
+            printf '%s' "${COMPOSE_B64}" | base64 -d > "${VPS_APP_DIR}/docker-compose.yml"
+            cd "${VPS_APP_DIR}"
 
             previous_image=""
             container_id="$(docker compose ps -q portfolio 2>/dev/null || true)"

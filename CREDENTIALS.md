@@ -1,6 +1,6 @@
 # Credentials
 
-How to create every secret and ID this app uses. Paste values into `.env` locally and into `/opt/apps/portfolio/production/.env` on the VPS. Never commit `.env`. Do not create `.env.local`. There are no `NEXT_PUBLIC_*` variables; Docker build does not need these keys.
+How to create every secret and ID this app uses. Paste values into `.env` locally and into the production `.env` next to Compose on the server (path in `LOCAL.md`, gitignored). Never commit `.env`. Do not create `.env.local`. There are no `NEXT_PUBLIC_*` variables; Docker build does not need these keys.
 
 After changing `.env`, restart `npm run dev` or the production container.
 
@@ -29,7 +29,7 @@ After changing `.env`, restart `npm run dev` or the production container.
 | `GMAIL_SYNC_SECRET` | with Gmail API | Internal sync/push routes |
 | `GMAIL_PUBSUB_TOPIC` | no | Instant Gmail push (poll works without it) |
 | `SITE_HOST` | production | Traefik hostname (no `https://`) |
-| `VPS_HOST` / `VPS_USER` / `VPS_SSH_KEY` | production | GitHub Actions deploy secrets |
+| `VPS_HOST` / `VPS_USER` / `VPS_SSH_KEY` / `VPS_APP_DIR` | production | GitHub Actions deploy secrets |
 
 ---
 
@@ -452,8 +452,9 @@ Repo → **Settings → Secrets and variables → Actions**:
 | Secret | Value |
 | --- | --- |
 | `VPS_HOST` | VPS hostname or IP |
-| `VPS_USER` | SSH user (`deploy`, never `root`) |
+| `VPS_USER` | SSH user (non-root, in the `docker` group) |
 | `VPS_SSH_KEY` | Private key for that user |
+| `VPS_APP_DIR` | Absolute path to the Compose directory on the server |
 
 Application secrets stay on the VPS `.env`, not in GitHub.
 
@@ -472,8 +473,8 @@ Paste verification tokens in **Admin → SEO**. They live in Mongo, not `.env`. 
 | Place | File |
 | --- | --- |
 | Laptop | project `.env` (`AUTH_URL=http://localhost:3000`) |
-| VPS | `/opt/apps/portfolio/production/.env` (`AUTH_URL=https://SITE_HOST`) |
-| GitHub | `VPS_*` only |
+| Server | production `.env` next to Compose (`AUTH_URL=https://SITE_HOST`). Real path: `LOCAL.md` |
+| GitHub | `VPS_*` only (including `VPS_APP_DIR`) |
 | Git | `.env.example` placeholders only |
 
 Copy from `.env.example`. After Gmail or Firebase keys, restart. After production `.env` changes, restart the container.
