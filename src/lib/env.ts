@@ -35,6 +35,11 @@ export function googleAnalyticsId() {
   return /^G-[A-Z0-9]+$/i.test(id) ? id : "";
 }
 
+export function googleTagManagerId() {
+  const id = process.env.GTM_CONTAINER_ID?.trim() ?? "";
+  return /^GTM-[A-Z0-9]+$/i.test(id) ? id : "";
+}
+
 export function hasSmtpVisitNotify() {
   return Boolean(
     (process.env.NOTIFY_EMAIL?.trim() || process.env.SMTP_USER?.trim()) &&
