@@ -74,7 +74,7 @@ jobs:
           VPS_HOST: ${{ secrets.VPS_HOST }}
         run: |
           for attempt in 1 2 3 4 5; do
-            if python3 -c "import os, socket; s = socket.socket(socket.AF_INET, socket.SOCK_STREAM); s.settimeout(20); s.connect((os.environ['VPS_HOST'], 22)); s.close()"; then
+            if python3 -c "import os, socket; s = socket.socket(socket.AF_INET, socket.SOCK_STREAM); s.settimeout(20); s.connect((os.environ['VPS_HOST'], 22)); s.close()" 2>/dev/null; then
               echo "SSH port reachable"
               exit 0
             fi
@@ -82,7 +82,8 @@ jobs:
             sleep 15
           done
           echo "Could not reach VPS_HOST:22 from this runner (TCP timeout)."
-          echo "Check the VPS provider firewall / IP allowlist — GitHub-hosted runner IPs rotate."
+          echo "Hostinger hFirewall (or ufw/fail2ban) is blocking GitHub-hosted runner IPs, which rotate."
+          echo "Allow TCP 22 from 0.0.0.0/0 in the VPS panel, then re-run this job."
           exit 1
 
       # One SSH session (no separate SCP). GitHub-hosted runners have rotating
