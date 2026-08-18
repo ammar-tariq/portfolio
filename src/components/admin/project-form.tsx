@@ -481,7 +481,7 @@ export function ProjectForm({
         <p className="font-mono text-[11px] tracking-[0.16em] text-subtle uppercase">Media</p>
         <div className="grid gap-4 md:grid-cols-2">
           <ImageUpload
-            label="Logo"
+            label="App icon"
             folder={folder()}
             value={project.logo}
             onUploaded={(asset) => {

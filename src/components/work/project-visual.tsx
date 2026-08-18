@@ -37,11 +37,11 @@ export function ProjectVisual({
         <>
           <ScreenshotStack screenshots={shots} />
           {project.logo ? (
-            <AppIcon src={project.logo} alt={`${project.title} icon`} />
+            <AppIcon src={project.logo} alt={`${project.title} app icon`} placement="overlay" />
           ) : null}
         </>
       ) : project.logo ? (
-        <LogoMark src={project.logo} alt={`${project.title} logo`} caption={caption} />
+        <AppIcon src={project.logo} alt={`${project.title} app icon`} placement="hero" caption={caption} />
       ) : project.banner ? (
         <RemoteImage
           src={project.banner}
@@ -164,34 +164,41 @@ function Catalog() {
   );
 }
 
-function AppIcon({ src, alt }: { src: string; alt: string }) {
-  return (
-    <div className="absolute bottom-5 left-5 z-10 sm:bottom-7 sm:left-7 [transform:translateZ(52px)]">
-      <div className="relative h-16 w-16 overflow-hidden rounded-[1.15rem] border border-white/20 bg-black shadow-[0_18px_40px_rgba(0,0,0,0.55)] sm:h-20 sm:w-20 sm:rounded-[1.35rem] md:h-24 md:w-24">
-        <RemoteImage src={src} alt={alt} fill sizes="96px" className="object-cover" />
-      </div>
-    </div>
-  );
-}
-
-function LogoMark({
+function AppIcon({
   src,
   alt,
+  placement,
   caption,
 }: {
   src: string;
   alt: string;
-  caption: boolean;
+  placement: "overlay" | "hero";
+  caption?: boolean;
 }) {
+  const icon = (
+    <div
+      className={cn(
+        "relative overflow-hidden bg-black shadow-[0_18px_40px_rgba(0,0,0,0.5)]",
+        "rounded-[22.5%]",
+        placement === "hero"
+          ? "h-28 w-28 sm:h-36 sm:w-36 md:h-40 md:w-40 [transform:translateZ(32px)]"
+          : "h-[4.5rem] w-[4.5rem] sm:h-24 sm:w-24 md:h-[6.5rem] md:w-[6.5rem] [transform:translateZ(56px)]",
+      )}
+    >
+      <RemoteImage src={src} alt={alt} fill sizes="160px" className="object-cover" />
+      <span className="pointer-events-none absolute inset-0 bg-linear-to-b from-white/18 to-transparent opacity-50" />
+    </div>
+  );
+
+  if (placement === "overlay") {
+    return <div className="absolute bottom-5 left-5 z-10 sm:bottom-7 sm:left-7">{icon}</div>;
+  }
+
   return (
     <div className="absolute inset-0 flex items-center justify-center [perspective:1200px]">
       <div className="absolute h-44 w-44 rounded-full bg-accent/25 blur-3xl" />
       <div className="absolute h-28 w-28 translate-x-10 rounded-full bg-accent-2/20 blur-3xl" />
-      <div className={cn("relative", caption && "-translate-y-5")}>
-        <div className="relative h-28 w-28 overflow-hidden rounded-[1.85rem] border border-white/12 bg-black shadow-[0_24px_60px_rgba(0,0,0,0.5)] sm:h-36 sm:w-36 md:h-40 md:w-40 [transform:translateZ(32px)]">
-          <RemoteImage src={src} alt={alt} fill sizes="160px" className="object-cover transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-105 motion-reduce:transform-none" />
-        </div>
-      </div>
+      <div className={cn("relative", caption && "-translate-y-5")}>{icon}</div>
     </div>
   );
 }
