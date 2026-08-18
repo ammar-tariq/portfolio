@@ -1,16 +1,16 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import { JsonLd } from "@/components/seo/json-ld";
-import { projectGraphJsonLd, siteUrlFrom } from "@/lib/seo";
+import { projectGraphJsonLd, routeMetadata } from "@/lib/seo";
 import { ProjectHero } from "@/components/work/project-hero";
 import { ProjectMedia } from "@/components/work/project-screenshots";
 import { ButtonLink } from "@/components/ui/button";
 import { Container } from "@/components/ui/section";
 import { getPublicProject, getSiteContentForParams } from "@/lib/content";
-import { industryLabels, projectLiveLabel, publicProjects } from "@/lib/project-helpers";
+import { industryLabels, projectLiveLabel, publicProjects, relatedProjects } from "@/lib/project-helpers";
 import { coverImage } from "@/lib/project-media";
-import { ogImages } from "@/lib/og";
 import { ContentProvider } from "@/components/providers/content-provider";
 
 export const dynamicParams = true;
@@ -27,38 +27,25 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug } = await params;
   const result = await getPublicProject(slug);
-  if (!result) return { title: "Portfolio", robots: { index: false, follow: false } };
+  if (!result) return { title: "Not found", robots: { index: false, follow: false } };
   const { project, content } = result;
-  const siteUrl = siteUrlFrom(content);
-  const imageSource = coverImage(project) ?? content.seo.defaultOgImage;
-  const images = ogImages(imageSource, siteUrl, project.seoLabel);
-  return {
+  return routeMetadata(content, {
     title: `${project.seoLabel} — case study`,
     description: project.seoDescription,
+    path: `/work/${project.slug}`,
+    type: "article",
+    ogTitle: `${project.seoLabel} — ${content.profile.name}`,
+    imageSource: coverImage(project) ?? content.seo.defaultOgImage,
+    imageAlt: project.seoLabel,
     keywords: [
       content.profile.name,
       "case study",
-      "React Native",
-      "full-stack",
       ...industryLabels(project, content.industries),
       project.seoLabel,
       ...project.technologies,
     ],
-    alternates: { canonical: `${siteUrl}/work/${project.slug}` },
-    openGraph: {
-      type: "article",
-      title: project.seoLabel,
-      description: project.seoDescription,
-      url: `${siteUrl}/work/${project.slug}`,
-      ...(images ? { images } : {}),
-    },
-    twitter: {
-      card: "summary_large_image",
-      title: project.seoLabel,
-      description: project.seoDescription,
-      ...(images ? { images: images.map((image) => image.url) } : {}),
-    },
-  };
+    modifiedTime: project.updatedAt,
+  });
 }
 
 export default async function WorkPage({
@@ -70,6 +57,7 @@ export default async function WorkPage({
   const result = await getPublicProject(slug);
   if (!result) notFound();
   const { project, content } = result;
+  const related = relatedProjects(project, content.projects);
 
   return (
     <ContentProvider content={content}>
@@ -181,6 +169,23 @@ export default async function WorkPage({
                 Outcome
               </h2>
               <p className="mt-4 text-lg leading-relaxed">{project.outcome}</p>
+            </section>
+          ) : null}
+          {related.length > 0 ? (
+            <section className="mt-14">
+              <h2 className="font-mono text-[11px] tracking-[0.22em] text-accent uppercase">
+                More work
+              </h2>
+              <ul className="mt-5 space-y-3">
+                {related.map((item) => (
+                  <li key={item.slug}>
+                    <Link href={`/work/${item.slug}`} className="link-underline text-fg">
+                      {item.seoLabel}
+                    </Link>
+                    <span className="text-muted"> — {item.tagline}</span>
+                  </li>
+                ))}
+              </ul>
             </section>
           ) : null}
         </Container>

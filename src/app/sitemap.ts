@@ -2,6 +2,7 @@ import type { MetadataRoute } from "next";
 import { getSiteContent } from "@/lib/content";
 import { siteUrlFrom } from "@/lib/seo";
 import { publicProjects } from "@/lib/project-helpers";
+import { LEGAL_UPDATED_ISO } from "@/lib/legal";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const content = await getSiteContent();
@@ -16,6 +17,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const latestUpdate = projectDates.length
     ? new Date(Math.max(...projectDates.map((date) => date.getTime())))
     : undefined;
+  const legalUpdated = new Date(`${LEGAL_UPDATED_ISO}T00:00:00.000Z`);
 
   const work = projects.map((project) => ({
     url: `${siteUrl}/work/${project.slug}`,
@@ -42,6 +44,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       ...(latestUpdate ? { lastModified: latestUpdate } : {}),
       changeFrequency: "monthly",
       priority: 0.7,
+    },
+    {
+      url: `${siteUrl}/privacy`,
+      lastModified: legalUpdated,
+      changeFrequency: "yearly",
+      priority: 0.2,
+    },
+    {
+      url: `${siteUrl}/terms`,
+      lastModified: legalUpdated,
+      changeFrequency: "yearly",
+      priority: 0.2,
     },
     ...work,
   ];

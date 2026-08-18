@@ -4,31 +4,17 @@ import { PrintButton } from "@/components/ui/print-button";
 import { BrandMark } from "@/components/ui/brand-mark";
 import { JsonLd } from "@/components/seo/json-ld";
 import { getSiteContent } from "@/lib/content";
-import { resumeProfilePageJsonLd, siteUrlFrom } from "@/lib/seo";
-import { ogImages } from "@/lib/og";
+import { resumeProfilePageJsonLd, routeMetadata } from "@/lib/seo";
 import { publicProjects } from "@/lib/project-helpers";
 
 export async function generateMetadata(): Promise<Metadata> {
   const content = await getSiteContent();
-  const siteUrl = siteUrlFrom(content);
-  const images = ogImages(content.seo.defaultOgImage, siteUrl, `Resume — ${content.profile.name}`);
-  return {
-    title: `Resume — ${content.profile.title}`,
-    description: content.seo.description,
-    alternates: { canonical: `${siteUrl}/resume` },
-    openGraph: {
-      title: `Resume — ${content.profile.name}`,
-      description: content.seo.description,
-      url: `${siteUrl}/resume`,
-      ...(images ? { images } : {}),
-    },
-    twitter: {
-      card: "summary_large_image",
-      title: `Resume — ${content.profile.name}`,
-      description: content.seo.description,
-      ...(images ? { images: images.map((image) => image.url) } : {}),
-    },
-  };
+  return routeMetadata(content, {
+    title: "Resume",
+    description: `Resume of ${content.profile.name}, ${content.profile.title} based in ${content.profile.location}. ${content.profile.availability}.`,
+    path: "/resume",
+    ogTitle: `Resume — ${content.profile.name}`,
+  });
 }
 
 export default async function ResumePage() {
@@ -41,7 +27,7 @@ export default async function ResumePage() {
         <p className="mb-8 text-sm text-muted print:hidden">
           <Link href="/" className="inline-flex items-center gap-3">
             <BrandMark className="h-8 w-8" name={profile.name} />
-            <span className="link-underline">Portfolio</span>
+            <span className="link-underline">{profile.name}</span>
           </Link>
           <span className="mx-3 text-subtle">·</span>
           <PrintButton />
@@ -95,14 +81,17 @@ export default async function ResumePage() {
         </section>
         <section className="border-t border-line py-8">
           <h2 className="font-mono text-[11px] tracking-[0.22em] text-accent uppercase">
-            Portfolio
+            Selected work
           </h2>
           <ul className="mt-4 space-y-2 text-sm text-muted">
             {publicProjects(projects)
               .filter((project) => project.featured)
               .map((project) => (
                 <li key={project.slug}>
-                  <span className="text-fg">{project.title}</span> — {project.tagline}
+                  <Link href={`/work/${project.slug}`} className="link-underline text-fg">
+                    {project.title}
+                  </Link>{" "}
+                  — {project.tagline}
                 </li>
               ))}
           </ul>

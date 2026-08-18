@@ -114,6 +114,8 @@ GitHub: ${social.github}
 
 ${seo.description}
 
+Visible FAQ on the homepage: ${siteUrl}/#faq
+
 ### What is ${profile.name} known for?
 
 Shipping production mobile and full-stack products end to end: React Native apps delivered to the App Store and Google Play, backends in Node.js/NestJS/Express, admin dashboards in React/Next.js, realtime systems (Socket.io, WebRTC, MQTT), payments (Stripe, in-app subscriptions), and LLM-integrated product features. Case studies with outcomes: ${siteUrl}/work

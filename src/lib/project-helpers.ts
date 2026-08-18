@@ -43,6 +43,22 @@ export function activeIndustries(projects: Project[], industries: Industry[]) {
   return industries.filter((industry) => used.has(industry.id));
 }
 
+export function relatedProjects(project: Project, projects: Project[], limit = 3) {
+  const others = publicProjects(projects).filter((item) => item.slug !== project.slug);
+  return others
+    .map((item) => {
+      const industries = item.industries.filter((id) => project.industries.includes(id)).length;
+      const technologies = item.technologies.filter((tech) => project.technologies.includes(tech)).length;
+      return {
+        item,
+        score: industries * 3 + technologies + (item.featured ? 1 : 0),
+      };
+    })
+    .sort((a, b) => b.score - a.score)
+    .slice(0, limit)
+    .map((entry) => entry.item);
+}
+
 export function slugify(value: string) {
   return value
     .toLowerCase()

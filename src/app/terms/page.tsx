@@ -2,27 +2,25 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { LegalH2, LegalList, LegalP, LegalPage } from "@/components/legal/legal-page";
 import { getSiteContent } from "@/lib/content";
-import { siteUrlFrom } from "@/lib/seo";
-
-const UPDATED = "18 August 2026";
+import { routeMetadata } from "@/lib/seo";
+import { LEGAL_UPDATED } from "@/lib/legal";
 
 export async function generateMetadata(): Promise<Metadata> {
   const content = await getSiteContent();
-  const siteUrl = siteUrlFrom(content);
-  return {
+  return routeMetadata(content, {
     title: "Terms of Service",
     description: `Terms for using ${content.profile.name}’s personal site.`,
-    alternates: { canonical: `${siteUrl}/terms` },
-  };
+    path: "/terms",
+  });
 }
 
 export default async function TermsPage() {
   const content = await getSiteContent();
   const { profile } = content;
-  const siteUrl = siteUrlFrom(content);
+  const siteUrl = profile.website.replace(/\/$/, "");
 
   return (
-    <LegalPage name={profile.name} title="Terms of Service" updated={UPDATED}>
+    <LegalPage name={profile.name} title="Terms of Service" updated={LEGAL_UPDATED}>
       <LegalP>
         These terms govern use of {siteUrl} (the “Site”), operated by {profile.name}. By using the
         Site, you agree to them. If you do not agree, do not use the Site.

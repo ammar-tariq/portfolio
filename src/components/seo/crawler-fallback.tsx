@@ -22,7 +22,8 @@ export function CrawlerFallback({ content }: { content: SiteContent }) {
           <a href={social.github}>GitHub</a> · <a href={social.medium}>Blogs</a> ·{" "}
           <a href={social.linkedin}>LinkedIn</a> ·{" "}
           <a href={social.calendly}>Calendly</a> · <a href={social.whatsapp}>WhatsApp</a> ·{" "}
-          <a href={social.upwork}>Upwork</a> · <Link href="/resume">Resume</Link>
+          <a href={social.upwork}>Upwork</a> · <Link href="/resume">Resume</Link> ·{" "}
+          <Link href="/work">Projects</Link>
         </p>
         <h2>Skills</h2>
         {skillCategories.map((category) => (
@@ -46,7 +47,7 @@ export function CrawlerFallback({ content }: { content: SiteContent }) {
             <p>Technologies: {item.technologies.join(", ")}</p>
           </section>
         ))}
-        <h2>Portfolio</h2>
+        <h2>Projects</h2>
         <ul>
           {publicProjects(projects).map((project) => (
             <li key={project.slug}>

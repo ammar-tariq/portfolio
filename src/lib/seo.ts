@@ -3,6 +3,7 @@ import type { Project, SiteContent } from "@/types/content";
 import { ogImages } from "@/lib/og";
 import { coverImage, allScreenshots } from "@/lib/project-media";
 import { publicProjects } from "@/lib/project-helpers";
+import { siteFaq } from "@/lib/faq";
 
 export function siteUrlFrom(content: SiteContent) {
   return content.profile.website.replace(/\/$/, "");
@@ -33,7 +34,7 @@ export function personJsonLd(content: SiteContent) {
     givenName: profile.firstName,
     familyName: profile.lastName,
     jobTitle: profile.title,
-    description: seo.description,
+    description: profile.summary || seo.description,
     url: siteUrl,
     email: profile.email,
     image: seo.defaultOgImage ?? `${siteUrl}/opengraph-image`,
@@ -76,7 +77,7 @@ export function websiteJsonLd(content: SiteContent) {
   return {
     "@type": "WebSite",
     "@id": `${siteUrl}/#website`,
-    name: `${content.profile.name} — Portfolio`,
+    name: content.profile.name,
     url: siteUrl,
     description: content.seo.description,
     inLanguage: "en",
@@ -139,11 +140,28 @@ export function siteGraphJsonLd(content: SiteContent) {
   };
 }
 
-/** Homepage-specific entities: the profile page and the project list. */
+/** Homepage-specific entities: profile page, project list, and visible FAQ. */
+export function faqPageJsonLd(content: SiteContent) {
+  const siteUrl = siteUrlFrom(content);
+  return {
+    "@type": "FAQPage",
+    "@id": `${siteUrl}/#faq`,
+    url: siteUrl,
+    mainEntity: siteFaq(content).map((item) => ({
+      "@type": "Question",
+      name: item.question,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: item.answer,
+      },
+    })),
+  };
+}
+
 export function homeGraphJsonLd(content: SiteContent) {
   return {
     "@context": "https://schema.org",
-    "@graph": [profilePageJsonLd(content), workIndexJsonLd(content)],
+    "@graph": [profilePageJsonLd(content), workIndexJsonLd(content), faqPageJsonLd(content)],
   };
 }
 
@@ -178,11 +196,12 @@ export function workIndexJsonLd(content: SiteContent) {
   return {
     "@type": "ItemList",
     "@id": `${siteUrl}/work#list`,
-    name: `Portfolio of ${content.profile.name}`,
+    name: `Projects by ${content.profile.name}`,
     itemListElement: publicProjects(content.projects).map((project, index) => ({
       "@type": "ListItem",
       position: index + 1,
       url: `${siteUrl}/work/${project.slug}`,
+      item: `${siteUrl}/work/${project.slug}`,
       name: project.seoLabel,
       description: project.seoDescription,
     })),
@@ -203,9 +222,16 @@ export function breadcrumbJsonLd(siteUrl: string, items: { name: string; url: st
 
 /** Work index page entities as a single @graph script. */
 export function workPageGraphJsonLd(content: SiteContent) {
+  const siteUrl = siteUrlFrom(content);
   return {
     "@context": "https://schema.org",
-    "@graph": [workIndexJsonLd(content)],
+    "@graph": [
+      workIndexJsonLd(content),
+      breadcrumbJsonLd(siteUrl, [
+        { name: content.profile.name, url: siteUrl },
+        { name: "Projects", url: `${siteUrl}/work` },
+      ]),
+    ],
   };
 }
 
@@ -218,10 +244,77 @@ export function projectGraphJsonLd(content: SiteContent, project: Project) {
       projectJsonLd(content, project),
       breadcrumbJsonLd(siteUrl, [
         { name: content.profile.name, url: siteUrl },
-        { name: "Portfolio", url: `${siteUrl}/work` },
+        { name: "Projects", url: `${siteUrl}/work` },
         { name: project.seoLabel, url: `${siteUrl}/work/${project.slug}` },
       ]),
     ],
+  };
+}
+
+export function routeMetadata(
+  content: SiteContent,
+  {
+    title,
+    description,
+    path,
+    type = "website",
+    ogTitle,
+    imageSource,
+    imageAlt,
+    keywords,
+    robots,
+    modifiedTime,
+    absoluteTitle,
+  }: {
+    title: string;
+    description: string;
+    path: string;
+    type?: "website" | "article" | "profile";
+    ogTitle?: string;
+    imageSource?: string;
+    imageAlt?: string;
+    keywords?: string[];
+    robots?: Metadata["robots"];
+    modifiedTime?: string;
+    absoluteTitle?: boolean;
+  },
+): Metadata {
+  const siteUrl = siteUrlFrom(content);
+  const url = path === "/" ? siteUrl : `${siteUrl}${path}`;
+  const socialTitle =
+    ogTitle ?? (title.includes(content.profile.name) ? title : `${title} — ${content.profile.name}`);
+  const images = ogImages(imageSource ?? content.seo.defaultOgImage, siteUrl, imageAlt ?? socialTitle);
+  return {
+    title: absoluteTitle ? { absolute: title } : title,
+    description,
+    ...(keywords ? { keywords: [...new Set(keywords)].slice(0, 24) } : {}),
+    alternates: { canonical: url },
+    ...(robots ? { robots } : {}),
+    openGraph: {
+      type,
+      url,
+      title: socialTitle,
+      description,
+      siteName: content.profile.name,
+      locale: "en_US",
+      ...(images ? { images } : {}),
+      ...(type === "profile"
+        ? { firstName: content.profile.firstName, lastName: content.profile.lastName }
+        : {}),
+      ...(type === "article"
+        ? {
+            ...(modifiedTime ? { modifiedTime } : {}),
+            authors: [content.profile.name],
+          }
+        : {}),
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: socialTitle,
+      description,
+      ...(content.seo.twitterHandle ? { creator: content.seo.twitterHandle } : {}),
+      ...(images ? { images: images.map((image) => image.url) } : {}),
+    },
   };
 }
 
@@ -239,7 +332,6 @@ export function rootMetadata(content: SiteContent): Metadata {
     // rendered tag must stay a short, curated set.
     keywords: [...content.seo.keywords].slice(0, 36),
     alternates: {
-      canonical: siteUrl,
       types: {
         "text/plain": `${siteUrl}/llms.txt`,
       },
@@ -274,14 +366,10 @@ export function rootMetadata(content: SiteContent): Metadata {
         : undefined,
     },
     openGraph: {
-      type: "profile",
-      url: siteUrl,
-      title: content.seo.title,
-      description: content.seo.description,
       siteName: content.profile.name,
       locale: "en_US",
-      firstName: content.profile.firstName,
-      lastName: content.profile.lastName,
+      title: content.seo.title,
+      description: content.seo.description,
       ...(images ? { images } : {}),
     },
     twitter: {

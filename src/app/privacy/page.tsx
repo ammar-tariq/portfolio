@@ -2,27 +2,25 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { LegalH2, LegalList, LegalP, LegalPage } from "@/components/legal/legal-page";
 import { getSiteContent } from "@/lib/content";
-import { siteUrlFrom } from "@/lib/seo";
-
-const UPDATED = "18 August 2026";
+import { routeMetadata } from "@/lib/seo";
+import { LEGAL_UPDATED } from "@/lib/legal";
 
 export async function generateMetadata(): Promise<Metadata> {
   const content = await getSiteContent();
-  const siteUrl = siteUrlFrom(content);
-  return {
+  return routeMetadata(content, {
     title: "Privacy Policy",
     description: `How ${content.profile.name} collects and uses information on this site.`,
-    alternates: { canonical: `${siteUrl}/privacy` },
-  };
+    path: "/privacy",
+  });
 }
 
 export default async function PrivacyPage() {
   const content = await getSiteContent();
   const { profile } = content;
-  const siteUrl = siteUrlFrom(content);
+  const siteUrl = profile.website.replace(/\/$/, "");
 
   return (
-    <LegalPage name={profile.name} title="Privacy Policy" updated={UPDATED}>
+    <LegalPage name={profile.name} title="Privacy Policy" updated={LEGAL_UPDATED}>
       <LegalP>
         This policy describes how {profile.name} (“I”, “me”) handles information on {siteUrl} (the
         “Site”). This is my personal site. It is not a consumer product, marketplace, or

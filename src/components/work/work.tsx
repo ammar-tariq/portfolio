@@ -26,8 +26,9 @@ export function Work() {
     <Section id="portfolio">
       <Container>
         <SectionHeader
-          eyebrow="Portfolio"
+          eyebrow="Work"
           title="Products I can still explain."
+          kicker="Selected case studies across mobile, web, backend, and AI — with the architecture behind them."
         />
         <div className="mb-8">
           <IndustryFilter value={industry} onChange={setIndustry} industries={filters} />

@@ -4,7 +4,7 @@ import { Github } from "@/components/github/github";
 import { CursorUsage } from "@/components/cursor/cursor-usage";
 import { JsonLd } from "@/components/seo/json-ld";
 import { CrawlerFallback } from "@/components/seo/crawler-fallback";
-import { homeGraphJsonLd, siteUrlFrom } from "@/lib/seo";
+import { homeGraphJsonLd, routeMetadata } from "@/lib/seo";
 import { getSiteContent } from "@/lib/content";
 import { getCursorProfile } from "@/lib/cursor-profile";
 import { getGithubContributions } from "@/lib/github-contributions";
@@ -12,9 +12,14 @@ import { ContentProvider } from "@/components/providers/content-provider";
 
 export async function generateMetadata(): Promise<Metadata> {
   const content = await getSiteContent();
-  return {
-    alternates: { canonical: siteUrlFrom(content) },
-  };
+  return routeMetadata(content, {
+    title: content.seo.title,
+    description: content.seo.description,
+    path: "/",
+    type: "profile",
+    ogTitle: content.seo.title,
+    absoluteTitle: true,
+  });
 }
 
 export default async function Home() {

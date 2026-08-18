@@ -1,5 +1,10 @@
 import Link from "next/link";
 
+export const metadata = {
+  title: "Not found",
+  robots: { index: false, follow: false },
+};
+
 export default function NotFound() {
   return (
     <div className="flex min-h-svh flex-col items-center justify-center px-6 text-center">

@@ -3,35 +3,20 @@ import Link from "next/link";
 import { Container, Eyebrow } from "@/components/ui/section";
 import { BrandMark } from "@/components/ui/brand-mark";
 import { JsonLd } from "@/components/seo/json-ld";
-import { siteUrlFrom, workPageGraphJsonLd } from "@/lib/seo";
+import { routeMetadata, workPageGraphJsonLd } from "@/lib/seo";
 import { WorkDirectory } from "@/components/work/work-directory";
 import { getSiteContent } from "@/lib/content";
 import { ContentProvider } from "@/components/providers/content-provider";
-import { ogImages } from "@/lib/og";
 
 export async function generateMetadata(): Promise<Metadata> {
   const content = await getSiteContent();
-  const siteUrl = siteUrlFrom(content);
-  const images = ogImages(content.seo.defaultOgImage, siteUrl, `Portfolio — ${content.profile.name}`);
   const description = `Selected engineering work by ${content.profile.name} — React Native, TypeScript, NestJS, Node.js, IoT, realtime systems, payments, marketplaces, and AI.`;
-  return {
-    title: "Portfolio",
+  return routeMetadata(content, {
+    title: "Projects",
     description,
-    alternates: { canonical: `${siteUrl}/work` },
-    openGraph: {
-      title: `Portfolio — ${content.profile.name}`,
-      description,
-      url: `${siteUrl}/work`,
-      type: "website",
-      ...(images ? { images } : {}),
-    },
-    twitter: {
-      card: "summary_large_image",
-      title: `Portfolio — ${content.profile.name}`,
-      description,
-      ...(images ? { images: images.map((image) => image.url) } : {}),
-    },
-  };
+    path: "/work",
+    ogTitle: `Projects — ${content.profile.name}`,
+  });
 }
 
 export default async function WorkIndexPage() {
@@ -46,7 +31,7 @@ export default async function WorkIndexPage() {
             <span>← {content.profile.name}</span>
           </Link>
           <div className="mt-10">
-            <Eyebrow>Portfolio</Eyebrow>
+            <Eyebrow>Work</Eyebrow>
             <h1 className="mt-4 font-serif text-[1.85rem] tracking-tight sm:text-4xl md:text-6xl">
               Projects by {content.profile.name}
             </h1>

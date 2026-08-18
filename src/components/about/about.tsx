@@ -3,9 +3,12 @@
 import { Container, Section, Eyebrow } from "@/components/ui/section";
 import { Reveal } from "@/components/ui/reveal";
 import { useContent } from "@/components/providers/content-provider";
+import { siteFaq } from "@/lib/faq";
 
 export function About() {
-  const { profile, social } = useContent();
+  const content = useContent();
+  const { profile, social } = content;
+  const faq = siteFaq(content);
   return (
     <Section id="about">
       <Container>
@@ -50,8 +53,23 @@ export function About() {
               <a href={social.medium} className="link-underline text-fg" data-cursor="external">
                 Blogs
               </a>
+              {"  ·  "}
+              <a href="/resume" className="link-underline text-fg">
+                Resume
+              </a>
             </p>
           </Reveal>
+        </div>
+        <div className="mt-16 border-t border-line pt-10" id="faq">
+          <h2 className="font-mono text-[11px] tracking-[0.22em] text-accent uppercase">FAQ</h2>
+          <dl className="mt-8 grid gap-8 md:grid-cols-2">
+            {faq.map((item) => (
+              <div key={item.question}>
+                <dt className="text-fg">{item.question}</dt>
+                <dd className="mt-2 text-sm leading-relaxed text-muted">{item.answer}</dd>
+              </div>
+            ))}
+          </dl>
         </div>
       </Container>
     </Section>
