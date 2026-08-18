@@ -197,6 +197,7 @@ Prepare these **once** (this repository does not SSH in or create them):
   - `AUTH_TRUST_HOST=true`
   - `AUTH_SECRET`, GitHub OAuth, `ADMIN_GITHUB_LOGIN`
   - `MONGODB_URI`, Cloudinary
+- `PORTFOLIO_IMAGE` — set automatically by the deploy workflow; ensures manual `docker compose up -d` works without exporting it in your shell
 - GitHub OAuth callback: `https://<SITE_HOST>/api/auth/callback/github`
 - Traefik: entrypoint `websecure`, resolver `letsencrypt`, global HTTP→HTTPS redirect
 - **SSH (TCP 22) reachable from the public internet.** GitHub-hosted runner IPs rotate; do not allowlist only your home IP in Hostinger hFirewall. A `dial tcp :22: i/o timeout` in Actions is this firewall (or a transient path), not a bad Compose file. On-box `ufw`/`fail2ban` are optional; the Hostinger panel firewall sits in front of them.

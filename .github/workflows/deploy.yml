@@ -121,6 +121,19 @@ jobs:
             echo "${GHCR_TOKEN}" | docker login ghcr.io -u "${GHCR_USER}" --password-stdin >/dev/null
             docker pull "${PORTFOLIO_IMAGE}"
             export PORTFOLIO_IMAGE
+
+            # Persist the image tag into the server-side .env so future manual
+            # restarts don't require exporting PORTFOLIO_IMAGE in the shell.
+            if [ -f ".env" ]; then
+              if grep -q '^PORTFOLIO_IMAGE=' .env; then
+                sed -i "s#^PORTFOLIO_IMAGE=.*#PORTFOLIO_IMAGE=${PORTFOLIO_IMAGE}#g" .env
+              else
+                printf '\nPORTFOLIO_IMAGE=%s\n' "${PORTFOLIO_IMAGE}" >> .env
+              fi
+            else
+              printf 'PORTFOLIO_IMAGE=%s\n' "${PORTFOLIO_IMAGE}" > .env
+            fi
+
             docker compose up -d --pull never
 
             # Requires Mongo to be connected (or intentionally not configured,
