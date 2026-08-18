@@ -9,13 +9,10 @@ import { getSiteContent } from "@/lib/content";
 import { getCursorProfile } from "@/lib/cursor-profile";
 import { getGithubContributions } from "@/lib/github-contributions";
 import { ContentProvider } from "@/components/providers/content-provider";
-import { AppIdentity } from "@/components/seo/app-identity";
 
 export async function generateMetadata(): Promise<Metadata> {
   const content = await getSiteContent();
   return {
-    // Exact OAuth consent-screen name. A longer default title fails Google brand checks.
-    title: { absolute: content.profile.name },
     alternates: { canonical: siteUrlFrom(content) },
   };
 }
@@ -32,13 +29,6 @@ export default async function Home() {
       <JsonLd data={homeGraphJsonLd(content)} />
       <CrawlerFallback content={content} />
       <SiteShell
-        identity={
-          <AppIdentity
-            name={content.profile.name}
-            title={content.profile.title}
-            headline={content.profile.headline}
-          />
-        }
         github={<Github content={content} contributions={contributions} />}
         cursor={<CursorUsage profile={cursor} />}
       />

@@ -11,7 +11,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const siteUrl = siteUrlFrom(content);
   return {
     title: "Privacy Policy",
-    description: `How ${content.profile.name} collects and uses information on this personal website.`,
+    description: `How ${content.profile.name} collects and uses information on this site.`,
     alternates: { canonical: `${siteUrl}/privacy` },
   };
 }
@@ -25,7 +25,7 @@ export default async function PrivacyPage() {
     <LegalPage name={profile.name} title="Privacy Policy" updated={UPDATED}>
       <LegalP>
         This policy describes how {profile.name} (“I”, “me”) handles information on {siteUrl} (the
-        “Site”). The Site is my personal website. It is not a consumer product, marketplace, or
+        “Site”). This is my personal site. It is not a consumer product, marketplace, or
         account-based service for the public.
       </LegalP>
 
@@ -130,7 +130,7 @@ export default async function PrivacyPage() {
         The Site is hosted and the visit database is processed outside your country (including the
         United States for typical cloud providers). If you visit from the EU/UK or similar
         jurisdictions, the legal basis for first-party analytics is my legitimate interest in
-        understanding traffic to my website, together with any consent tools your browser
+        understanding traffic to my site, together with any consent tools your browser
         or Google provides.
       </LegalP>
 
