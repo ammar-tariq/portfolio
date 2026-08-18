@@ -30,6 +30,7 @@ import {
 import { hasApplicationMail, sendApplicationMail } from "@/lib/gmail-send";
 import { slugify } from "@/lib/project-helpers";
 import { destroyImage } from "@/lib/cloudinary";
+import { fetchPublicJobPage, type SharedJob } from "@/lib/job-posting";
 import type { ArchitectureContent, Industry, Project, SiteSettings } from "@/types/content";
 import { draftProjectWithGemini, rewriteProjectFieldWithGemini, type ProjectCopyField } from "@/lib/draft-project";
 import { importProjectFromStoreUrls } from "@/lib/store-import";
@@ -363,6 +364,83 @@ export async function generateJobApplication(input: {
     await created.save();
     revalidateApplications(id);
     return { ok: true, id };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Could not generate the application.";
+    return { ok: false, error: message };
+  }
+}
+
+export async function saveJobApplicationDraft(input: {
+  company: string;
+  role: string;
+  jobUrl?: string;
+  location?: string;
+  jd: string;
+  aboutCompany?: string;
+  extraQuestions?: string;
+}): Promise<{ ok: true; id: string } | { ok: false; error: string }> {
+  await ready();
+  const jd = input.jd.trim();
+  const jobUrl = input.jobUrl?.trim() ?? "";
+  if (!jd && !jobUrl) return { ok: false, error: "Paste a job description or URL." };
+  const created = await JobApplicationModel.create({
+    company: input.company.trim() || "Company",
+    role: input.role.trim() || "Role",
+    jobUrl: jobUrl || undefined,
+    location: input.location?.trim() || undefined,
+    jd,
+    aboutCompany: input.aboutCompany?.trim() || "",
+    extraQuestions: input.extraQuestions?.trim() || "",
+    status: "draft",
+  });
+  const id = String(created._id);
+  revalidateApplications(id);
+  return { ok: true, id };
+}
+
+export async function fetchJobPosting(
+  url: string,
+): Promise<{ ok: true; job: SharedJob } | { ok: false; error: string }> {
+  await requireAdmin();
+  try {
+    const job = await fetchPublicJobPage(url);
+    return { ok: true, job };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Could not import that posting.";
+    return { ok: false, error: message };
+  }
+}
+
+export async function generateExistingJobApplication(
+  id: string,
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  await ready();
+  try {
+    const doc = await JobApplicationModel.findById(id);
+    if (!doc) return { ok: false, error: "Application not found." };
+    if (!String(doc.jd ?? "").trim()) return { ok: false, error: "This draft has no job description yet." };
+    const content = await getSiteContentForParams();
+    const generated = await generateApplicationMaterials({
+      content,
+      company: String(doc.company ?? ""),
+      role: String(doc.role ?? ""),
+      jobUrl: String(doc.jobUrl ?? ""),
+      location: String(doc.location ?? ""),
+      jd: String(doc.jd ?? ""),
+      aboutCompany: String(doc.aboutCompany ?? ""),
+      extraQuestions: String(doc.extraQuestions ?? ""),
+    });
+    doc.keywords = generated.keywords;
+    doc.resume = generated.resume;
+    doc.coverLetter = generated.coverLetter;
+    if (generated.answers.length) doc.answers = generated.answers;
+    const application = applicationFromDoc(doc);
+    const uploaded = await uploadApplicationFiles(id, content, application);
+    doc.files = uploaded.files;
+    doc.warning = uploaded.warning;
+    await doc.save();
+    revalidateApplications(id);
+    return { ok: true };
   } catch (error) {
     const message = error instanceof Error ? error.message : "Could not generate the application.";
     return { ok: false, error: message };

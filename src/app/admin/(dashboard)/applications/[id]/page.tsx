@@ -7,6 +7,8 @@ import { applicationFromDoc } from "@/lib/job-application";
 import { ApplicationDetail } from "@/components/admin/application-detail";
 import { hasApplicationMail } from "@/lib/gmail-send";
 import { getSiteContentForParams } from "@/lib/content";
+import { hasGemini } from "@/lib/env";
+import { resumePlainText } from "@/lib/job-application";
 
 export default async function ApplicationPage({
   params,
@@ -40,7 +42,13 @@ export default async function ApplicationPage({
         </p>
       ) : null}
       <div className="mt-8">
-        <ApplicationDetail application={application} canSend={hasApplicationMail()} defaultSubject={defaultSubject} />
+        <ApplicationDetail
+          application={application}
+          canSend={hasApplicationMail()}
+          canGenerate={hasGemini()}
+          defaultSubject={defaultSubject}
+          resumeText={resumePlainText(content, application)}
+        />
       </div>
     </div>
   );

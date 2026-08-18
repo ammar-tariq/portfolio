@@ -173,6 +173,8 @@ export function extractJobFromHtml(html: string, jobUrl: string): SharedJob {
   const ogTitle = meta(html, "og:title");
   const ogDescription = meta(html, "og:description") || meta(html, "description");
   const named = parseTitle(jsonTitle || ogTitle || pageTitle);
+  const orgDescription =
+    org && typeof org === "object" ? String((org as { description?: unknown }).description ?? "") : "";
   const jd = (jsonJd || ogDescription || stripTags(html)).slice(0, 20000);
   return {
     company: orgName.trim() || named.company,
@@ -180,9 +182,7 @@ export function extractJobFromHtml(html: string, jobUrl: string): SharedJob {
     location,
     jobUrl,
     jd,
-    aboutCompany: String(job?.hiringOrganization && typeof job.hiringOrganization === "object"
-      ? ((job.hiringOrganization as { description?: unknown }).description ?? "")
-      : "").toString().slice(0, 4000),
+    aboutCompany: orgDescription.slice(0, 4000),
   };
 }
 

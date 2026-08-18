@@ -6,14 +6,25 @@ import { getSiteContent } from "@/lib/content";
 // this route dynamic, which is fine for a manifest.
 export default async function manifest(): Promise<MetadataRoute.Manifest> {
   const { profile } = await getSiteContent();
-  return {
+  const manifest = {
     name: `${profile.name} — ${profile.title}`,
     short_name: profile.name,
     description: profile.headline,
     start_url: "/",
-    display: "browser",
+    display: "standalone" as const,
     background_color: "#05070c",
     theme_color: "#05070c",
     icons: [{ src: "/logo-at.png", sizes: "150x150", type: "image/png" }],
+    share_target: {
+      action: "/admin/apply",
+      method: "GET",
+      enctype: "application/x-www-form-urlencoded",
+      params: {
+        title: "title",
+        text: "text",
+        url: "url",
+      },
+    },
   };
+  return manifest as MetadataRoute.Manifest;
 }

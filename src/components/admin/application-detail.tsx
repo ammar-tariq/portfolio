@@ -1,19 +1,23 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import type { JobApplication } from "@/types/application";
-import { answerApplicationQuestions, deleteJobApplication, sendJobApplication, setApplicationStatus } from "@/app/admin/actions";
+import { answerApplicationQuestions, deleteJobApplication, generateExistingJobApplication, sendJobApplication, setApplicationStatus } from "@/app/admin/actions";
 import { Field, TextArea, TextInput } from "@/components/admin/fields";
 
 export function ApplicationDetail({
   application,
   canSend,
+  canGenerate,
   defaultSubject,
+  resumeText,
 }: {
   application: JobApplication;
   canSend: boolean;
+  canGenerate: boolean;
   defaultSubject: string;
+  resumeText: string;
 }) {
   const router = useRouter();
   const [questions, setQuestions] = useState("");
@@ -23,13 +27,30 @@ export function ApplicationDetail({
   const [body, setBody] = useState(application.coverLetter);
   const [attachResume, setAttachResume] = useState(true);
   const [attachAnswers, setAttachAnswers] = useState(false);
-  const [busy, setBusy] = useState<"answers" | "delete" | "send" | null>(null);
+  const [busy, setBusy] = useState<"answers" | "delete" | "send" | "generate" | null>(null);
   const [error, setError] = useState("");
   const [copied, setCopied] = useState("");
+
+  useEffect(() => {
+    if (application.coverLetter) setBody(application.coverLetter);
+  }, [application.coverLetter]);
 
   async function copy(label: string, value: string) {
     await navigator.clipboard.writeText(value);
     setCopied(label);
+  }
+
+  async function shareOrCopy(label: string, value: string) {
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: label, text: value });
+        setCopied(label);
+        return;
+      }
+    } catch {
+      /* cancelled */
+    }
+    await copy(label, value);
   }
 
   async function onAnswers() {
@@ -42,6 +63,18 @@ export function ApplicationDetail({
       return;
     }
     setQuestions("");
+    router.refresh();
+  }
+
+  async function onGenerate() {
+    setBusy("generate");
+    setError("");
+    const result = await generateExistingJobApplication(application.id);
+    setBusy(null);
+    if (!result.ok) {
+      setError(result.error);
+      return;
+    }
     router.refresh();
   }
 
@@ -116,6 +149,38 @@ export function ApplicationDetail({
           {busy === "delete" ? "Deleting…" : "Delete"}
         </button>
       </div>
+      {!application.coverLetter ? (
+        <div className="rounded-3xl border border-line bg-bg-elevated/40 p-5">
+          <p className="text-sm text-muted">
+            This is a captured draft. Generate the ATS resume and cover letter when you are ready — works on a phone.
+          </p>
+          <button
+            type="button"
+            disabled={busy !== null || !canGenerate}
+            onClick={() => void onGenerate()}
+            className="btn-solid mt-4 inline-flex h-11 items-center rounded-full px-5 text-sm font-medium disabled:opacity-50"
+          >
+            {busy === "generate" ? "Generating…" : "Generate resume + letter"}
+          </button>
+        </div>
+      ) : (
+        <div className="flex flex-wrap gap-2">
+          <button
+            type="button"
+            className="inline-flex h-11 items-center rounded-full border border-line px-4 text-sm"
+            onClick={() => void shareOrCopy("letter", application.coverLetter)}
+          >
+            {copied === "letter" ? "Copied letter" : "Share / copy letter"}
+          </button>
+          <button
+            type="button"
+            className="inline-flex h-11 items-center rounded-full border border-line px-4 text-sm"
+            onClick={() => void shareOrCopy("resume", resumeText)}
+          >
+            {copied === "resume" ? "Copied resume" : "Share / copy resume"}
+          </button>
+        </div>
+      )}
       {application.warning ? <p className="text-sm text-muted">{application.warning}</p> : null}
 
       <section className="grid gap-4 rounded-3xl border border-line bg-bg-elevated/40 p-5">

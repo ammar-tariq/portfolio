@@ -28,11 +28,12 @@ export default async function LoginPage({
         ) : null}
         <form
           className="mt-8"
-          action={async () => {
+          action={async (formData) => {
             "use server";
-            await signIn("github", { redirectTo: next });
+            await signIn("github", { redirectTo: safeAdminCallback(String(formData.get("callbackUrl") ?? "")) });
           }}
         >
+          <input type="hidden" name="callbackUrl" value={next} />
           <button type="submit" className="btn-solid inline-flex h-12 w-full items-center justify-center rounded-full text-sm font-medium">
             Continue with GitHub
           </button>

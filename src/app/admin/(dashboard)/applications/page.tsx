@@ -16,7 +16,11 @@ export default async function ApplicationsPage() {
       <h1 className="mt-2 font-serif text-3xl">Job applications</h1>
       <p className="mt-2 max-w-2xl text-sm text-muted">
         History of tailored resumes, cover letters, and screening answers. Files live on Cloudinary; the source copy stays
-        in Mongo.
+        in Mongo. On a phone, use{" "}
+        <Link href="/admin/apply" className="text-accent">
+          Apply
+        </Link>{" "}
+        — share or paste a posting, no Chrome extension.
       </p>
       <div className="mt-8">
         <ApplicationForm canGenerate={hasGemini()} />
