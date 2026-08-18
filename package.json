@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "preinstall": "node -e \"const p=process.env.npm_execpath||''; if (p.includes('yarn')) { console.error('This project uses npm only. Use npm ci / npm install.'); process.exit(1); }\"",
     "dev": "next dev",
     "build": "next build",
     "start": "next start --hostname 0.0.0.0",
@@ -12,7 +13,8 @@
     "seed": "tsx scripts/seed.ts"
   },
   "engines": {
-    "node": ">=20.9.0"
+    "node": ">=20.9.0",
+    "npm": ">=10"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.8",

@@ -11,7 +11,7 @@ COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
 RUN npm run build
-RUN node -e 'const fs=require("fs"); const pkgs=["mongoose","geoip-lite","cloudinary","nodemailer","google-play-scraper","googleapis"]; for (const p of pkgs) { if (!fs.existsSync(".next/standalone/node_modules/"+p)) throw new Error("standalone missing "+p); } if (!fs.existsSync(".next/standalone/node_modules/geoip-lite/data/geoip-city.dat")) throw new Error("geoip-lite data missing from standalone");'
+RUN node -e 'const fs=require("fs"); const pkgs=["mongoose","geoip-lite","cloudinary","nodemailer","google-play-scraper","googleapis","firebase-admin"]; for (const p of pkgs) { if (!fs.existsSync(".next/standalone/node_modules/"+p)) throw new Error("standalone missing "+p); } if (!fs.existsSync(".next/standalone/node_modules/geoip-lite/data/geoip-city.dat")) throw new Error("geoip-lite data missing from standalone");'
 
 FROM node:22-alpine AS runner
 WORKDIR /app
