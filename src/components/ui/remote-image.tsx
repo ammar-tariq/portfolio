@@ -2,6 +2,7 @@ import Image from "next/image";
 import { cn } from "@/lib/cn";
 
 function canOptimize(src: string) {
+  if (src.startsWith("/projects/")) return false;
   if (!src.startsWith("http://") && !src.startsWith("https://")) return true;
   try {
     const host = new URL(src).hostname;

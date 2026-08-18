@@ -3,6 +3,8 @@ import { parseSharedJob } from "@/lib/job-posting";
 import { ApplicationForm } from "@/components/admin/application-form";
 import Link from "next/link";
 
+export const dynamic = "force-dynamic";
+
 export default async function ApplyPage({
   searchParams,
 }: {

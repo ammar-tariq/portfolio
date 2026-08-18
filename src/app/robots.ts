@@ -40,7 +40,7 @@ export default async function robots(): Promise<MetadataRoute.Robots> {
     rules: allowBots.map((userAgent) => ({
       userAgent,
       allow: "/",
-      disallow: ["/admin", "/api/"],
+      disallow: ["/admin", "/api/", "/projects/", "/_next/image"],
     })),
     sitemap: `${siteUrl}/sitemap.xml`,
     host: siteUrl,

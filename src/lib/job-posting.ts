@@ -145,6 +145,11 @@ async function fetchChecked(raw: string, hops = 0): Promise<{ url: string; html:
     const buffer = Buffer.from(await response.arrayBuffer());
     if (buffer.byteLength > 600_000) throw new Error("Job page is too large to import.");
     return { url: url.toString(), html: buffer.toString("utf8") };
+  } catch (error) {
+    if (error instanceof Error && error.name === "AbortError") {
+      throw new Error("Timed out importing that posting. Paste the description instead.");
+    }
+    throw error;
   } finally {
     clearTimeout(timer);
   }

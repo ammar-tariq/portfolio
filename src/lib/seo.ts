@@ -249,7 +249,10 @@ export function rootMetadata(content: SiteContent): Metadata {
     publisher: content.profile.name,
     category: "technology",
     icons: {
-      icon: [{ url: "/logo-at.png", type: "image/png" }],
+      icon: [
+        { url: "/favicon.svg", type: "image/svg+xml" },
+        { url: "/logo-at.png", type: "image/png" },
+      ],
       apple: "/logo-at.png",
       shortcut: "/logo-at.png",
     },
