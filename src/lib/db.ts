@@ -23,7 +23,14 @@ export async function connectDb() {
   const cached = cache();
   if (cached.conn) return cached.conn;
   if (!cached.promise) {
-    cached.promise = mongoose.connect(uri).then((instance) => instance);
+    // Fail fast (5s instead of the 30s driver default) so pages fall back to
+    // static content quickly when Mongo is unreachable.
+    cached.promise = mongoose.connect(uri, { serverSelectionTimeoutMS: 5000 }).catch((error) => {
+      // Never cache a rejected promise: clearing it lets the next request
+      // retry, instead of failing every request until the process restarts.
+      cached.promise = null;
+      throw error;
+    });
   }
   cached.conn = await cached.promise;
   return cached.conn;

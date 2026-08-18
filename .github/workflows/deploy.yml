@@ -110,9 +110,13 @@ jobs:
             export PORTFOLIO_IMAGE
             docker compose up -d --pull never
 
+            # Requires Mongo to be connected (or intentionally not configured,
+            # e.g. a fork running placeholder content). A container that only
+            # serves the static fallback because it cannot reach the database
+            # must fail the deploy instead of shipping silently.
             wait_for_health() {
               for _health_i in $(seq 1 30); do
-                if docker compose exec -T portfolio node -e "fetch('http://127.0.0.1:3000/api/health').then((r)=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"; then
+                if docker compose exec -T portfolio node -e "fetch('http://127.0.0.1:3000/api/health').then((r)=>r.json()).then((b)=>{const ok=b.status==='ok'&&(b.mongo==='connected'||b.mongo==='not-configured');process.exit(ok?0:1)}).catch(()=>process.exit(1))"; then
                   return 0
                 fi
                 sleep 2
