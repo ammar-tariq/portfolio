@@ -84,11 +84,138 @@ export function projectFromDraft(raw: Record<string, unknown>, industries: Indus
   };
 }
 
-export async function draftProjectWithGemini(notes: string, industries: Industry[]): Promise<Partial<Project>> {
+export type ProjectCopyField =
+  | "tagline"
+  | "description"
+  | "seoLabel"
+  | "seoDescription"
+  | "role"
+  | "challenge"
+  | "solution"
+  | "architecture"
+  | "engineering"
+  | "outcome"
+  | "highlights"
+  | "technologies";
+
+const copyFields: Record<
+  ProjectCopyField,
+  { kind: "text" | "list"; max: number; items?: number; instruction: string }
+> = {
+  tagline: { kind: "text", max: 180, instruction: "One punchy line, under 12 words. No slogan-speak." },
+  description: { kind: "text", max: 1200, instruction: "1–3 sentences. What it is, who it is for, what you built." },
+  seoLabel: { kind: "text", max: 120, instruction: "Brand-light product type, not a slogan. e.g. 'Dating app for busy professionals'." },
+  seoDescription: { kind: "text", max: 160, instruction: "One sentence under 160 characters. Factual, recruiter-readable." },
+  role: { kind: "text", max: 160, instruction: "Your role on the project, specific. e.g. 'Lead React Native engineer'." },
+  challenge: { kind: "text", max: 1200, instruction: "Short paragraph: the hard problem. No invented metrics." },
+  solution: { kind: "text", max: 1200, instruction: "Short paragraph: what you built and how. Concrete, first person." },
+  architecture: { kind: "list", max: 220, items: 8, instruction: "3–8 architecture bullets. Systems, data, and delivery — not marketing." },
+  engineering: { kind: "list", max: 220, items: 8, instruction: "3–8 engineering bullets: decisions, constraints, or notable implementations." },
+  outcome: { kind: "text", max: 800, instruction: "Short paragraph of real results. Leave empty-ish claims out; do not invent numbers." },
+  highlights: { kind: "list", max: 180, items: 8, instruction: "3–6 recruiter-facing highlights. Concrete, no fluff." },
+  technologies: { kind: "list", max: 80, items: 16, instruction: "Real stack items only, inferred from the case study. No padding." },
+};
+
+function projectContext(project: Partial<Project>, notes?: string) {
+  return {
+    title: project.title ?? "",
+    slug: project.slug ?? "",
+    tagline: project.tagline ?? "",
+    description: project.description ?? "",
+    seoLabel: project.seoLabel ?? "",
+    seoDescription: project.seoDescription ?? "",
+    role: project.role ?? "",
+    year: project.year ?? "",
+    status: project.status ?? "",
+    industries: project.industries ?? [],
+    technologies: project.technologies ?? [],
+    github: project.github ?? "",
+    liveUrl: project.liveUrl ?? "",
+    appStoreUrl: project.appStoreUrl ?? "",
+    webUrl: project.webUrl ?? "",
+    challenge: project.challenge ?? "",
+    solution: project.solution ?? "",
+    architecture: project.architecture ?? [],
+    engineering: project.engineering ?? [],
+    outcome: project.outcome ?? "",
+    highlights: project.highlights ?? [],
+    notes: notes?.trim() || "",
+  };
+}
+
+async function generateGeminiJson(prompt: string) {
   const apiKey = process.env.GEMINI_API_KEY?.trim();
   if (!apiKey) throw new Error("Add GEMINI_API_KEY to .env (Google AI Studio).");
-
   const model = process.env.GEMINI_MODEL?.trim() || "gemini-2.5-flash";
+  const response = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(apiKey)}`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        contents: [{ role: "user", parts: [{ text: prompt }] }],
+        generationConfig: {
+          temperature: 0.35,
+          responseMimeType: "application/json",
+        },
+      }),
+    },
+  );
+  const body = (await response.json()) as {
+    error?: { message?: string };
+    candidates?: { content?: { parts?: { text?: string }[] } }[];
+  };
+  if (!response.ok) {
+    throw new Error(body.error?.message || `Gemini request failed (${response.status})`);
+  }
+  const text = body.candidates?.[0]?.content?.parts?.map((part) => part.text ?? "").join("") ?? "";
+  if (!text) throw new Error("Gemini returned an empty draft.");
+  return parseJsonObject(text);
+}
+
+export async function rewriteProjectFieldWithGemini(input: {
+  field: ProjectCopyField;
+  project: Partial<Project>;
+  notes?: string;
+}): Promise<string | string[]> {
+  const spec = copyFields[input.field];
+  if (!spec) throw new Error("Unknown field.");
+  const title = str(input.project.title, 120);
+  if (!title && !str(input.notes, 400)) {
+    throw new Error("Add a title (or notes) first so Gemini has something to write about.");
+  }
+
+  const current = input.project[input.field];
+  const prompt = `You rewrite one field of a developer-portfolio case study.
+
+Voice: first-person engineer, concrete, no marketing fluff, no invented metrics or logos.
+
+Field: ${input.field}
+Kind: ${spec.kind}
+Instruction: ${spec.instruction}
+${spec.kind === "list" ? `Return JSON: { "value": ["item", "..."] } with at most ${spec.items} items, each under ${spec.max} characters.` : `Return JSON: { "value": "..." } under ${spec.max} characters.`}
+
+If the current value is empty, generate it from the rest of the case study.
+If it already has text, rewrite/improve it. Keep facts that are already present. Do not invent numbers, clients, or store rankings.
+
+Current field value:
+${JSON.stringify(current ?? (spec.kind === "list" ? [] : ""))}
+
+Case study context:
+${JSON.stringify(projectContext(input.project, input.notes), null, 2)}`;
+
+  const raw = await generateGeminiJson(prompt);
+  if (spec.kind === "list") {
+    const list = strList(raw.value, spec.items ?? 8, spec.max);
+    if (!list.length) throw new Error("Gemini returned an empty list.");
+    return list;
+  }
+  const value = str(raw.value, spec.max);
+  if (!value) throw new Error("Gemini returned empty text.");
+  return value;
+}
+
+export async function draftProjectWithGemini(notes: string, industries: Industry[]): Promise<Partial<Project>> {
   const industryList = industries.map((item) => `${item.id} (${item.label})`).join(", ");
   const prompt = `You draft case-study fields for a developer portfolio. Voice: first-person engineer, concrete, no marketing fluff, no invented metrics.
 
@@ -115,31 +242,5 @@ Rules:
 Notes:
 ${notes}`;
 
-  const response = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(apiKey)}`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        contents: [{ role: "user", parts: [{ text: prompt }] }],
-        generationConfig: {
-          temperature: 0.4,
-          responseMimeType: "application/json",
-        },
-      }),
-    },
-  );
-
-  const body = (await response.json()) as {
-    error?: { message?: string };
-    candidates?: { content?: { parts?: { text?: string }[] } }[];
-  };
-
-  if (!response.ok) {
-    throw new Error(body.error?.message || `Gemini request failed (${response.status})`);
-  }
-
-  const text = body.candidates?.[0]?.content?.parts?.map((part) => part.text ?? "").join("") ?? "";
-  if (!text) throw new Error("Gemini returned an empty draft.");
-  return projectFromDraft(parseJsonObject(text), industries);
+  return projectFromDraft(await generateGeminiJson(prompt), industries);
 }

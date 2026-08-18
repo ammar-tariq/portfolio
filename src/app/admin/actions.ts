@@ -16,7 +16,7 @@ import {
 import { slugify } from "@/lib/project-helpers";
 import { destroyImage } from "@/lib/cloudinary";
 import type { ArchitectureContent, Industry, Project, SiteSettings } from "@/types/content";
-import { draftProjectWithGemini } from "@/lib/draft-project";
+import { draftProjectWithGemini, rewriteProjectFieldWithGemini, type ProjectCopyField } from "@/lib/draft-project";
 import { importProjectFromStoreUrls } from "@/lib/store-import";
 import {
   importOpenSourceOwnerFromGithub,
@@ -43,6 +43,21 @@ export async function draftProject(
     return { ok: true, draft };
   } catch (error) {
     const message = error instanceof Error ? error.message : "Could not draft the project.";
+    return { ok: false, error: message };
+  }
+}
+
+export async function rewriteProjectField(
+  field: ProjectCopyField,
+  project: Partial<Project>,
+  notes?: string,
+): Promise<{ ok: true; value: string | string[] } | { ok: false; error: string }> {
+  await requireAdmin();
+  try {
+    const value = await rewriteProjectFieldWithGemini({ field, project, notes });
+    return { ok: true, value };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Could not rewrite that field.";
     return { ok: false, error: message };
   }
 }

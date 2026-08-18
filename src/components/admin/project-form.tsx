@@ -3,10 +3,11 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import type { Industry, Project, ProjectScreenshot, ProjectVisual } from "@/types/content";
-import { saveProject, draftProject, importGithubProject, importStoreProject } from "@/app/admin/actions";
+import { saveProject, draftProject, importGithubProject, importStoreProject, rewriteProjectField } from "@/app/admin/actions";
 import { Field, LinesEditor, TextArea, TextInput, Toggle } from "./fields";
 import { ImageUpload, MediaUpload } from "./image-upload";
 import { slugify } from "@/lib/project-helpers";
+import type { ProjectCopyField } from "@/lib/draft-project";
 
 const visuals: ProjectVisual[] = [
   "dojo",
@@ -62,6 +63,7 @@ export function ProjectForm({
   const [importing, setImporting] = useState(false);
   const [repoImporting, setRepoImporting] = useState(false);
   const [draftError, setDraftError] = useState("");
+  const [fieldBusy, setFieldBusy] = useState<ProjectCopyField | null>(null);
 
   function update<K extends keyof Project>(key: K, value: Project[K]) {
     setProject((current) => ({ ...current, [key]: value }));
@@ -189,6 +191,35 @@ export function ProjectForm({
     }
   }
 
+  async function rewriteField(field: ProjectCopyField) {
+    setFieldBusy(field);
+    setDraftError("");
+    const result = await rewriteProjectField(field, copyContext(project), notes);
+    setFieldBusy(null);
+    if (!result.ok) {
+      setDraftError(result.error);
+      return;
+    }
+    if (Array.isArray(result.value)) {
+      update(field, result.value as never);
+      return;
+    }
+    update(field, result.value as never);
+  }
+
+  function geminiAction(field: ProjectCopyField, empty: boolean) {
+    return (
+      <button
+        type="button"
+        disabled={!canDraft || fieldBusy !== null}
+        onClick={() => void rewriteField(field)}
+        className="font-mono text-[10px] tracking-[0.14em] text-accent uppercase disabled:opacity-40"
+      >
+        {fieldBusy === field ? "Writing…" : empty ? "Generate" : "Rewrite"}
+      </button>
+    );
+  }
+
   return (
     <div className="grid gap-8">
       <div className="rounded-3xl border border-line bg-bg-elevated/40 p-5">
@@ -286,22 +317,22 @@ export function ProjectForm({
           />
         </Field>
       </div>
-      <Field label="Tagline">
+      <Field label="Tagline" action={geminiAction("tagline", !project.tagline.trim())}>
         <TextInput value={project.tagline} onChange={(e) => update("tagline", e.target.value)} />
       </Field>
-      <Field label="Description">
+      <Field label="Description" action={geminiAction("description", !project.description.trim())}>
         <TextArea value={project.description} onChange={(e) => update("description", e.target.value)} />
       </Field>
       <div className="grid gap-4 md:grid-cols-2">
-        <Field label="SEO label">
+        <Field label="SEO label" action={geminiAction("seoLabel", !project.seoLabel.trim())}>
           <TextInput value={project.seoLabel} onChange={(e) => update("seoLabel", e.target.value)} />
         </Field>
-        <Field label="SEO description">
+        <Field label="SEO description" action={geminiAction("seoDescription", !project.seoDescription.trim())}>
           <TextArea value={project.seoDescription} onChange={(e) => update("seoDescription", e.target.value)} />
         </Field>
       </div>
       <div className="grid gap-4 md:grid-cols-3">
-        <Field label="Role">
+        <Field label="Role" action={geminiAction("role", !project.role.trim())}>
           <TextInput value={project.role} onChange={(e) => update("role", e.target.value)} />
         </Field>
         <Field label="Year">
@@ -361,6 +392,7 @@ export function ProjectForm({
         label="Technologies"
         value={project.technologies}
         onChange={(value) => update("technologies", value.filter(Boolean))}
+        action={geminiAction("technologies", project.technologies.filter(Boolean).length === 0)}
       />
       <div className="grid gap-4 md:grid-cols-2">
         <Field label="Live URL">
@@ -385,22 +417,33 @@ export function ProjectForm({
           />
         </Field>
       </div>
-      <Field label="Challenge">
+      <Field label="Challenge" action={geminiAction("challenge", !project.challenge?.trim())}>
         <TextArea value={project.challenge ?? ""} onChange={(e) => update("challenge", e.target.value)} />
       </Field>
-      <Field label="Solution">
+      <Field label="Solution" action={geminiAction("solution", !project.solution?.trim())}>
         <TextArea value={project.solution ?? ""} onChange={(e) => update("solution", e.target.value)} />
       </Field>
-      <LinesEditor label="Architecture" value={project.architecture} onChange={(v) => update("architecture", v.filter(Boolean))} />
+      <LinesEditor
+        label="Architecture"
+        value={project.architecture}
+        onChange={(v) => update("architecture", v.filter(Boolean))}
+        action={geminiAction("architecture", project.architecture.filter(Boolean).length === 0)}
+      />
       <LinesEditor
         label="Engineering"
         value={project.engineering ?? []}
         onChange={(v) => update("engineering", v.filter(Boolean))}
+        action={geminiAction("engineering", (project.engineering ?? []).filter(Boolean).length === 0)}
       />
-      <Field label="Outcome">
+      <Field label="Outcome" action={geminiAction("outcome", !project.outcome?.trim())}>
         <TextArea value={project.outcome ?? ""} onChange={(e) => update("outcome", e.target.value)} />
       </Field>
-      <LinesEditor label="Highlights" value={project.highlights} onChange={(v) => update("highlights", v.filter(Boolean))} />
+      <LinesEditor
+        label="Highlights"
+        value={project.highlights}
+        onChange={(v) => update("highlights", v.filter(Boolean))}
+        action={geminiAction("highlights", project.highlights.filter(Boolean).length === 0)}
+      />
       <Field label="Visual">
         <select
           value={project.visual}
@@ -503,6 +546,32 @@ export function ProjectForm({
     </form>
     </div>
   );
+}
+
+function copyContext(project: Project): Partial<Project> {
+  return {
+    title: project.title,
+    slug: project.slug,
+    tagline: project.tagline,
+    description: project.description,
+    seoLabel: project.seoLabel,
+    seoDescription: project.seoDescription,
+    role: project.role,
+    year: project.year,
+    status: project.status,
+    industries: project.industries,
+    technologies: project.technologies,
+    github: project.github,
+    liveUrl: project.liveUrl,
+    appStoreUrl: project.appStoreUrl,
+    webUrl: project.webUrl,
+    challenge: project.challenge,
+    solution: project.solution,
+    architecture: project.architecture,
+    engineering: project.engineering,
+    outcome: project.outcome,
+    highlights: project.highlights,
+  };
 }
 
 function ScreenshotList({

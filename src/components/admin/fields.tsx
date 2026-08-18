@@ -6,16 +6,21 @@ export function Field({
   label,
   children,
   className,
+  action,
 }: {
   label: string;
   children: React.ReactNode;
   className?: string;
+  action?: React.ReactNode;
 }) {
   return (
-    <label className={cn("block", className)}>
-      <span className="font-mono text-[11px] tracking-[0.16em] text-subtle uppercase">{label}</span>
+    <div className={cn("block", className)}>
+      <span className="flex items-center justify-between gap-3">
+        <span className="font-mono text-[11px] tracking-[0.16em] text-subtle uppercase">{label}</span>
+        {action}
+      </span>
       <div className="mt-2">{children}</div>
-    </label>
+    </div>
   );
 }
 
@@ -35,14 +40,16 @@ export function LinesEditor({
   value,
   onChange,
   placeholder,
+  action,
 }: {
   label: string;
   value: string[];
   onChange: (value: string[]) => void;
   placeholder?: string;
+  action?: React.ReactNode;
 }) {
   return (
-    <Field label={label}>
+    <Field label={label} action={action}>
       <TextArea
         value={value.join("\n")}
         placeholder={placeholder ?? "One item per line"}
