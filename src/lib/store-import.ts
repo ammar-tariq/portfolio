@@ -6,7 +6,7 @@ import type { Industry, Project, ProjectScreenshot } from "@/types/content";
 
 const PLAY_HOST = "play.google.com";
 const APPLE_HOST_RE = /(^|\.)(apps\.apple\.com|itunes\.apple\.com)$/i;
-const IMAGE_HOSTS = [/^play-lh\.googleusercontent\.com$/i, /(^|\.)mzstatic\.com$/i];
+const IMAGE_HOSTS = [/(^|\.)googleusercontent\.com$/i, /(^|\.)mzstatic\.com$/i];
 const USER_AGENT =
   "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36";
 const APP_STORE_COUNTRIES = ["us", "ae", "gb", "sa", "in", "pk", "ca", "au", "de"];
@@ -288,7 +288,7 @@ function mergeListings(play?: StoreListing, apple?: StoreListing): StoreListing 
   };
 }
 
-async function fetchPlay(playUrl: string): Promise<StoreListing> {
+function listingNotes(listing: StoreListing) {
   return [
     `Imported from app store listing(s) for ${listing.title}.`,
     listing.playUrl ? `Play Store: ${listing.playUrl}` : "",
@@ -383,33 +383,31 @@ export async function importProjectFromStoreUrls(input: {
     }
   }
 
-  const folder = `portfolio/projects/${draft.slug || slugify(listing.title) || "import"}`;
-  const assets = await uploadStoreImages(listing, folder);
+  const assets = attachStoreImages(listing);
   draft.iosScreenshots = assets.iosScreenshots;
   draft.androidScreenshots = assets.androidScreenshots;
   draft.screenshots = [...assets.iosScreenshots, ...assets.androidScreenshots];
   if (assets.logo) {
-    draft.logo = assets.logo.url;
-    draft.logoPublicId = assets.logo.publicId;
+    draft.logo = assets.logo;
+    draft.logoPublicId = undefined;
   }
   if (assets.banner) {
-    draft.banner = assets.banner.url;
-    draft.bannerPublicId = assets.banner.publicId;
-    draft.ogImage = assets.banner.url;
-    draft.ogImagePublicId = assets.banner.publicId;
+    draft.banner = assets.banner;
+    draft.bannerPublicId = undefined;
+    draft.ogImage = assets.banner;
+    draft.ogImagePublicId = undefined;
   } else if (assets.logo) {
-    draft.ogImage = assets.logo.url;
-    draft.ogImagePublicId = assets.logo.publicId;
+    draft.ogImage = assets.logo;
+    draft.ogImagePublicId = undefined;
   }
   if (listing.video && isEmbedVideo(listing.video)) {
     draft.videoUrl = listing.video;
   }
 
   const expectedShots = listing.iosScreenshots.length + listing.androidScreenshots.length;
-  const uploadedShots = assets.iosScreenshots.length + assets.androidScreenshots.length;
-  if (assets.skipped) errors.push("Cloudinary is not configured, so images were skipped.");
-  else if (!uploadedShots && expectedShots) {
-    errors.push("Store copy imported, but screenshots could not be uploaded.");
+  const importedShots = assets.iosScreenshots.length + assets.androidScreenshots.length;
+  if (!importedShots && expectedShots) {
+    errors.push("Store copy imported, but screenshot URLs from Apple/Google were not usable.");
   }
 
   return {

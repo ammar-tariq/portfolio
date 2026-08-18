@@ -244,8 +244,8 @@ export function ProjectForm({
         <p className="font-mono text-[11px] tracking-[0.16em] text-subtle uppercase">Import from stores</p>
         <p className="mt-2 text-sm text-muted">
           Paste a Play Store URL, an App Store URL, or both. Use a country in the App Store link
-          (for example /ae/app/ or /us/app/) if the app is not on the US store. Play Store fills Android
-          screenshots, banner, and logo. App Store fills iOS screenshots and logo.
+          (for example /ae/app/ or /us/app/) if the app is not on the US store. Screenshots and the app
+          icon stay on Apple/Google CDNs — Cloudinary is only used when you upload a file yourself.
         </p>
         <div className="mt-4 grid gap-3 md:grid-cols-2">
           <Field label="Play Store URL">

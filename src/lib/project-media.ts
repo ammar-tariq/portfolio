@@ -17,6 +17,22 @@ export function fallbackScreenshots(project: Project) {
   return shotsOf(project.screenshots);
 }
 
+export function coverScreenshots(project: Project) {
+  const ios = iosScreenshots(project);
+  const android = androidScreenshots(project);
+  const extra = shotsOf(project.screenshots);
+  const preferred = ios.length >= 2 ? ios : [...ios, ...android, ...extra];
+  const seen = new Set<string>();
+  const unique: ProjectScreenshot[] = [];
+  for (const shot of preferred) {
+    if (seen.has(shot.src)) continue;
+    seen.add(shot.src);
+    unique.push(shot);
+    if (unique.length === 3) break;
+  }
+  return unique;
+}
+
 export function allScreenshots(project: Project) {
   const ios = iosScreenshots(project);
   const android = androidScreenshots(project);

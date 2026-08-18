@@ -2,7 +2,7 @@
 
 import { RemoteImage } from "@/components/ui/remote-image";
 import type { Project, ProjectScreenshot } from "@/types/content";
-import { allScreenshots } from "@/lib/project-media";
+import { coverScreenshots } from "@/lib/project-media";
 import { cn } from "@/lib/cn";
 
 const visuals: Record<Project["visual"], string> = {
@@ -24,7 +24,7 @@ export function ProjectVisual({
   project: Project;
   caption?: boolean;
 }) {
-  const shots = allScreenshots(project);
+  const shots = coverScreenshots(project);
   return (
     <div
       className={cn(
@@ -33,7 +33,16 @@ export function ProjectVisual({
       )}
     >
       <div className="hero-grid absolute inset-0 opacity-70" />
-      {project.banner ? (
+      {shots.length > 0 ? (
+        <>
+          <ScreenshotStack screenshots={shots} />
+          {project.logo ? (
+            <AppIcon src={project.logo} alt={`${project.title} icon`} />
+          ) : null}
+        </>
+      ) : project.logo ? (
+        <LogoMark src={project.logo} alt={`${project.title} logo`} caption={caption} />
+      ) : project.banner ? (
         <RemoteImage
           src={project.banner}
           alt={`${project.title} banner`}
@@ -41,10 +50,6 @@ export function ProjectVisual({
           sizes="(max-width: 768px) 100vw, 960px"
           className="object-cover"
         />
-      ) : shots.length > 0 ? (
-        <ScreenshotStack screenshots={shots} />
-      ) : project.logo ? (
-        <LogoMark src={project.logo} alt={`${project.title} logo`} caption={caption} />
       ) : (
         <>
           {project.visual === "dojo" && <Dojo />}
@@ -58,7 +63,7 @@ export function ProjectVisual({
           {project.visual === "catalog" && <Catalog />}
         </>
       )}
-      {caption && !project.banner && shots.length === 0 ? (
+      {caption && shots.length === 0 && !project.logo && !project.banner ? (
         <div className="absolute inset-x-0 bottom-0 p-4 sm:p-6">
           <p className="font-mono text-[10px] tracking-[0.24em] text-accent uppercase">
             {project.year ?? "Selected"}
@@ -159,6 +164,16 @@ function Catalog() {
   );
 }
 
+function AppIcon({ src, alt }: { src: string; alt: string }) {
+  return (
+    <div className="absolute bottom-5 left-5 z-10 sm:bottom-7 sm:left-7 [transform:translateZ(52px)]">
+      <div className="relative h-16 w-16 overflow-hidden rounded-[1.15rem] border border-white/20 bg-black shadow-[0_18px_40px_rgba(0,0,0,0.55)] sm:h-20 sm:w-20 sm:rounded-[1.35rem] md:h-24 md:w-24">
+        <RemoteImage src={src} alt={alt} fill sizes="96px" className="object-cover" />
+      </div>
+    </div>
+  );
+}
+
 function LogoMark({
   src,
   alt,
@@ -204,6 +219,7 @@ function ScreenshotStack({ screenshots }: { screenshots: ProjectScreenshot[] }) 
     <div className="absolute inset-0 flex items-center justify-center [perspective:1400px]">
       <div className="absolute top-8 left-10 h-28 w-28 rounded-full bg-accent/15 blur-3xl" />
       <div className="absolute right-8 bottom-10 h-32 w-32 rounded-full bg-accent-2/20 blur-3xl" />
+      <div className="relative flex h-full w-full items-center justify-center max-md:translate-y-1 md:translate-x-[6%]">
       {shots.map((shot, i) => (
         <div
           key={shot.src}
@@ -222,6 +238,7 @@ function ScreenshotStack({ screenshots }: { screenshots: ProjectScreenshot[] }) 
           />
         </div>
       ))}
+      </div>
     </div>
   );
 }
