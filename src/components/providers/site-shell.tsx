@@ -38,9 +38,11 @@ function SpatialLayer() {
 }
 
 export function SiteShell({
+  identity,
   github,
   cursor,
 }: {
+  identity?: React.ReactNode;
   github: React.ReactNode;
   cursor?: React.ReactNode;
 }) {
@@ -59,6 +61,7 @@ export function SiteShell({
       </a>
       <Navigation />
       <main className="relative z-[1]">
+        {identity}
         <Hero />
         <About />
         <Work />

@@ -30,7 +30,7 @@ export function Hero() {
     <section
       ref={sectionRef}
       id="hero"
-      className="relative min-h-dvh overflow-x-clip pt-[max(6rem,calc(env(safe-area-inset-top)+4.25rem))] md:overflow-hidden"
+      className="relative min-h-[80dvh] overflow-x-clip pt-8 md:overflow-hidden md:min-h-[88dvh]"
       onPointerMove={(event) => {
         if (!fine || !motionOn) return;
         const rect = event.currentTarget.getBoundingClientRect();
@@ -58,13 +58,16 @@ export function Hero() {
             {profile.title}
           </p>
           <h1 className="max-w-3xl" style={{ perspective: "1200px" }}>
+            <span className="sr-only">{profile.name}</span>
             <motion.span
+              aria-hidden
               style={{ x: x1, y: y1 }}
               className="block text-[clamp(2.8rem,10vw,8rem)] leading-[0.86] font-medium tracking-[-0.055em] text-fg will-change-transform"
             >
               {profile.firstName}
             </motion.span>
             <motion.span
+              aria-hidden
               style={{ x: x2, y: y2 }}
               className="mt-1 block font-serif text-[clamp(3.2rem,12vw,8.6rem)] leading-[0.88] text-fg will-change-transform"
             >

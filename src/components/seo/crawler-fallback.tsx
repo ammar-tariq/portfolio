@@ -7,9 +7,12 @@ export function CrawlerFallback({ content }: { content: SiteContent }) {
   return (
     <noscript>
       <article>
-        <h1>
-          {profile.name} — {profile.title}
-        </h1>
+        <h1>{profile.name}</h1>
+        <p>
+          The purpose of this application, {profile.name}, is to publish a personal
+          software-engineering portfolio. Visitors can view selected products and case studies and
+          contact {profile.name}. There is no visitor signup.
+        </p>
         <p>{profile.headline}</p>
         <p>{profile.summary}</p>
         <p>
@@ -22,7 +25,8 @@ export function CrawlerFallback({ content }: { content: SiteContent }) {
           <a href={social.github}>GitHub</a> · <a href={social.medium}>Blogs</a> ·{" "}
           <a href={social.linkedin}>LinkedIn</a> ·{" "}
           <a href={social.calendly}>Calendly</a> · <a href={social.whatsapp}>WhatsApp</a> ·{" "}
-          <a href={social.upwork}>Upwork</a> · <Link href="/resume">Resume</Link>
+          <a href={social.upwork}>Upwork</a> · <Link href="/resume">Resume</Link> ·{" "}
+          <Link href="/privacy">Privacy Policy</Link> · <Link href="/terms">Terms of Service</Link>
         </p>
         <h2>Skills</h2>
         {skillCategories.map((category) => (
