@@ -20,7 +20,10 @@ import { Contact } from "@/components/contact/contact";
 import { ConnectFab } from "@/components/contact/connect-fab";
 import { SmoothScroll } from "@/components/providers/smooth-scroll";
 import { useContent } from "@/components/providers/content-provider";
+import { HomeSectionSync } from "@/components/nav/home-section-sync";
+import { handleHomeSectionClick } from "@/lib/section-nav";
 import { useMotionEnabled } from "@/lib/use-motion-enabled";
+import Link from "next/link";
 
 const SpatialScene = dynamic(() => import("@/components/spatial/spatial-scene"), {
   ssr: false,
@@ -51,12 +54,15 @@ export function SiteShell({
       <SpatialLayer />
       <DepthSpot />
       <div className="grain" aria-hidden />
-      <a
-        href="#portfolio"
+      <HomeSectionSync />
+      <Link
+        href="/portfolio"
+        scroll={false}
+        onClick={(event) => handleHomeSectionClick(event, "/portfolio")}
         className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:rounded-full focus:px-4 focus:py-2 btn-solid"
       >
         Skip to portfolio
-      </a>
+      </Link>
       <Navigation />
       <main className="relative z-[1]">
         <Hero />
@@ -99,12 +105,12 @@ export function SiteShell({
             <a href={social.github} className="link-underline" data-cursor="external">
               GitHub
             </a>
-            <a href="/privacy" className="link-underline">
+            <Link href="/privacy" className="link-underline">
               Privacy
-            </a>
-            <a href="/terms" className="link-underline">
+            </Link>
+            <Link href="/terms" className="link-underline">
               Terms
-            </a>
+            </Link>
           </div>
         </div>
       </footer>

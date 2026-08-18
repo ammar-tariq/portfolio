@@ -15,10 +15,10 @@ export const social = {
 // Mirrors the section order on the homepage so scroll-spy highlighting moves
 // linearly while scrolling.
 export const navItems = [
-  { id: "about", label: "About", href: "#about" },
-  { id: "portfolio", label: "Portfolio", href: "#portfolio" },
-  { id: "open-source", label: "Open source", href: "#open-source" },
-  { id: "experience", label: "Experience", href: "#experience" },
-  { id: "skills", label: "Skills", href: "#skills" },
+  { id: "about", label: "About", href: "/about" },
+  { id: "portfolio", label: "Portfolio", href: "/portfolio" },
+  { id: "open-source", label: "Open source", href: "/open-source" },
+  { id: "experience", label: "Experience", href: "/experience" },
+  { id: "skills", label: "Skills", href: "/skills" },
   { id: "blogs", label: "Blogs", href: social.medium, external: true },
 ] as const;

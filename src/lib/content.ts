@@ -13,6 +13,7 @@ import {
   SkillCategoryModel,
 } from "@/models";
 import { staticContent } from "@/lib/static-content";
+import { canonicalizeSectionHref } from "@/lib/home-sections";
 import { rewriteProjectMedia } from "@/lib/media-url";
 import type {
   ArchitectureContent,
@@ -197,15 +198,15 @@ function architectureFromDoc(doc: unknown | null): ArchitectureContent {
 function buildCommands(settings: SiteSettings): CommandItem[] {
   const { profile, social } = settings;
   return [
-    { id: "portfolio", label: "View portfolio", hint: "Case studies", href: "#portfolio" },
-    { id: "open-source", label: "Open source", hint: "Public repositories", href: "#open-source" },
-    { id: "experience", label: "View Experience", hint: "Career timeline", href: "#experience" },
-    { id: "skills", label: "View Skills", hint: "Technology ecosystem", href: "#skills" },
-    { id: "about", label: "About", hint: "Profile", href: "#about" },
+    { id: "portfolio", label: "View portfolio", hint: "Case studies", href: "/portfolio" },
+    { id: "open-source", label: "Open source", hint: "Public repositories", href: "/open-source" },
+    { id: "experience", label: "View Experience", hint: "Career timeline", href: "/experience" },
+    { id: "skills", label: "View Skills", hint: "Technology ecosystem", href: "/skills" },
+    { id: "about", label: "About", hint: "Profile", href: "/about" },
     { id: "blogs", label: "Blogs", hint: "Medium", href: social.medium, external: true },
-    { id: "contact", label: "Contact", hint: "Start a conversation", href: "#contact" },
-    { id: "ai", label: "AI Systems", hint: "LLM orchestration", href: "#ai" },
-    { id: "architecture", label: "Architecture", hint: "System map", href: "#architecture" },
+    { id: "contact", label: "Contact", hint: "Start a conversation", href: "/contact" },
+    { id: "ai", label: "AI Systems", hint: "LLM orchestration", href: "/ai" },
+    { id: "architecture", label: "Architecture", hint: "System map", href: "/architecture" },
     { id: "github", label: "GitHub", hint: social.githubHandle, href: social.github, external: true },
     { id: "whatsapp", label: "WhatsApp", hint: "Message on WhatsApp", href: social.whatsapp, external: true },
     { id: "calendly", label: "Book a meeting", hint: "Calendly", href: social.calendly, external: true },
@@ -231,7 +232,9 @@ function assemble(parts: {
     ...parts,
     profile: parts.settings.profile,
     social: parts.settings.social,
-    navItems: parts.settings.navItems,
+    navItems: parts.settings.navItems.map((item) =>
+      item.external ? item : { ...item, href: canonicalizeSectionHref(item.href) },
+    ),
     seo: parts.settings.seo,
     commands: buildCommands(parts.settings),
   };

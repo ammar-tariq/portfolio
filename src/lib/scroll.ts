@@ -16,19 +16,27 @@ export function getLenis() {
   return lenis;
 }
 
-export function scrollToSection(target: string) {
-  const el = document.querySelector(target);
-  if (!el) return;
+export function scrollToSection(target: string, options?: { instant?: boolean }) {
+  const run = (tries: number) => {
+    const el = document.querySelector(target);
+    if (!el) {
+      if (tries < 30) requestAnimationFrame(() => run(tries + 1));
+      return;
+    }
 
-  if (lenis) {
-    lenis.scrollTo(target, {
-      offset: SCROLL_OFFSET,
-      duration: 1.35,
-      easing: scrollEase,
-      force: true,
-    });
-    return;
-  }
+    const instant = options?.instant ?? false;
+    if (lenis) {
+      lenis.scrollTo(target, {
+        offset: SCROLL_OFFSET,
+        duration: instant ? 0 : 1.35,
+        easing: scrollEase,
+        force: true,
+      });
+      return;
+    }
 
-  el.scrollIntoView({ behavior: "smooth" });
+    el.scrollIntoView({ behavior: instant ? "auto" : "smooth", block: "start" });
+  };
+
+  run(0);
 }

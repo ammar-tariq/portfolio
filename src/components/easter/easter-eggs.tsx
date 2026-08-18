@@ -5,7 +5,8 @@ import { AnimatePresence, motion } from "motion/react";
 import { useSite } from "@/components/providers/site-provider";
 import { useContent } from "@/components/providers/content-provider";
 import { easeOutExpo } from "@/lib/motion";
-import { scrollToSection } from "@/lib/scroll";
+import { goToHomeSection } from "@/lib/section-nav";
+import { homeSectionById } from "@/lib/home-sections";
 
 const KONAMI = [
   "ArrowUp",
@@ -77,7 +78,7 @@ export function EasterEggs() {
         break;
       case "work":
       case "portfolio":
-        scrollToSection("#portfolio");
+        goToHomeSection(homeSectionById("portfolio")!);
         out.push("scrolling to portfolio.");
         break;
       case "contact":

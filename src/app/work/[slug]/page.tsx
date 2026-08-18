@@ -66,7 +66,7 @@ export default async function WorkPage({
         <div className="grain" aria-hidden />
         <ProjectHero
           project={project}
-          backHref="/#portfolio"
+          backHref="/portfolio"
           backLabel={`Back to ${content.profile.firstName}`}
         />
         <Container className="pt-10">

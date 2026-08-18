@@ -1,5 +1,6 @@
 import { connectDb } from "@/lib/db";
 import { hasMongo, siteHost } from "@/lib/env";
+import { homeSectionFromPathname } from "@/lib/home-sections";
 import { PageViewModel, ProjectModel } from "@/models";
 
 export { isPrivateIp } from "@/lib/client-ip";
@@ -58,6 +59,8 @@ export function pageLabel(path: string, titles: Map<string, string>) {
   if (path === "/") return "Home";
   if (path === "/work") return "Work";
   if (path === "/resume") return "Resume";
+  const section = homeSectionFromPathname(path);
+  if (section) return section.label;
   const match = /^\/work\/([^/?#]+)/.exec(path);
   if (match) return titles.get(match[1]) ?? match[1];
   return path;

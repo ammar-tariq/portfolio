@@ -4,6 +4,7 @@ import { Container, Section, Eyebrow } from "@/components/ui/section";
 import { Reveal } from "@/components/ui/reveal";
 import { useContent } from "@/components/providers/content-provider";
 import { siteFaq } from "@/lib/faq";
+import Link from "next/link";
 
 export function About() {
   const content = useContent();
@@ -54,9 +55,9 @@ export function About() {
                 Blogs
               </a>
               {"  ·  "}
-              <a href="/resume" className="link-underline text-fg">
+              <Link href="/resume" className="link-underline text-fg">
                 Resume
-              </a>
+              </Link>
             </p>
           </Reveal>
         </div>

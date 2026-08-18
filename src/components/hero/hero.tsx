@@ -75,8 +75,8 @@ export function Hero() {
             {profile.headline}
           </p>
           <div className="mt-10 flex flex-wrap items-center gap-3">
-            <ButtonLink href="#portfolio">View portfolio</ButtonLink>
-            <ButtonLink href="#contact" variant="ghost">
+            <ButtonLink href="/portfolio">View portfolio</ButtonLink>
+            <ButtonLink href="/contact" variant="ghost">
               Contact
             </ButtonLink>
           </div>

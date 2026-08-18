@@ -69,6 +69,10 @@ ${current ? `- Current role: ${current.role} at ${current.company} (${current.pe
 ## Links
 
 - Resume: ${siteUrl}/resume
+- About: ${siteUrl}/about
+- Portfolio: ${siteUrl}/portfolio
+- Experience: ${siteUrl}/experience
+- Skills: ${siteUrl}/skills
 - Portfolio (case studies): ${siteUrl}/work
 - GitHub: ${social.github}
 - LinkedIn: ${social.linkedin}
@@ -114,7 +118,7 @@ GitHub: ${social.github}
 
 ${seo.description}
 
-Visible FAQ on the homepage: ${siteUrl}/#faq
+Visible FAQ on the homepage: ${siteUrl}/faq
 
 ### What is ${profile.name} known for?
 

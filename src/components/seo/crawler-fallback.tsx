@@ -1,15 +1,36 @@
 import type { SiteContent } from "@/types/content";
 import { publicProjects } from "@/lib/project-helpers";
+import { HOME_SECTIONS, type HomeSectionId } from "@/lib/home-sections";
 import Link from "next/link";
 
-export function CrawlerFallback({ content }: { content: SiteContent }) {
+export function CrawlerFallback({
+  content,
+  sectionId = "hero",
+}: {
+  content: SiteContent;
+  sectionId?: HomeSectionId;
+}) {
   const { profile, social, experience, skillCategories, openSourceProjects, projects } = content;
+  const section = HOME_SECTIONS.find((item) => item.id === sectionId);
   return (
     <noscript>
       <article>
         <h1>
-          {profile.name} — {profile.title}
+          {sectionId === "hero"
+            ? `${profile.name} — ${profile.title}`
+            : `${section?.title ?? sectionId} — ${profile.name}`}
         </h1>
+        <nav>
+          {HOME_SECTIONS.filter((item) => item.id !== "hero").map((item) => (
+            <span key={item.id}>
+              <a href={item.path}>{item.label}</a>
+              {" · "}
+            </span>
+          ))}
+          <Link href="/work">Projects</Link>
+          {" · "}
+          <Link href="/resume">Resume</Link>
+        </nav>
         <p>{profile.headline}</p>
         <p>{profile.summary}</p>
         <p>

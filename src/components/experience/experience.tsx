@@ -121,7 +121,7 @@ export function Experience() {
                               href: `/work/${slug}`,
                               origin: event.currentTarget,
                               eyebrow: projectHeroEyebrow(project, industries),
-                              backHref: "/#portfolio",
+                              backHref: "/portfolio",
                               backLabel: `Back to ${profile.firstName}`,
                             });
                           }}

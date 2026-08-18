@@ -27,7 +27,7 @@ export function siteFaq(content: SiteContent): FaqItem[] {
     },
     {
       question: `How can I contact ${profile.name}?`,
-      answer: `Email ${profile.email}, or use the contact links on ${siteUrl}.`,
+      answer: `Email ${profile.email}, or use the contact links on ${siteUrl}/contact.`,
     },
   ];
 }

@@ -7,8 +7,11 @@ import { useSite } from "@/components/providers/site-provider";
 import { ThemeToggle } from "./theme-toggle";
 import { BrandMark } from "@/components/ui/brand-mark";
 import { useLenis } from "lenis/react";
+import Link from "next/link";
 import { cn } from "@/lib/cn";
 import { easeOutExpo } from "@/lib/motion";
+import { HOME_SECTIONS } from "@/lib/home-sections";
+import { handleHomeSectionClick } from "@/lib/section-nav";
 
 export function Navigation() {
   const { setCommandOpen } = useSite();
@@ -28,11 +31,7 @@ export function Navigation() {
   }, []);
 
   useEffect(() => {
-    const ids = [
-      "hero",
-      "contact",
-      ...navItems.filter((item) => item.href.startsWith("#")).map((item) => item.id),
-    ];
+    const ids = HOME_SECTIONS.map((section) => section.id);
     const observer = new IntersectionObserver(
       (entries) => {
         const visible = entries
@@ -47,7 +46,7 @@ export function Navigation() {
       if (el) observer.observe(el);
     });
     return () => observer.disconnect();
-  }, [navItems]);
+  }, []);
 
   useEffect(() => {
     document.body.style.overflow = open ? "hidden" : "";
@@ -72,14 +71,16 @@ export function Navigation() {
             compact ? "md:py-1.5" : "md:py-2.5",
           )}
         >
-          <a
-            href="#hero"
+          <Link
+            href="/"
+            scroll={false}
+            onClick={(event) => handleHomeSectionClick(event, "/")}
             className="inline-flex shrink-0 items-center rounded-[8px]"
             data-cursor="link"
             aria-label={`${profile.name} — home`}
           >
             <BrandMark className={cn("transition-all duration-500", compact ? "h-8 w-8" : "h-9 w-9 md:h-10 md:w-10")} />
-          </a>
+          </Link>
           <ul className="hidden items-center gap-1 lg:flex">
             {navItems.map((item) => {
               const external = "external" in item && item.external;
@@ -87,6 +88,7 @@ export function Navigation() {
                 <li key={item.id}>
                   <a
                     href={item.href}
+                    onClick={(event) => handleHomeSectionClick(event, item.href)}
                     data-cursor={external ? "external" : "link"}
                     {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
                     className={cn(
@@ -110,8 +112,10 @@ export function Navigation() {
             >
               ⌘K
             </button>
-            <a
-              href="#contact"
+            <Link
+              href="/contact"
+              scroll={false}
+              onClick={(event) => handleHomeSectionClick(event, "/contact")}
               className={cn(
                 "hidden rounded-full px-4 py-1.5 text-sm font-medium lg:inline-flex",
                 active === "contact" ? "btn-solid bg-[var(--accent)]" : "btn-solid",
@@ -119,7 +123,7 @@ export function Navigation() {
               data-cursor="link"
             >
               Contact
-            </a>
+            </Link>
             <button
               type="button"
               className="inline-flex h-10 w-10 items-center justify-center rounded-full text-fg lg:hidden"
@@ -164,7 +168,10 @@ export function Navigation() {
                     <li key={item.id}>
                       <motion.a
                         href={item.href}
-                        onClick={() => setOpen(false)}
+                        onClick={(event) => {
+                          handleHomeSectionClick(event, item.href);
+                          setOpen(false);
+                        }}
                         initial={{ opacity: 0, y: 16 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.05 * i, duration: 0.5, ease: easeOutExpo }}
@@ -179,16 +186,23 @@ export function Navigation() {
                   );
                 })}
                 <li>
-                  <motion.a
-                    href="#contact"
-                    onClick={() => setOpen(false)}
+                  <motion.div
                     initial={{ opacity: 0, y: 16 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.05 * navItems.length, duration: 0.5, ease: easeOutExpo }}
-                    className="block py-2 text-3xl font-medium tracking-tight sm:text-4xl"
                   >
-                    Contact
-                  </motion.a>
+                    <Link
+                      href="/contact"
+                      scroll={false}
+                      onClick={(event) => {
+                        handleHomeSectionClick(event, "/contact");
+                        setOpen(false);
+                      }}
+                      className="block py-2 text-3xl font-medium tracking-tight sm:text-4xl"
+                    >
+                      Contact
+                    </Link>
+                  </motion.div>
                 </li>
               </ul>
               <div className="flex flex-col gap-3 text-sm text-muted">

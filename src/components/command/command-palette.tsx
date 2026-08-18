@@ -7,6 +7,8 @@ import { useSite } from "@/components/providers/site-provider";
 import { useContent } from "@/components/providers/content-provider";
 import { easeOutExpo } from "@/lib/motion";
 import { scrollToSection } from "@/lib/scroll";
+import { goToHomeSection } from "@/lib/section-nav";
+import { homeSectionFromHref, isHomeShellPath } from "@/lib/home-sections";
 
 export function CommandPalette() {
   const { commandOpen, setCommandOpen } = useSite();
@@ -58,6 +60,12 @@ function Palette({ onClose }: { onClose: () => void }) {
     }
     if (external || href.startsWith("http") || href.startsWith("mailto:")) {
       window.open(href, "_blank", "noopener,noreferrer");
+      return;
+    }
+    const section = homeSectionFromHref(href);
+    if (section) {
+      if (isHomeShellPath(window.location.pathname)) goToHomeSection(section);
+      else router.push(section.path);
       return;
     }
     if (href.startsWith("#")) {

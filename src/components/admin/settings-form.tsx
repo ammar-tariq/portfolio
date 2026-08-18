@@ -73,7 +73,7 @@ export function SettingsForm({
             ))}
           </div>
           <LinesEditor
-            label="Nav items (label|href|external)"
+            label="Nav items (label|/about|external)"
             value={navItems.map((item) => `${item.label}|${item.href}|${item.external ? "1" : "0"}`)}
             onChange={(lines) =>
               setSettings({

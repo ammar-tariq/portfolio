@@ -4,6 +4,7 @@ import { ogImages } from "@/lib/og";
 import { coverImage, allScreenshots } from "@/lib/project-media";
 import { publicProjects } from "@/lib/project-helpers";
 import { siteFaq } from "@/lib/faq";
+import { homeSectionById, type HomeSectionId } from "@/lib/home-sections";
 
 export function siteUrlFrom(content: SiteContent) {
   return content.profile.website.replace(/\/$/, "");
@@ -145,8 +146,8 @@ export function faqPageJsonLd(content: SiteContent) {
   const siteUrl = siteUrlFrom(content);
   return {
     "@type": "FAQPage",
-    "@id": `${siteUrl}/#faq`,
-    url: siteUrl,
+    "@id": `${siteUrl}/faq#faq`,
+    url: `${siteUrl}/faq`,
     mainEntity: siteFaq(content).map((item) => ({
       "@type": "Question",
       name: item.question,
@@ -158,10 +159,34 @@ export function faqPageJsonLd(content: SiteContent) {
   };
 }
 
-export function homeGraphJsonLd(content: SiteContent) {
+export function homeSectionPageJsonLd(content: SiteContent, sectionId: HomeSectionId) {
+  const siteUrl = siteUrlFrom(content);
+  const section = homeSectionById(sectionId);
+  if (!section || section.id === "hero") return profilePageJsonLd(content);
+  return {
+    "@type": "WebPage",
+    "@id": `${siteUrl}${section.path}#webpage`,
+    url: `${siteUrl}${section.path}`,
+    name: `${section.title} — ${content.profile.name}`,
+    description: section.description(content),
+    isPartOf: { "@id": `${siteUrl}/#website` },
+    about: { "@id": `${siteUrl}/#person` },
+  };
+}
+
+export function homeGraphJsonLd(content: SiteContent, sectionId: HomeSectionId = "hero") {
+  if (sectionId === "hero") {
+    return {
+      "@context": "https://schema.org",
+      "@graph": [profilePageJsonLd(content), workIndexJsonLd(content), faqPageJsonLd(content)],
+    };
+  }
+  const graph: Record<string, unknown>[] = [homeSectionPageJsonLd(content, sectionId)];
+  if (sectionId === "portfolio") graph.push(workIndexJsonLd(content));
+  if (sectionId === "faq" || sectionId === "about") graph.push(faqPageJsonLd(content));
   return {
     "@context": "https://schema.org",
-    "@graph": [profilePageJsonLd(content), workIndexJsonLd(content), faqPageJsonLd(content)],
+    "@graph": graph,
   };
 }
 

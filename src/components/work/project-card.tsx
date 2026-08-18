@@ -124,7 +124,7 @@ export function ProjectCard({
             href: target,
             origin: visualRef.current,
             eyebrow: projectHeroEyebrow(project, industries),
-            backHref: "/#portfolio",
+            backHref: "/portfolio",
             backLabel: `Back to ${profile.firstName}`,
           });
         }}

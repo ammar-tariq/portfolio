@@ -3,6 +3,7 @@ import { getSiteContent } from "@/lib/content";
 import { siteUrlFrom } from "@/lib/seo";
 import { publicProjects } from "@/lib/project-helpers";
 import { LEGAL_UPDATED_ISO } from "@/lib/legal";
+import { homeSectionSlugs } from "@/lib/home-sections";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const content = await getSiteContent();
@@ -45,6 +46,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "monthly",
       priority: 0.7,
     },
+    ...homeSectionSlugs().map((section) => ({
+      url: `${siteUrl}/${section}`,
+      ...(latestUpdate ? { lastModified: latestUpdate } : {}),
+      changeFrequency: "monthly" as const,
+      priority: 0.5,
+    })),
     {
       url: `${siteUrl}/privacy`,
       lastModified: legalUpdated,
