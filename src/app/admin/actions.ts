@@ -15,6 +15,19 @@ import {
   SettingsModel,
   SkillCategoryModel,
 } from "@/models";
+import { getSiteContentForParams } from "@/lib/content";
+import {
+  answersText,
+  applicationFromDoc,
+  coverLetterText,
+  destroyApplicationFiles,
+  generateApplicationMaterials,
+  generateScreeningAnswers,
+  resumeHtml,
+  resumePlainText,
+  uploadApplicationFiles,
+} from "@/lib/job-application";
+import { hasApplicationMail, sendApplicationMail } from "@/lib/gmail-send";
 import { slugify } from "@/lib/project-helpers";
 import { destroyImage } from "@/lib/cloudinary";
 import type { ArchitectureContent, Industry, Project, SiteSettings } from "@/types/content";
@@ -25,14 +38,6 @@ import {
   importOpenSourceRepoFromGithub,
   importProjectFromGithubRepo,
 } from "@/lib/github-import";
-import { getSiteContentForParams } from "@/lib/content";
-import {
-  applicationFromDoc,
-  destroyApplicationFiles,
-  generateApplicationMaterials,
-  generateScreeningAnswers,
-  uploadApplicationFiles,
-} from "@/lib/job-application";
 import type { ApplicationStatus } from "@/types/application";
 
 async function ready() {
@@ -108,7 +113,7 @@ export async function importGithubProject(
   }
 }
 
-export async function saveProject(raw: Project) {
+export async function saveProject(raw: Project, originalSlug?: string) {
   await ready();
   const slug = slugify(raw.slug || raw.title);
   if (!slug) throw new Error("Slug is required");
@@ -120,11 +125,22 @@ export async function saveProject(raw: Project) {
     iosScreenshots.length || androidScreenshots.length
       ? [...iosScreenshots, ...androidScreenshots]
       : (raw.screenshots ?? []);
-  await ProjectModel.findOneAndUpdate(
-    { slug },
-    { ...raw, slug, ogImage, iosScreenshots, androidScreenshots, screenshots, listed: raw.listed !== false },
-    { upsert: true, new: true },
-  );
+  const payload = { ...raw, slug, ogImage, iosScreenshots, androidScreenshots, screenshots, listed: raw.listed !== false };
+  const lookup = slugify(originalSlug || "") || undefined;
+
+  if (lookup) {
+    if (lookup !== slug) {
+      const clash = await ProjectModel.findOne({ slug }).lean();
+      if (clash) throw new Error(`Slug "${slug}" is already used by another project.`);
+    }
+    const updated = await ProjectModel.findOneAndUpdate({ slug: lookup }, payload, { new: true });
+    if (!updated) throw new Error("Project to update was not found. It may have been deleted.");
+    revalidateSite(lookup);
+    if (lookup !== slug) revalidateSite(slug);
+    return slug;
+  }
+
+  await ProjectModel.findOneAndUpdate({ slug }, payload, { upsert: true, new: true });
   revalidateSite(slug);
   return slug;
 }
@@ -394,4 +410,78 @@ export async function deleteJobApplication(id: string) {
   }
   await JobApplicationModel.deleteOne({ _id: id });
   revalidateApplications();
+}
+
+export async function sendJobApplication(input: {
+  id: string;
+  to: string;
+  cc?: string;
+  subject: string;
+  body: string;
+  attachResume?: boolean;
+  attachAnswers?: boolean;
+}): Promise<{ ok: true } | { ok: false; error: string }> {
+  await ready();
+  if (!hasApplicationMail()) {
+    return {
+      ok: false,
+      error: "Set Gmail API keys (GMAIL_CLIENT_ID, GMAIL_CLIENT_SECRET, GMAIL_REFRESH_TOKEN, GMAIL_USER) or SMTP_USER/SMTP_PASS.",
+    };
+  }
+  const doc = await JobApplicationModel.findById(input.id);
+  if (!doc) return { ok: false, error: "Application not found." };
+  try {
+    const content = await getSiteContentForParams();
+    const application = applicationFromDoc(doc);
+    const base = slugify(`${content.profile.name}-${application.role}-${application.company}`) || "application";
+    const attachments: { filename: string; content: Buffer; contentType: string }[] = [];
+    const attached: string[] = [];
+    if (input.attachResume !== false) {
+      attachments.push({
+        filename: `${base}-resume.txt`,
+        content: Buffer.from(resumePlainText(content, application)),
+        contentType: "text/plain",
+      });
+      attachments.push({
+        filename: `${base}-resume.html`,
+        content: Buffer.from(resumeHtml(content, application)),
+        contentType: "text/html",
+      });
+      attached.push("resume.txt", "resume.html");
+    }
+    if (input.attachAnswers && application.answers.length) {
+      attachments.push({
+        filename: `${base}-answers.txt`,
+        content: Buffer.from(answersText(application)),
+        contentType: "text/plain",
+      });
+      attached.push("answers.txt");
+    }
+    const sent = await sendApplicationMail({
+      to: input.to,
+      cc: input.cc,
+      subject: input.subject,
+      text: input.body.trim() || coverLetterText(content, application),
+      attachments,
+    });
+    const record = {
+      to: input.to.trim(),
+      cc: input.cc?.trim() || undefined,
+      subject: input.subject.trim(),
+      via: sent.via,
+      messageId: sent.messageId,
+      threadId: sent.threadId,
+      attached,
+      createdAt: new Date(),
+    };
+    doc.sends = [...(doc.sends ?? []), record];
+    doc.status = "applied";
+    doc.sentAt = new Date();
+    await doc.save();
+    revalidateApplications(input.id);
+    return { ok: true };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Could not send the email.";
+    return { ok: false, error: message };
+  }
 }

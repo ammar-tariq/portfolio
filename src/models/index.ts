@@ -225,6 +225,21 @@ const jobApplicationSchema = new Schema(
       ],
       default: [],
     },
+    sends: {
+      type: [
+        {
+          to: String,
+          cc: String,
+          subject: String,
+          via: String,
+          messageId: String,
+          threadId: String,
+          attached: { type: [String], default: [] },
+          createdAt: { type: Date, default: Date.now },
+        },
+      ],
+      default: [],
+    },
     files: {
       resumeTxt: applicationFileSchema,
       resumeHtml: applicationFileSchema,
@@ -233,6 +248,7 @@ const jobApplicationSchema = new Schema(
     },
     status: { type: String, enum: ["draft", "applied", "archived"], default: "draft" },
     warning: String,
+    sentAt: Date,
   },
   { timestamps: true },
 );

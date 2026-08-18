@@ -5,6 +5,8 @@ import { JobApplicationModel } from "@/models";
 import { connectDb } from "@/lib/db";
 import { applicationFromDoc } from "@/lib/job-application";
 import { ApplicationDetail } from "@/components/admin/application-detail";
+import { hasApplicationMail } from "@/lib/gmail-send";
+import { getSiteContentForParams } from "@/lib/content";
 
 export default async function ApplicationPage({
   params,
@@ -17,6 +19,8 @@ export default async function ApplicationPage({
   const doc = await JobApplicationModel.findById(id).lean();
   if (!doc) notFound();
   const application = applicationFromDoc(doc);
+  const content = await getSiteContentForParams();
+  const defaultSubject = `Application for ${application.role} — ${content.profile.name}`;
 
   return (
     <div>
@@ -36,7 +40,7 @@ export default async function ApplicationPage({
         </p>
       ) : null}
       <div className="mt-8">
-        <ApplicationDetail application={application} />
+        <ApplicationDetail application={application} canSend={hasApplicationMail()} defaultSubject={defaultSubject} />
       </div>
     </div>
   );

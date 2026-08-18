@@ -1,6 +1,8 @@
 import { connectDb } from "@/lib/db";
-import { hasMongo } from "@/lib/env";
+import { hasMongo, siteHost } from "@/lib/env";
 import { PageViewModel, ProjectModel } from "@/models";
+
+export { isPrivateIp } from "@/lib/client-ip";
 
 export type AnalyticsSummary = {
   views: number;
@@ -14,7 +16,7 @@ export type AnalyticsSummary = {
 
 function ownHosts(requestHost?: string) {
   const hosts = new Set(["localhost", "127.0.0.1"]);
-  for (const raw of [process.env.AUTH_URL]) {
+  for (const raw of [process.env.AUTH_URL, `https://${siteHost()}`]) {
     if (!raw) continue;
     try {
       hosts.add(new URL(raw).hostname.replace(/^www\./, "").toLowerCase());
@@ -26,19 +28,6 @@ function ownHosts(requestHost?: string) {
     hosts.add(requestHost.replace(/^www\./, "").split(":")[0].toLowerCase());
   }
   return hosts;
-}
-
-export function isPrivateIp(ip: string) {
-  const value = ip.trim().toLowerCase();
-  if (!value || value === "127.0.0.1" || value === "::1" || value === "0:0:0:0:0:0:0:1") return true;
-  if (value.startsWith("::ffff:")) return isPrivateIp(value.slice(7));
-  if (value.startsWith("10.") || value.startsWith("192.168.") || value.startsWith("127.")) return true;
-  const match = /^172\.(\d+)\./.exec(value);
-  if (match) {
-    const octet = Number(match[1]);
-    return octet >= 16 && octet <= 31;
-  }
-  return false;
 }
 
 export function normalizeReferrer(raw: string, requestHost?: string) {
@@ -106,7 +95,7 @@ export async function getAnalytics(days = 30): Promise<AnalyticsSummary> {
       { $limit: 16 },
     ]),
     PageViewModel.aggregate([
-      { $match: { ...match, city: { $ne: "" } } },
+      { $match: { ...match, lat: { $type: "number" }, lng: { $type: "number" } } },
       {
         $group: {
           _id: { city: "$city", country: "$country", lat: "$lat", lng: "$lng" },
@@ -137,7 +126,7 @@ export async function getAnalytics(days = 30): Promise<AnalyticsSummary> {
 
   const countryRows = mergeCounts(
     countries.map((row: { _id: string; count: number }) => ({
-      key: row._id || "Local / private IP",
+      key: row._id || "Unknown",
       count: row.count,
     })),
   ).map((row) => ({ country: row.key, count: row.count }));
@@ -150,7 +139,7 @@ export async function getAnalytics(days = 30): Promise<AnalyticsSummary> {
     countries: countryRows,
     cities: cities.map(
       (row: { _id: { city: string; country: string; lat?: number; lng?: number }; count: number }) => ({
-        city: row._id.city,
+        city: row._id.city || row._id.country || "Unknown",
         country: row._id.country,
         lat: row._id.lat,
         lng: row._id.lng,

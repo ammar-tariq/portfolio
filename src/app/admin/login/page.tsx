@@ -1,15 +1,17 @@
 import { signIn } from "@/auth";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
+import { safeAdminCallback } from "@/lib/admin-path";
 
 export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: Promise<{ error?: string }>;
+  searchParams: Promise<{ error?: string; callbackUrl?: string }>;
 }) {
   const session = await auth();
-  if (session?.user) redirect("/admin");
-  const { error } = await searchParams;
+  const { error, callbackUrl } = await searchParams;
+  const next = safeAdminCallback(callbackUrl);
+  if (session?.user) redirect(next);
 
   return (
     <div className="flex min-h-svh items-center justify-center bg-bg px-4 text-fg">
@@ -28,7 +30,7 @@ export default async function LoginPage({
           className="mt-8"
           action={async () => {
             "use server";
-            await signIn("github", { redirectTo: "/admin" });
+            await signIn("github", { redirectTo: next });
           }}
         >
           <button type="submit" className="btn-solid inline-flex h-12 w-full items-center justify-center rounded-full text-sm font-medium">

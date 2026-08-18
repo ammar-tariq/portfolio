@@ -14,7 +14,8 @@ export function proxy(request: NextRequest) {
   if (pathname.startsWith("/admin/login")) return NextResponse.next();
   if (!isAuthed(request)) {
     const login = new URL("/admin/login", request.url);
-    login.searchParams.set("callbackUrl", pathname);
+    const next = `${pathname}${request.nextUrl.search}`;
+    if (next !== "/admin") login.searchParams.set("callbackUrl", next);
     return NextResponse.redirect(login);
   }
   return NextResponse.next();

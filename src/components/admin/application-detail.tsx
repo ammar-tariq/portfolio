@@ -3,13 +3,27 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import type { JobApplication } from "@/types/application";
-import { answerApplicationQuestions, deleteJobApplication, setApplicationStatus } from "@/app/admin/actions";
-import { Field, TextArea } from "@/components/admin/fields";
+import { answerApplicationQuestions, deleteJobApplication, sendJobApplication, setApplicationStatus } from "@/app/admin/actions";
+import { Field, TextArea, TextInput } from "@/components/admin/fields";
 
-export function ApplicationDetail({ application }: { application: JobApplication }) {
+export function ApplicationDetail({
+  application,
+  canSend,
+  defaultSubject,
+}: {
+  application: JobApplication;
+  canSend: boolean;
+  defaultSubject: string;
+}) {
   const router = useRouter();
   const [questions, setQuestions] = useState("");
-  const [busy, setBusy] = useState<"answers" | "delete" | null>(null);
+  const [to, setTo] = useState("");
+  const [cc, setCc] = useState("");
+  const [subject, setSubject] = useState(defaultSubject);
+  const [body, setBody] = useState(application.coverLetter);
+  const [attachResume, setAttachResume] = useState(true);
+  const [attachAnswers, setAttachAnswers] = useState(false);
+  const [busy, setBusy] = useState<"answers" | "delete" | "send" | null>(null);
   const [error, setError] = useState("");
   const [copied, setCopied] = useState("");
 
@@ -28,6 +42,26 @@ export function ApplicationDetail({ application }: { application: JobApplication
       return;
     }
     setQuestions("");
+    router.refresh();
+  }
+
+  async function onSend() {
+    setBusy("send");
+    setError("");
+    const result = await sendJobApplication({
+      id: application.id,
+      to,
+      cc,
+      subject,
+      body,
+      attachResume,
+      attachAnswers,
+    });
+    setBusy(null);
+    if (!result.ok) {
+      setError(result.error);
+      return;
+    }
     router.refresh();
   }
 
@@ -83,6 +117,77 @@ export function ApplicationDetail({ application }: { application: JobApplication
         </button>
       </div>
       {application.warning ? <p className="text-sm text-muted">{application.warning}</p> : null}
+
+      <section className="grid gap-4 rounded-3xl border border-line bg-bg-elevated/40 p-5">
+        <p className="font-mono text-[11px] tracking-[0.16em] text-subtle uppercase">Send application</p>
+        <p className="text-sm text-muted">
+          Sends from your Gmail, attaches the ATS resume, and marks this application as applied. Gmail API is preferred
+          (stores message/thread ids); SMTP App Password is the fallback.
+        </p>
+        <div className="grid gap-4 md:grid-cols-2">
+          <Field label="To">
+            <TextInput
+              value={to}
+              onChange={(event) => setTo(event.target.value)}
+              placeholder="hiring@company.com"
+              type="email"
+              required
+            />
+          </Field>
+          <Field label="CC">
+            <TextInput value={cc} onChange={(event) => setCc(event.target.value)} placeholder="optional" />
+          </Field>
+        </div>
+        <Field label="Subject">
+          <TextInput value={subject} onChange={(event) => setSubject(event.target.value)} />
+        </Field>
+        <Field label="Body">
+          <TextArea className="min-h-40" value={body} onChange={(event) => setBody(event.target.value)} />
+        </Field>
+        <div className="flex flex-wrap gap-4 text-sm text-muted">
+          <label className="inline-flex items-center gap-2">
+            <input type="checkbox" checked={attachResume} onChange={(event) => setAttachResume(event.target.checked)} />
+            Attach resume (TXT + HTML)
+          </label>
+          <label className="inline-flex items-center gap-2">
+            <input
+              type="checkbox"
+              checked={attachAnswers}
+              onChange={(event) => setAttachAnswers(event.target.checked)}
+              disabled={!application.answers.length}
+            />
+            Attach screening answers
+          </label>
+        </div>
+        <button
+          type="button"
+          disabled={busy !== null || !canSend || !to.trim()}
+          onClick={() => void onSend()}
+          className="btn-solid inline-flex h-11 w-fit items-center justify-center rounded-full px-5 text-sm font-medium disabled:opacity-50"
+        >
+          {busy === "send" ? "Sending…" : "Send"}
+        </button>
+        {!canSend ? (
+          <p className="text-sm text-muted">
+            Add Gmail API env vars (GMAIL_CLIENT_ID, GMAIL_CLIENT_SECRET, GMAIL_REFRESH_TOKEN, GMAIL_USER) or SMTP_USER /
+            SMTP_PASS, then restart.
+          </p>
+        ) : null}
+        {error ? <p className="text-sm text-muted">{error}</p> : null}
+        {application.sends.length ? (
+          <ul className="divide-y divide-line border-y border-line text-sm">
+            {application.sends.map((item, index) => (
+              <li key={`${item.messageId ?? item.createdAt ?? index}`} className="py-3 text-muted">
+                <span className="text-fg">Sent to {item.to}</span>
+                {item.createdAt ? ` · ${new Date(item.createdAt).toLocaleString()}` : ""}
+                {` · ${item.via}`}
+                {item.threadId ? ` · thread ${item.threadId}` : ""}
+                {item.attached.length ? ` · ${item.attached.join(", ")}` : ""}
+              </li>
+            ))}
+          </ul>
+        ) : null}
+      </section>
 
       {application.keywords.length ? (
         <div>

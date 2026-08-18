@@ -9,6 +9,7 @@ import type {
   ApplicationFile,
   ApplicationProject,
   ApplicationSkillGroup,
+  ApplicationSend,
   GeneratedResume,
   JobApplication,
 } from "@/types/application";
@@ -36,6 +37,7 @@ export function applicationFromDoc(doc: unknown): JobApplication {
   const resume = (data.resume ?? {}) as Record<string, unknown>;
   const files = (data.files ?? {}) as Record<string, unknown>;
   const answers = Array.isArray(data.answers) ? data.answers : [];
+  const sends = Array.isArray(data.sends) ? data.sends : [];
   return {
     id: str(data._id || data.id, 80),
     company: str(data.company, 160),
@@ -56,6 +58,19 @@ export function applicationFromDoc(doc: unknown): JobApplication {
         createdAt: row.createdAt ? str(row.createdAt, 80) : undefined,
       };
     }),
+    sends: sends.map((item) => {
+      const row = item as Record<string, unknown>;
+      return {
+        to: str(row.to, 300),
+        cc: str(row.cc, 300) || undefined,
+        subject: str(row.subject, 300),
+        via: row.via === "gmail-api" ? "gmail-api" : "smtp",
+        messageId: str(row.messageId, 200) || undefined,
+        threadId: str(row.threadId, 200) || undefined,
+        attached: strList(row.attached, 8, 80),
+        createdAt: row.createdAt ? str(row.createdAt, 80) : undefined,
+      } satisfies ApplicationSend;
+    }),
     files: {
       resumeTxt: asFile(files.resumeTxt),
       resumeHtml: asFile(files.resumeHtml),
@@ -64,6 +79,7 @@ export function applicationFromDoc(doc: unknown): JobApplication {
     },
     status: data.status === "applied" || data.status === "archived" ? data.status : "draft",
     warning: str(data.warning, 400) || undefined,
+    sentAt: data.sentAt ? str(data.sentAt, 80) : undefined,
     createdAt: data.createdAt ? str(data.createdAt, 80) : undefined,
     updatedAt: data.updatedAt ? str(data.updatedAt, 80) : undefined,
   };

@@ -33,6 +33,7 @@ export default async function ApplicationsPage() {
                 </p>
                 <p className="text-sm text-muted">
                   {item.status}
+                  {item.sentAt ? ` · sent ${new Date(item.sentAt).toLocaleDateString()}` : ""}
                   {item.createdAt ? ` · ${new Date(item.createdAt).toLocaleDateString()}` : ""}
                   {item.keywords.length ? ` · ${item.keywords.length} keywords` : ""}
                 </p>

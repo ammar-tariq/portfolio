@@ -5,6 +5,8 @@ import { getSiteContent } from "@/lib/content";
 import { rootMetadata, siteGraphJsonLd } from "@/lib/seo";
 import { JsonLd } from "@/components/seo/json-ld";
 import { AnalyticsTracker } from "@/components/analytics/tracker";
+import { GoogleAnalytics } from "@/components/analytics/google-analytics";
+import { googleAnalyticsId } from "@/lib/env";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -42,6 +44,7 @@ const themeScript = `(function(){try{var s=localStorage.getItem("theme");var lig
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const content = await getSiteContent();
+  const gaId = googleAnalyticsId();
   return (
     <html
       lang="en"
@@ -55,6 +58,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       <body className="min-h-full bg-bg text-fg" suppressHydrationWarning>
         <JsonLd data={siteGraphJsonLd(content)} />
         <AnalyticsTracker />
+        {gaId ? <GoogleAnalytics id={gaId} /> : null}
         {children}
       </body>
     </html>

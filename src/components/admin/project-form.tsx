@@ -72,16 +72,24 @@ export function ProjectForm({
   async function onSubmit(event: React.FormEvent) {
     event.preventDefault();
     setSaving(true);
-    const slug = await saveProject({
-      ...project,
-      slug: slugify(project.slug || project.title),
-      seoLabel: project.seoLabel || project.title,
-      seoDescription: project.seoDescription || project.tagline || project.description,
-    });
-    setSaving(false);
-    router.push("/admin/projects");
-    router.refresh();
-    return slug;
+    setDraftError("");
+    try {
+      await saveProject(
+        {
+          ...project,
+          slug: slugify(project.slug || project.title),
+          seoLabel: project.seoLabel || project.title,
+          seoDescription: project.seoDescription || project.tagline || project.description,
+        },
+        initial?.slug,
+      );
+      router.push("/admin/projects");
+      router.refresh();
+    } catch (error) {
+      setDraftError(error instanceof Error ? error.message : "Could not save the project.");
+    } finally {
+      setSaving(false);
+    }
   }
 
   function setShot(list: "iosScreenshots" | "androidScreenshots" | "screenshots", index: number, shot: ProjectScreenshot) {
@@ -106,6 +114,7 @@ export function ProjectForm({
     setProject((current) => ({
       ...current,
       ...result.draft,
+      slug: initial?.slug || current.slug || result.draft.slug || "",
       screenshots: current.screenshots,
       iosScreenshots: current.iosScreenshots,
       androidScreenshots: current.androidScreenshots,
@@ -137,6 +146,7 @@ export function ProjectForm({
     setProject((current) => ({
       ...current,
       ...result.draft,
+      slug: initial?.slug || current.slug || result.draft.slug || "",
       featured: current.featured,
       listed: current.listed,
       sortOrder: current.sortOrder,
@@ -170,6 +180,7 @@ export function ProjectForm({
     setProject((current) => ({
       ...current,
       ...result.draft,
+      slug: initial?.slug || current.slug || result.draft.slug || "",
       featured: current.featured,
       listed: current.listed,
       sortOrder: current.sortOrder,

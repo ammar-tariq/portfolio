@@ -1,5 +1,8 @@
 import { getAnalytics } from "@/lib/analytics";
 import { VisitorMap } from "@/components/admin/visitor-map";
+import { googleAnalyticsId } from "@/lib/env";
+
+export const dynamic = "force-dynamic";
 
 export default async function AdminHomePage() {
   const stats = await getAnalytics(30);
@@ -18,6 +21,9 @@ export default async function AdminHomePage() {
           {stats.geoUnavailable
             ? " Localhost and private IPs cannot be geolocated — this fills in on the live site."
             : null}
+          {googleAnalyticsId()
+            ? " Google Analytics is also enabled via GA_MEASUREMENT_ID (not stored in Git)."
+            : " This dashboard is first-party. Google Analytics stays off unless GA_MEASUREMENT_ID is set on the server."}
         </p>
         <VisitorMap points={stats.cities} />
       </div>

@@ -3,7 +3,8 @@ import nodemailer from "nodemailer";
 import { ProjectModel, VisitNotifyModel } from "@/models";
 import { connectDb } from "@/lib/db";
 import { hasMongo, hasVisitNotify, siteHost } from "@/lib/env";
-import { isPrivateIp, pageLabel } from "@/lib/analytics";
+import { isPrivateIp } from "@/lib/client-ip";
+import { pageLabel } from "@/lib/analytics";
 
 const BOT =
   /bot|crawl|spider|slurp|preview|facebookexternalhit|whatsapp|telegram|discord|linkedinbot|embedly|quora|pinterest|slack|vkshare|skypeuri/i;

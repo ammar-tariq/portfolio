@@ -49,23 +49,16 @@ function recordPath(path: string) {
 }
 
 function beacon(url: string, payload: unknown) {
-  const body = JSON.stringify(payload);
-  try {
-    const blob = new Blob([body], { type: "application/json" });
-    if (navigator.sendBeacon(url, blob)) return;
-  } catch {
-    /* fall through */
-  }
   fetch(url, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body,
+    body: JSON.stringify(payload),
     keepalive: true,
   }).catch(() => undefined);
 }
 
 function sendPageView(path: string) {
-  beacon("/api/analytics", { path, referrer: externalReferrer() });
+  beacon("/api/visit", { path, referrer: externalReferrer() });
 }
 
 function sendSessionSummary() {
@@ -76,7 +69,7 @@ function sendSessionSummary() {
     const raw = sessionStorage.getItem(PATHS_KEY);
     if (!id || !raw) return;
     sessionStorage.setItem(SENT_KEY, "1");
-    beacon("/api/analytics/session", {
+    beacon("/api/visit/session", {
       sessionId: id,
       paths: JSON.parse(raw) as VisitPath[],
       startedAt: startedAt || Date.now(),

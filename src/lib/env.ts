@@ -30,6 +30,11 @@ export function hasGemini() {
   return Boolean(process.env.GEMINI_API_KEY?.trim());
 }
 
+export function googleAnalyticsId() {
+  const id = process.env.GA_MEASUREMENT_ID?.trim() ?? "";
+  return /^G-[A-Z0-9]+$/i.test(id) ? id : "";
+}
+
 export function hasVisitNotify() {
   return Boolean(
     (process.env.NOTIFY_EMAIL?.trim() || process.env.SMTP_USER?.trim()) &&

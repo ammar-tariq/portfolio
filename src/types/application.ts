@@ -25,6 +25,17 @@ export type ApplicationProject = {
   bullets?: string[];
 };
 
+export type ApplicationSend = {
+  to: string;
+  cc?: string;
+  subject: string;
+  via: "gmail-api" | "smtp";
+  messageId?: string;
+  threadId?: string;
+  attached: string[];
+  createdAt?: string;
+};
+
 export type ApplicationAnswer = {
   question: string;
   answer: string;
@@ -54,6 +65,7 @@ export type JobApplication = {
   resume: GeneratedResume;
   coverLetter: string;
   answers: ApplicationAnswer[];
+  sends: ApplicationSend[];
   files: {
     resumeTxt?: ApplicationFile;
     resumeHtml?: ApplicationFile;
@@ -62,6 +74,7 @@ export type JobApplication = {
   };
   status: ApplicationStatus;
   warning?: string;
+  sentAt?: string;
   createdAt?: string;
   updatedAt?: string;
 };
