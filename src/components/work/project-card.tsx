@@ -1,12 +1,14 @@
 "use client";
 
+import { useRef } from "react";
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import { motion, useReducedMotion } from "motion/react";
 import type { Project } from "@/types/content";
-import { industryLabel } from "@/lib/project-helpers";
+import { industryLabel, projectHeroEyebrow } from "@/lib/project-helpers";
 import { useContent } from "@/components/providers/content-provider";
 import { ProjectVisual } from "./project-visual";
+import { shouldPassProjectClick, useProjectOpen } from "./project-open";
 import { TiltCard } from "@/components/ui/tilt";
 import { cn } from "@/lib/cn";
 import { easeOutExpo } from "@/lib/motion";
@@ -20,11 +22,15 @@ export function ProjectCard({
   index: number;
   href?: string;
 }) {
-  const { industries } = useContent();
+  const { industries, profile } = useContent();
+  const { openProject, pendingSlug } = useProjectOpen();
+  const visualRef = useRef<HTMLDivElement>(null);
   const reduced = useReducedMotion();
   const reverse = index % 2 === 1;
   const visualFrom = reverse ? 40 : -40;
   const copyFrom = reverse ? -28 : 28;
+  const target = href ?? `/work/${project.slug}`;
+  const opening = pendingSlug === project.slug;
 
   const body = (
     <motion.div
@@ -52,7 +58,13 @@ export function ProjectCard({
         }}
       >
         <TiltCard>
-          <div className="overflow-hidden rounded-[24px] border border-line bg-bg-elevated/40 shadow-[0_24px_80px_rgba(0,0,0,0.35)] transition-[border-color,box-shadow] duration-500 group-hover:border-line-strong group-hover:shadow-[0_28px_90px_rgba(0,0,0,0.45)]">
+          <div
+            ref={visualRef}
+            className={cn(
+              "overflow-hidden rounded-[24px] border border-line bg-bg-elevated/40 shadow-[0_24px_80px_rgba(0,0,0,0.35)] transition-[border-color,box-shadow] duration-500 group-hover:border-line-strong group-hover:shadow-[0_28px_90px_rgba(0,0,0,0.45)]",
+              opening && "invisible",
+            )}
+          >
             <div className="relative h-[220px] overflow-hidden sm:h-[280px] md:h-[380px]">
               <div className="h-full origin-center transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] will-change-transform group-hover:scale-[1.045] motion-reduce:transform-none motion-reduce:transition-none">
                 <ProjectVisual project={project} caption={false} />
@@ -95,7 +107,28 @@ export function ProjectCard({
 
   return (
     <article className="border-t border-line py-10 md:py-14">
-      <Link href={href ?? `/work/${project.slug}`} data-cursor="view" className="block">
+      <Link
+        href={target}
+        data-cursor="view"
+        className="block"
+        onPointerEnter={() => {
+          if (!project.banner) return;
+          const img = new window.Image();
+          img.src = project.banner;
+        }}
+        onClick={(event) => {
+          if (shouldPassProjectClick(event)) return;
+          event.preventDefault();
+          openProject({
+            project,
+            href: target,
+            origin: visualRef.current,
+            eyebrow: projectHeroEyebrow(project, industries),
+            backHref: "/#portfolio",
+            backLabel: `Back to ${profile.firstName}`,
+          });
+        }}
+      >
         {body}
       </Link>
     </article>

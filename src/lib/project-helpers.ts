@@ -28,6 +28,12 @@ export function industryLabel(project: Project, industries: Industry[]) {
   return industryLabels(project, industries).join(" · ");
 }
 
+export function projectHeroEyebrow(project: Project, industries: Industry[]) {
+  return [industryLabel(project, industries), project.year, project.role.split("·")[0]?.trim()]
+    .filter(Boolean)
+    .join(" · ");
+}
+
 export function hasIndustry(project: Project, id: string) {
   return project.industries.includes(id);
 }

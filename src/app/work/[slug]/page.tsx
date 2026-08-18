@@ -1,16 +1,14 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import { JsonLd } from "@/components/seo/json-ld";
 import { projectGraphJsonLd, siteUrlFrom } from "@/lib/seo";
-import { ProjectVisual } from "@/components/work/project-visual";
+import { ProjectHero } from "@/components/work/project-hero";
 import { ProjectMedia } from "@/components/work/project-screenshots";
 import { ButtonLink } from "@/components/ui/button";
 import { Container } from "@/components/ui/section";
-import { BrandMark } from "@/components/ui/brand-mark";
 import { getPublicProject, getSiteContentForParams } from "@/lib/content";
-import { industryLabel, industryLabels, projectLiveLabel, publicProjects } from "@/lib/project-helpers";
+import { industryLabels, projectLiveLabel, publicProjects } from "@/lib/project-helpers";
 import { coverImage } from "@/lib/project-media";
 import { ogImages } from "@/lib/og";
 import { ContentProvider } from "@/components/providers/content-provider";
@@ -78,24 +76,13 @@ export default async function WorkPage({
       <div className="min-h-svh bg-bg pb-20">
         <JsonLd data={projectGraphJsonLd(content, project)} />
         <div className="grain" aria-hidden />
-        <Container className="pt-[max(2.5rem,calc(env(safe-area-inset-top)+1rem))]">
-          <Link
-            href="/#portfolio"
-            className="inline-flex items-center gap-3 text-sm text-muted hover:text-fg"
-          >
-            <BrandMark className="h-8 w-8" name={content.profile.name} />
-            Back to {content.profile.firstName}
-          </Link>
-          <div className="mt-8 overflow-hidden rounded-3xl border border-line">
-            <div className="h-[220px] sm:h-[280px] md:h-[380px]">
-              <ProjectVisual project={project} />
-            </div>
-          </div>
-          <p className="mt-10 font-mono text-[11px] tracking-[0.2em] text-accent uppercase">
-            {industryLabel(project, content.industries)} · {project.role}
-          </p>
-          <h1 className="mt-3 font-serif text-[1.85rem] tracking-tight sm:text-4xl md:text-6xl">{project.title}</h1>
-          <p className="mt-5 max-w-2xl text-lg text-muted">{project.description}</p>
+        <ProjectHero
+          project={project}
+          backHref="/#portfolio"
+          backLabel={`Back to ${content.profile.firstName}`}
+        />
+        <Container className="pt-10">
+          <p className="max-w-2xl text-lg text-muted">{project.description}</p>
           <div className="mt-6 flex flex-wrap gap-3">
             {project.github ? (
               <ButtonLink href={project.github} variant="ghost">

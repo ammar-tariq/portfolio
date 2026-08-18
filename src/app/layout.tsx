@@ -5,6 +5,7 @@ import { getSiteContent } from "@/lib/content";
 import { rootMetadata, siteGraphJsonLd } from "@/lib/seo";
 import { JsonLd } from "@/components/seo/json-ld";
 import { AnalyticsTracker } from "@/components/analytics/tracker";
+import { ProjectOpenProvider } from "@/components/work/project-open";
 import { googleAnalyticsId, googleTagManagerId } from "@/lib/env";
 
 const geistSans = Geist({
@@ -84,7 +85,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         ) : null}
         <JsonLd data={siteGraphJsonLd(content)} />
         <AnalyticsTracker />
-        {children}
+        <ProjectOpenProvider>{children}</ProjectOpenProvider>
       </body>
     </html>
   );

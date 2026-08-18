@@ -7,9 +7,12 @@ import { Container, Section, SectionHeader } from "@/components/ui/section";
 import { Reveal } from "@/components/ui/reveal";
 import { cn } from "@/lib/cn";
 import { useContent } from "@/components/providers/content-provider";
+import { projectHeroEyebrow } from "@/lib/project-helpers";
+import { shouldPassProjectClick, useProjectOpen } from "@/components/work/project-open";
 
 export function Experience() {
-  const { experience, projects } = useContent();
+  const { experience, projects, industries, profile } = useContent();
+  const { openProject } = useProjectOpen();
   const [active, setActive] = useState(experience[0]?.id ?? "");
   const current = experience.find((item) => item.id === active) ?? experience[0];
   if (!current) return null;
@@ -110,6 +113,18 @@ export function Experience() {
                           href={`/work/${slug}`}
                           data-cursor="view"
                           className="rounded-full bg-fg/6 px-3 py-1.5 text-xs text-fg hover:bg-fg/10"
+                          onClick={(event) => {
+                            if (shouldPassProjectClick(event)) return;
+                            event.preventDefault();
+                            openProject({
+                              project,
+                              href: `/work/${slug}`,
+                              origin: event.currentTarget,
+                              eyebrow: projectHeroEyebrow(project, industries),
+                              backHref: "/#portfolio",
+                              backLabel: `Back to ${profile.firstName}`,
+                            });
+                          }}
                         >
                           {project.title}
                         </Link>
