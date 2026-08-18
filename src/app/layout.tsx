@@ -5,7 +5,6 @@ import { getSiteContent } from "@/lib/content";
 import { rootMetadata, siteGraphJsonLd } from "@/lib/seo";
 import { JsonLd } from "@/components/seo/json-ld";
 import { AnalyticsTracker } from "@/components/analytics/tracker";
-import { GoogleAnalytics } from "@/components/analytics/google-analytics";
 import { googleAnalyticsId, googleTagManagerId } from "@/lib/env";
 
 const geistSans = Geist({
@@ -42,6 +41,10 @@ export const viewport: Viewport = {
 
 const themeScript = `(function(){try{var s=localStorage.getItem("theme");var light=s==="light"||(s!=="dark"&&window.matchMedia("(prefers-color-scheme: light)").matches);if(light)document.documentElement.classList.add("light");document.documentElement.style.colorScheme=light?"light":"dark";}catch(e){}})();`;
 
+function gtagScript(id: string) {
+  return `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config',${JSON.stringify(id)});`;
+}
+
 function gtmScript(id: string) {
   return `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer',${JSON.stringify(id)});`;
 }
@@ -49,7 +52,7 @@ function gtmScript(id: string) {
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const content = await getSiteContent();
   const gaId = googleAnalyticsId();
-  const gtmId = googleTagManagerId();
+  const gtmId = gaId ? "" : googleTagManagerId();
   return (
     <html
       lang="en"
@@ -58,6 +61,12 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       className={`${geistSans.variable} ${geistMono.variable} ${serif.variable} h-full antialiased`}
     >
       <head>
+        {gaId ? (
+          <>
+            <script async src={`https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(gaId)}`} />
+            <script dangerouslySetInnerHTML={{ __html: gtagScript(gaId) }} />
+          </>
+        ) : null}
         {gtmId ? <script dangerouslySetInnerHTML={{ __html: gtmScript(gtmId) }} /> : null}
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
@@ -75,7 +84,6 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         ) : null}
         <JsonLd data={siteGraphJsonLd(content)} />
         <AnalyticsTracker />
-        {gaId ? <GoogleAnalytics id={gaId} /> : null}
         {children}
       </body>
     </html>
