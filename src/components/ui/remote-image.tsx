@@ -36,6 +36,7 @@ export function RemoteImage({
   height?: number;
 }) {
   if (!src) return null;
+  if (src.startsWith("/projects/")) return null;
   // Remote URLs load from the CDN directly. `/_next/image` needs outbound
   // fetches from the VPS and fails when TLS/proxy is misconfigured.
   if (canOptimize(src) && !src.startsWith("http://") && !src.startsWith("https://")) {
