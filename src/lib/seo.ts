@@ -342,11 +342,11 @@ export function rootMetadata(content: SiteContent): Metadata {
     category: "technology",
     icons: {
       icon: [
-        { url: "/favicon.svg", type: "image/svg+xml" },
-        { url: "/logo-at.png", type: "image/png" },
+        { url: "/favicon.ico", sizes: "48x48" },
+        { url: "/logo-at.png", type: "image/png", sizes: "150x150" },
       ],
       apple: "/logo-at.png",
-      shortcut: "/logo-at.png",
+      shortcut: "/favicon.ico",
     },
     robots: {
       index: true,

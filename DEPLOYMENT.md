@@ -181,6 +181,7 @@ Secrets (Actions → Secrets):
 | `VPS_USER` | SSH user (non-root, in the `docker` group) |
 | `VPS_SSH_KEY` | Private key for that user |
 | `VPS_APP_DIR` | Absolute path to the Compose directory on the server |
+| `SITE_HOST` (optional variable) | Public hostname, e.g. `ammartariq.com`. If unset, deploy uses `package.json` `homepage`, then the server `.env` / `AUTH_URL`. |
 
 Do not put application secrets (`AUTH_SECRET`, `MONGODB_URI`, Cloudinary, SMTP) in GitHub unless you later choose to. They belong in the production `.env` next to Compose on the server. Real paths stay in `LOCAL.md` (gitignored).
 
