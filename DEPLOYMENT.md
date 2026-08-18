@@ -229,7 +229,7 @@ Or revert `main` to that commit and push (the workflow will deploy that SHA).
 | GHCR push 403 | Workflow permissions must be read/write; `packages: write` is already in the YAML. |
 | SSH fails | `VPS_HOST` / `VPS_USER` / `VPS_SSH_KEY`; that user must be able to SSH and run Docker. |
 | Compose copy fails | `VPS_APP_DIR` must already exist on the server and be writable by `VPS_USER`. |
-| Container starts, Traefik 404 | `SITE_HOST` must match the public hostname; container must be on `proxy`; `traefik.enable=true`. |
+| Container starts, Traefik 404 (`404 page not found`) | `SITE_HOST` is missing or wrong in the VPS `.env`. Compose interpolates Traefik `Host()` from that value; an empty host matches nothing. Add `SITE_HOST=your-domain.com` (no `https://`), then `docker compose up -d` from the Compose directory. Deploy now fails if it is unset. |
 | Health check fails | `docker compose logs portfolio`; confirm `/api/health` inside the container. |
 | OAuth redirect mismatch | GitHub app callback and `AUTH_URL` must be `https://<SITE_HOST>`. |
 | Admin 403 | `ADMIN_GITHUB_LOGIN` must match the GitHub username (case-insensitive). |

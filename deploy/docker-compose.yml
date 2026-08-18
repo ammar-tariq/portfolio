@@ -17,7 +17,7 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network=proxy"
-      - "traefik.http.routers.portfolio.rule=Host(`${SITE_HOST}`) || Host(`www.${SITE_HOST}`)"
+      - "traefik.http.routers.portfolio.rule=Host(`${SITE_HOST:?SITE_HOST must be set in .env}`) || Host(`www.${SITE_HOST}`)"
       - "traefik.http.routers.portfolio.entrypoints=websecure"
       - "traefik.http.routers.portfolio.tls=true"
       - "traefik.http.routers.portfolio.tls.certresolver=letsencrypt"
@@ -26,7 +26,7 @@ services:
       - "traefik.http.middlewares.portfolio-www.redirectregex.regex=^https?://www\\.(.+)"
       - "traefik.http.middlewares.portfolio-www.redirectregex.replacement=https://$${1}"
       - "traefik.http.middlewares.portfolio-www.redirectregex.permanent=true"
-      - "traefik.http.routers.portfolio-http.rule=Host(`${SITE_HOST}`) || Host(`www.${SITE_HOST}`)"
+      - "traefik.http.routers.portfolio-http.rule=Host(`${SITE_HOST:?SITE_HOST must be set in .env}`) || Host(`www.${SITE_HOST}`)"
       - "traefik.http.routers.portfolio-http.entrypoints=web"
       - "traefik.http.routers.portfolio-http.middlewares=portfolio-https"
       - "traefik.http.middlewares.portfolio-https.redirectscheme.scheme=https"

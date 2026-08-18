@@ -111,6 +111,22 @@ jobs:
             printf '%s' "${COMPOSE_B64}" | base64 -d > "${VPS_APP_DIR}/docker-compose.yml"
             cd "${VPS_APP_DIR}"
 
+            if [ ! -f .env ]; then
+              echo "Missing ${VPS_APP_DIR}/.env"
+              exit 1
+            fi
+
+            # Compose interpolates labels from the shell / project .env. If SITE_HOST
+            # is empty, Traefik's Host() rule matches nothing and the public site 404s
+            # even though /api/health inside the container is fine.
+            SITE_HOST="$(grep -E '^SITE_HOST=' .env | tail -n1 | cut -d= -f2- | tr -d '"' | tr -d "'" | tr -d ' \t\r')"
+            if [ -z "${SITE_HOST}" ]; then
+              echo "SITE_HOST is not set in ${VPS_APP_DIR}/.env"
+              echo "Add a line like: SITE_HOST=ammartariq.com  (hostname only, no https://)"
+              exit 1
+            fi
+            export SITE_HOST
+
             previous_image=""
             container_id="$(docker compose ps -q portfolio 2>/dev/null || true)"
             if [ -n "${container_id}" ]; then
@@ -137,6 +153,7 @@ jobs:
             fi
 
             docker compose up -d --pull never
+            echo "Traefik Host rule uses SITE_HOST=${SITE_HOST}"
 
             # Requires Mongo to be connected (or intentionally not configured,
             # e.g. a fork running placeholder content). A container that only
