@@ -24,7 +24,7 @@ export default async function ApplyPage({
       <ol className="mt-6 grid gap-2 text-sm text-muted">
         <li>1. iPhone: Share the posting → Copy, open this page, tap Paste clipboard. Or add an iOS Shortcut that opens this URL with the shared link.</li>
         <li>2. Android: Install the site, then Share a job → this app. The posting URL lands in the form.</li>
-        <li>3. Generate the resume here, then Copy / Share into LinkedIn Easy Apply, or Send if you have an email.</li>
+        <li>3. Generate the resume here, then download the PDF, Copy / Share into LinkedIn Easy Apply, or Send if you have an email.</li>
       </ol>
       <p className="mt-4 text-sm">
         <Link href="/admin/applications" className="text-accent">

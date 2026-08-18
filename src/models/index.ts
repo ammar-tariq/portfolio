@@ -256,6 +256,7 @@ const jobApplicationSchema = new Schema(
     },
     inboxStatus: { type: String, enum: ["replied", "interview", "rejected", "offer"] },
     files: {
+      resumePdf: applicationFileSchema,
       resumeTxt: applicationFileSchema,
       resumeHtml: applicationFileSchema,
       coverLetter: applicationFileSchema,

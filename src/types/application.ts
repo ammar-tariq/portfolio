@@ -81,6 +81,7 @@ export type JobApplication = {
   replies: ApplicationReply[];
   inboxStatus?: InboxStatus;
   files: {
+    resumePdf?: ApplicationFile;
     resumeTxt?: ApplicationFile;
     resumeHtml?: ApplicationFile;
     coverLetter?: ApplicationFile;

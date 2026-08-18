@@ -149,7 +149,7 @@ export function ApplicationForm({
       {!compact ? (
         <p className="text-sm text-muted">
           Paste the job description. Gemini will tailor an ATS resume and cover letter from your Mongo projects and
-          experience, then save TXT/HTML copies to Cloudinary.
+          experience, then save PDF copies to Cloudinary.
         </p>
       ) : (
         <p className="text-sm text-muted">

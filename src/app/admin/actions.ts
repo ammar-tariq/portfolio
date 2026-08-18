@@ -17,16 +17,15 @@ import {
 } from "@/models";
 import { getSiteContentForParams } from "@/lib/content";
 import {
-  answersText,
   applicationFromDoc,
   coverLetterText,
   destroyApplicationFiles,
   generateApplicationMaterials,
   generateScreeningAnswers,
-  resumeHtml,
   resumePlainText,
   uploadApplicationFiles,
 } from "@/lib/job-application";
+import { answersPdf, resumePdf, resumePdfFilename } from "@/lib/resume-pdf";
 import { hasApplicationMail, sendApplicationMail } from "@/lib/gmail-send";
 import { slugify } from "@/lib/project-helpers";
 import { destroyImage } from "@/lib/cloudinary";
@@ -516,24 +515,19 @@ export async function sendJobApplication(input: {
     const attached: string[] = [];
     if (input.attachResume !== false) {
       attachments.push({
-        filename: `${base}-resume.txt`,
-        content: Buffer.from(resumePlainText(content, application)),
-        contentType: "text/plain",
+        filename: resumePdfFilename(content.profile.name, application.resume.targetRole || application.role),
+        content: await resumePdf(content, application),
+        contentType: "application/pdf",
       });
-      attachments.push({
-        filename: `${base}-resume.html`,
-        content: Buffer.from(resumeHtml(content, application)),
-        contentType: "text/html",
-      });
-      attached.push("resume.txt", "resume.html");
+      attached.push("resume.pdf");
     }
     if (input.attachAnswers && application.answers.length) {
       attachments.push({
-        filename: `${base}-answers.txt`,
-        content: Buffer.from(answersText(application)),
-        contentType: "text/plain",
+        filename: `${base}-answers.pdf`,
+        content: await answersPdf(application),
+        contentType: "application/pdf",
       });
-      attached.push("answers.txt");
+      attached.push("answers.pdf");
     }
     const sent = await sendApplicationMail({
       to: input.to,

@@ -2,6 +2,7 @@ import { generateGeminiJson } from "@/lib/draft-project";
 import { publicProjects } from "@/lib/project-helpers";
 import { hasCloudinary } from "@/lib/env";
 import { destroyImage, uploadRawFile, type UploadedAsset } from "@/lib/cloudinary";
+import { answersPdf, coverLetterPdf, resumePdf } from "@/lib/resume-pdf";
 import type { SiteContent } from "@/types/content";
 import type {
   ApplicationAnswer,
@@ -92,6 +93,7 @@ export function applicationFromDoc(doc: unknown): JobApplication {
     }),
     inboxStatus: inbox.includes(data.inboxStatus as InboxStatus) ? (data.inboxStatus as InboxStatus) : undefined,
     files: {
+      resumePdf: asFile(files.resumePdf),
       resumeTxt: asFile(files.resumeTxt),
       resumeHtml: asFile(files.resumeHtml),
       coverLetter: asFile(files.coverLetter),
@@ -487,25 +489,28 @@ export async function uploadApplicationFiles(id: string, content: SiteContent, a
     return { files: application.files, warning: "Cloudinary is not configured; files were not uploaded." };
   }
   const folder = `portfolio/applications/${id}`;
-  const resumeTxt = resumePlainText(content, application);
-  const html = resumeHtml(content, application);
-  const letter = coverLetterText(content, application);
   const qa = answersText(application);
-
-  const [resumeTxtFile, resumeHtmlFile, coverLetterFile, answersFile] = await Promise.all([
-    uploadRawFile({ buffer: Buffer.from(resumeTxt), folder, filename: "resume.txt" }),
-    uploadRawFile({ buffer: Buffer.from(html), folder, filename: "resume.html" }),
-    uploadRawFile({ buffer: Buffer.from(letter), folder, filename: "cover-letter.txt" }),
+  const letter = application.coverLetter.trim();
+  const [resumePdfFile, coverLetterFile, answersFile] = await Promise.all([
+    resumePdf(content, application).then((buffer) =>
+      uploadRawFile({ buffer, folder, filename: "resume.pdf" }),
+    ),
+    letter
+      ? coverLetterPdf(content, application).then((buffer) =>
+          uploadRawFile({ buffer, folder, filename: "cover-letter.pdf" }),
+        )
+      : Promise.resolve(undefined),
     qa
-      ? uploadRawFile({ buffer: Buffer.from(qa), folder, filename: "answers.txt" })
+      ? answersPdf(application).then((buffer) => uploadRawFile({ buffer, folder, filename: "answers.pdf" }))
       : Promise.resolve(undefined),
   ]);
 
   return {
     files: {
-      resumeTxt: fileFrom(resumeTxtFile),
-      resumeHtml: fileFrom(resumeHtmlFile),
-      coverLetter: fileFrom(coverLetterFile),
+      resumePdf: fileFrom(resumePdfFile),
+      resumeTxt: application.files.resumeTxt,
+      resumeHtml: application.files.resumeHtml,
+      coverLetter: fileFrom(coverLetterFile) ?? application.files.coverLetter,
       answers: fileFrom(answersFile) ?? application.files.answers,
     },
   };
@@ -513,6 +518,7 @@ export async function uploadApplicationFiles(id: string, content: SiteContent, a
 
 export async function destroyApplicationFiles(files: JobApplication["files"]) {
   await Promise.all([
+    destroyImage(files.resumePdf?.publicId, "raw"),
     destroyImage(files.resumeTxt?.publicId, "raw"),
     destroyImage(files.resumeHtml?.publicId, "raw"),
     destroyImage(files.coverLetter?.publicId, "raw"),

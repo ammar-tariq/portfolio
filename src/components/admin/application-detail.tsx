@@ -111,24 +111,29 @@ export function ApplicationDetail({
   return (
     <div className="grid gap-8">
       <div className="flex flex-wrap items-center gap-3 text-sm">
-        {application.files.resumeTxt ? (
-          <a href={application.files.resumeTxt.url} className="text-accent" target="_blank" rel="noreferrer">
-            Resume TXT
-          </a>
-        ) : null}
-        {application.files.resumeHtml ? (
-          <a href={application.files.resumeHtml.url} className="text-accent" target="_blank" rel="noreferrer">
-            Resume HTML
+        {application.files.resumePdf ? (
+          <a href={application.files.resumePdf.url} className="text-accent" target="_blank" rel="noreferrer">
+            Resume PDF
           </a>
         ) : null}
         {application.files.coverLetter ? (
           <a href={application.files.coverLetter.url} className="text-accent" target="_blank" rel="noreferrer">
-            Cover letter
+            Cover letter PDF
           </a>
         ) : null}
         {application.files.answers ? (
           <a href={application.files.answers.url} className="text-accent" target="_blank" rel="noreferrer">
-            Answers TXT
+            Answers PDF
+          </a>
+        ) : null}
+        {application.files.resumeTxt ? (
+          <a href={application.files.resumeTxt.url} className="text-muted hover:text-fg" target="_blank" rel="noreferrer">
+            Resume TXT
+          </a>
+        ) : null}
+        {application.files.resumeHtml ? (
+          <a href={application.files.resumeHtml.url} className="text-muted hover:text-fg" target="_blank" rel="noreferrer">
+            Resume HTML
           </a>
         ) : null}
         <a href={`/admin/applications/${application.id}/print`} className="text-muted hover:text-fg">
@@ -188,7 +193,7 @@ export function ApplicationDetail({
       <section className="grid gap-4 rounded-3xl border border-line bg-bg-elevated/40 p-5">
         <p className="font-mono text-[11px] tracking-[0.16em] text-subtle uppercase">Send application</p>
         <p className="text-sm text-muted">
-          Sends from your Gmail, attaches the ATS resume, and marks this application as applied. Gmail API is preferred
+          Sends from your Gmail, attaches a PDF resume, and marks this application as applied. Gmail API is preferred
           (stores message/thread ids); SMTP App Password is the fallback.
         </p>
         <div className="grid gap-4 md:grid-cols-2">
@@ -214,7 +219,7 @@ export function ApplicationDetail({
         <div className="flex flex-wrap gap-4 text-sm text-muted">
           <label className="inline-flex items-center gap-2">
             <input type="checkbox" checked={attachResume} onChange={(event) => setAttachResume(event.target.checked)} />
-            Attach resume (TXT + HTML)
+            Attach resume (PDF)
           </label>
           <label className="inline-flex items-center gap-2">
             <input
@@ -346,7 +351,7 @@ export function ApplicationDetail({
       <section className="grid gap-4 rounded-3xl border border-line bg-bg-elevated/40 p-5">
         <p className="font-mono text-[11px] tracking-[0.16em] text-subtle uppercase">Application questions</p>
         <p className="text-sm text-muted">
-          Paste new screening questions. Answers are saved to this application’s history and uploaded as TXT.
+          Paste new screening questions. Answers are saved to this application’s history and uploaded as a PDF.
         </p>
         <Field label="Questions">
           <TextArea
