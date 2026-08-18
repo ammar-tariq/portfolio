@@ -1,0 +1,9 @@
+# Not used by the GitHub Actions → Traefik production path. See DEPLOYMENT.md.
+
+your-domain.com {
+	reverse_proxy localhost:3000
+}
+
+www.your-domain.com {
+	redir https://your-domain.com{uri} permanent
+}

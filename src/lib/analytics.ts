@@ -1,0 +1,164 @@
+import { connectDb } from "@/lib/db";
+import { hasMongo } from "@/lib/env";
+import { PageViewModel, ProjectModel } from "@/models";
+
+export type AnalyticsSummary = {
+  views: number;
+  uniques: number;
+  pages: { path: string; label: string; count: number }[];
+  referrers: { referrer: string; count: number }[];
+  countries: { country: string; count: number }[];
+  cities: { city: string; country: string; lat?: number; lng?: number; count: number }[];
+  geoUnavailable: boolean;
+};
+
+function ownHosts(requestHost?: string) {
+  const hosts = new Set(["localhost", "127.0.0.1"]);
+  for (const raw of [process.env.AUTH_URL]) {
+    if (!raw) continue;
+    try {
+      hosts.add(new URL(raw).hostname.replace(/^www\./, "").toLowerCase());
+    } catch {
+      /* ignore invalid AUTH_URL */
+    }
+  }
+  if (requestHost) {
+    hosts.add(requestHost.replace(/^www\./, "").split(":")[0].toLowerCase());
+  }
+  return hosts;
+}
+
+export function isPrivateIp(ip: string) {
+  const value = ip.trim().toLowerCase();
+  if (!value || value === "127.0.0.1" || value === "::1" || value === "0:0:0:0:0:0:0:1") return true;
+  if (value.startsWith("::ffff:")) return isPrivateIp(value.slice(7));
+  if (value.startsWith("10.") || value.startsWith("192.168.") || value.startsWith("127.")) return true;
+  const match = /^172\.(\d+)\./.exec(value);
+  if (match) {
+    const octet = Number(match[1]);
+    return octet >= 16 && octet <= 31;
+  }
+  return false;
+}
+
+export function normalizeReferrer(raw: string, requestHost?: string) {
+  const value = raw.trim();
+  if (!value) return "";
+  const hosts = ownHosts(requestHost);
+  try {
+    const url = new URL(value);
+    const host = url.hostname.replace(/^www\./, "").toLowerCase();
+    if (hosts.has(host)) return "";
+    return host;
+  } catch {
+    return value.slice(0, 200);
+  }
+}
+
+function mergeCounts(rows: { key: string; count: number }[]) {
+  const map = new Map<string, number>();
+  for (const row of rows) {
+    map.set(row.key, (map.get(row.key) ?? 0) + row.count);
+  }
+  return [...map.entries()]
+    .map(([key, count]) => ({ key, count }))
+    .sort((a, b) => b.count - a.count);
+}
+
+export function pageLabel(path: string, titles: Map<string, string>) {
+  if (path === "/") return "Home";
+  if (path === "/work") return "Work";
+  if (path === "/resume") return "Resume";
+  const match = /^\/work\/([^/?#]+)/.exec(path);
+  if (match) return titles.get(match[1]) ?? match[1];
+  return path;
+}
+
+export async function getAnalytics(days = 30): Promise<AnalyticsSummary> {
+  const empty: AnalyticsSummary = {
+    views: 0,
+    uniques: 0,
+    pages: [],
+    referrers: [],
+    countries: [],
+    cities: [],
+    geoUnavailable: false,
+  };
+  if (!hasMongo()) return empty;
+  await connectDb();
+  const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+  const match = { createdAt: { $gte: since } };
+
+  const [views, uniqueDocs, pages, referrers, countries, cities, projects] = await Promise.all([
+    PageViewModel.countDocuments(match),
+    PageViewModel.distinct("visitorHash", match),
+    PageViewModel.aggregate([
+      { $match: match },
+      { $group: { _id: "$path", count: { $sum: 1 } } },
+      { $sort: { count: -1 } },
+      { $limit: 12 },
+    ]),
+    PageViewModel.aggregate([{ $match: match }, { $group: { _id: "$referrer", count: { $sum: 1 } } }]),
+    PageViewModel.aggregate([
+      { $match: match },
+      { $group: { _id: "$country", count: { $sum: 1 } } },
+      { $sort: { count: -1 } },
+      { $limit: 16 },
+    ]),
+    PageViewModel.aggregate([
+      { $match: { ...match, city: { $ne: "" } } },
+      {
+        $group: {
+          _id: { city: "$city", country: "$country", lat: "$lat", lng: "$lng" },
+          count: { $sum: 1 },
+        },
+      },
+      { $sort: { count: -1 } },
+      { $limit: 40 },
+    ]),
+    ProjectModel.find().select("slug title").lean(),
+  ]);
+
+  const titles = new Map(
+    projects.map((project) => [String(project.slug), String(project.title ?? project.slug)]),
+  );
+
+  const labeledPages = pages.map((row: { _id: string; count: number }) => {
+    const path = row._id || "/";
+    return { path, label: pageLabel(path, titles), count: row.count };
+  });
+
+  const mergedReferrers = mergeCounts(
+    referrers.map((row: { _id: string; count: number }) => ({
+      key: normalizeReferrer(row._id ?? "") || "(direct)",
+      count: row.count,
+    })),
+  ).slice(0, 12);
+
+  const countryRows = mergeCounts(
+    countries.map((row: { _id: string; count: number }) => ({
+      key: row._id || "Local / private IP",
+      count: row.count,
+    })),
+  ).map((row) => ({ country: row.key, count: row.count }));
+
+  return {
+    views,
+    uniques: uniqueDocs.length,
+    pages: labeledPages,
+    referrers: mergedReferrers.map((row) => ({ referrer: row.key, count: row.count })),
+    countries: countryRows,
+    cities: cities.map(
+      (row: { _id: { city: string; country: string; lat?: number; lng?: number }; count: number }) => ({
+        city: row._id.city,
+        country: row._id.country,
+        lat: row._id.lat,
+        lng: row._id.lng,
+        count: row.count,
+      }),
+    ),
+    geoUnavailable:
+      views > 0 &&
+      countryRows.every((row) => row.country === "Local / private IP" || row.country === "Unknown"),
+  };
+}

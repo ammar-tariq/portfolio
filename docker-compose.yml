@@ -1,0 +1,17 @@
+# Local Docker only (`docker compose up --build`).
+# Binds 3000 for machine-local testing. Do not use this file on the VPS.
+# Production Compose: deploy/docker-compose.yml
+
+services:
+  portfolio:
+    build: .
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      NODE_ENV: production
+      PORT: "3000"
+      HOSTNAME: 0.0.0.0
+      AUTH_TRUST_HOST: "true"
+    ports:
+      - "3000:3000"

@@ -1,0 +1,51 @@
+# Production Compose for /opt/apps/portfolio/production
+# Traefik is already running on the host. This file only attaches the app to
+# the existing external `proxy` network. Do not publish ports.
+
+services:
+  portfolio:
+    image: ${PORTFOLIO_IMAGE}
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      NODE_ENV: production
+      PORT: "3000"
+      HOSTNAME: 0.0.0.0
+      AUTH_TRUST_HOST: "true"
+    networks:
+      - proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=proxy"
+      - "traefik.http.routers.portfolio.rule=Host(`${SITE_HOST}`) || Host(`www.${SITE_HOST}`)"
+      - "traefik.http.routers.portfolio.entrypoints=websecure"
+      - "traefik.http.routers.portfolio.tls=true"
+      - "traefik.http.routers.portfolio.tls.certresolver=letsencrypt"
+      # Canonicalize www → apex (non-www requests don't match the regex and pass through).
+      - "traefik.http.routers.portfolio.middlewares=portfolio-www"
+      - "traefik.http.middlewares.portfolio-www.redirectregex.regex=^https?://www\\.(.+)"
+      - "traefik.http.middlewares.portfolio-www.redirectregex.replacement=https://$${1}"
+      - "traefik.http.middlewares.portfolio-www.redirectregex.permanent=true"
+      - "traefik.http.routers.portfolio-http.rule=Host(`${SITE_HOST}`) || Host(`www.${SITE_HOST}`)"
+      - "traefik.http.routers.portfolio-http.entrypoints=web"
+      - "traefik.http.routers.portfolio-http.middlewares=portfolio-https"
+      - "traefik.http.middlewares.portfolio-https.redirectscheme.scheme=https"
+      - "traefik.http.middlewares.portfolio-https.redirectscheme.permanent=true"
+      - "traefik.http.services.portfolio.loadbalancer.server.port=3000"
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:3000/api/health').then((r)=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+
+networks:
+  proxy:
+    external: true
