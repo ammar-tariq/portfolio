@@ -28,7 +28,9 @@ export function ApplicationForm({
   const [jd, setJd] = useState(initial?.jd ?? "");
   const [aboutCompany, setAboutCompany] = useState(initial?.aboutCompany ?? "");
   const [extraQuestions, setExtraQuestions] = useState("");
-  const [busy, setBusy] = useState<"generate" | "draft" | "import" | "paste" | null>(null);
+  const [busy, setBusy] = useState<"generate" | "draft" | "import" | "paste" | null>(
+    initial?.jobUrl?.trim() && !initial?.jd ? "import" : null,
+  );
   const [error, setError] = useState("");
 
   function applyShared(next: Partial<SharedJob>) {
@@ -58,14 +60,23 @@ export function ApplicationForm({
   }
 
   useEffect(() => {
-    if (imported.current) return;
     const url = initial?.jobUrl?.trim();
-    if (!url || initial?.jd) return;
+    if (!url || initial?.jd || imported.current) return;
     imported.current = true;
-    void onImport(url);
-    // Share-target and iOS Shortcuts often only send a URL.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    let cancelled = false;
+    void fetchJobPosting(url).then((result) => {
+      if (cancelled) return;
+      setBusy(null);
+      if (!result.ok) {
+        setError(result.error);
+        return;
+      }
+      applyShared(result.job);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [initial?.jobUrl, initial?.jd]);
 
   async function onPaste() {
     setBusy("paste");

@@ -35,6 +35,19 @@ async function dropPublicMessagingWorkers() {
   );
 }
 
+function readStoredPushEnabled() {
+  if (typeof window === "undefined") return false;
+  try {
+    return (
+      typeof Notification !== "undefined" &&
+      Notification.permission === "granted" &&
+      localStorage.getItem("admin-push") === "1"
+    );
+  } catch {
+    return false;
+  }
+}
+
 export function PushEnable({ configured }: { configured: boolean }) {
   const pathname = usePathname();
   const onAdmin = pathname.startsWith("/admin") && !pathname.startsWith("/admin/login");
@@ -44,11 +57,15 @@ export function PushEnable({ configured }: { configured: boolean }) {
   useEffect(() => {
     if (!configured || !onAdmin) return;
     void dropPublicMessagingWorkers();
-    if (typeof Notification === "undefined") return;
-    if (Notification.permission === "granted" && localStorage.getItem("admin-push") === "1") {
-      setStatus("on");
-      void enable(false);
-    }
+    if (!readStoredPushEnabled()) return;
+    let cancelled = false;
+    const timer = window.setTimeout(() => {
+      if (!cancelled) void enable(false);
+    }, 0);
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timer);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [configured, onAdmin]);
 

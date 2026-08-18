@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import type { JobApplication } from "@/types/application";
 import { answerApplicationQuestions, deleteJobApplication, generateExistingJobApplication, sendJobApplication, setApplicationStatus } from "@/app/admin/actions";
@@ -24,6 +24,7 @@ export function ApplicationDetail({
   const [to, setTo] = useState("");
   const [cc, setCc] = useState("");
   const [subject, setSubject] = useState(defaultSubject);
+  const [coverLetter, setCoverLetter] = useState(application.coverLetter);
   const [body, setBody] = useState(application.coverLetter);
   const [attachResume, setAttachResume] = useState(true);
   const [attachAnswers, setAttachAnswers] = useState(false);
@@ -31,9 +32,10 @@ export function ApplicationDetail({
   const [error, setError] = useState("");
   const [copied, setCopied] = useState("");
 
-  useEffect(() => {
-    if (application.coverLetter) setBody(application.coverLetter);
-  }, [application.coverLetter]);
+  if (application.coverLetter !== coverLetter) {
+    setCoverLetter(application.coverLetter);
+    setBody(application.coverLetter);
+  }
 
   async function copy(label: string, value: string) {
     await navigator.clipboard.writeText(value);
