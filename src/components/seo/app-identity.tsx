@@ -1,6 +1,14 @@
 import Link from "next/link";
 
-export function AppIdentity({ name }: { name: string }) {
+export function AppIdentity({
+  name,
+  title,
+  headline,
+}: {
+  name: string;
+  title: string;
+  headline: string;
+}) {
   return (
     <section
       id="about-this-application"
@@ -14,12 +22,15 @@ export function AppIdentity({ name }: { name: string }) {
           Application name: {name}
         </h2>
         <p className="mt-3 max-w-3xl text-sm leading-relaxed text-muted sm:text-base">
-          The purpose of this application, {name}, is to publish a personal software-engineering
-          portfolio. Visitors can view selected products and case studies, read about {name}’s
-          experience, and contact {name}. This application is not a consumer product with public
-          sign-up. Browsing does not require a Google account. Any Google account access configured
-          for this application is only for the site operator (for example sending email or managing
-          content), not for visitor login.
+          {name} is a {title}. {headline}
+        </p>
+        <p className="mt-3 max-w-3xl text-sm leading-relaxed text-muted sm:text-base">
+          The purpose of this application is to introduce {name}: who {name} is, selected software
+          work, professional experience, and how to get in contact. Visitors can browse without
+          creating an account. This application is not a consumer product with public sign-up.
+          Browsing does not require a Google account. Any Google account access configured for this
+          application is only for the site operator (for example sending email or managing content),
+          not for visitor login.
         </p>
         <p className="mt-3 text-sm text-muted">
           <Link href="/privacy" className="link-underline text-fg">

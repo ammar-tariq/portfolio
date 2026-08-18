@@ -11,7 +11,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const siteUrl = siteUrlFrom(content);
   return {
     title: "Privacy Policy",
-    description: `How ${content.profile.name} collects and uses information on this personal portfolio.`,
+    description: `How ${content.profile.name} collects and uses information on this personal website.`,
     alternates: { canonical: `${siteUrl}/privacy` },
   };
 }
@@ -25,7 +25,7 @@ export default async function PrivacyPage() {
     <LegalPage name={profile.name} title="Privacy Policy" updated={UPDATED}>
       <LegalP>
         This policy describes how {profile.name} (“I”, “me”) handles information on {siteUrl} (the
-        “Site”). The Site is a personal portfolio. It is not a consumer product, marketplace, or
+        “Site”). The Site is my personal website. It is not a consumer product, marketplace, or
         account-based service for the public.
       </LegalP>
 
@@ -92,7 +92,7 @@ export default async function PrivacyPage() {
       <LegalList
         items={[
           "Hosting and TLS on a virtual private server and reverse proxy.",
-          "MongoDB Atlas to store portfolio content and first-party visit records.",
+          "MongoDB Atlas to store website content and first-party visit records.",
           "Cloudinary to host project images and video.",
           "GitHub for admin sign-in and to display a public contribution graph.",
           "Cursor’s public profile page to display public agent-usage stats, when that section is shown.",
@@ -106,7 +106,7 @@ export default async function PrivacyPage() {
 
       <LegalH2>How long data is kept</LegalH2>
       <LegalP>
-        Portfolio content stays until I change or delete it. Visit records are kept so I can review
+        Website content stays until I change or delete it. Visit records are kept so I can review
         traffic over time and may be deleted or reduced when they are no longer useful. Admin
         session cookies last only while I am signed in.
       </LegalP>
@@ -130,7 +130,7 @@ export default async function PrivacyPage() {
         The Site is hosted and the visit database is processed outside your country (including the
         United States for typical cloud providers). If you visit from the EU/UK or similar
         jurisdictions, the legal basis for first-party analytics is my legitimate interest in
-        understanding traffic to a personal portfolio, together with any consent tools your browser
+        understanding traffic to my website, together with any consent tools your browser
         or Google provides.
       </LegalP>
 

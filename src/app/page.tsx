@@ -32,7 +32,13 @@ export default async function Home() {
       <JsonLd data={homeGraphJsonLd(content)} />
       <CrawlerFallback content={content} />
       <SiteShell
-        identity={<AppIdentity name={content.profile.name} />}
+        identity={
+          <AppIdentity
+            name={content.profile.name}
+            title={content.profile.title}
+            headline={content.profile.headline}
+          />
+        }
         github={<Github content={content} contributions={contributions} />}
         cursor={<CursorUsage profile={cursor} />}
       />

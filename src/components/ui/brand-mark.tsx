@@ -3,7 +3,7 @@ import { cn } from "@/lib/cn";
 export function BrandMark({
   className,
   size = 36,
-  name = "Portfolio",
+  name = "Your Name",
 }: {
   className?: string;
   size?: number;

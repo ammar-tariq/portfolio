@@ -11,7 +11,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const siteUrl = siteUrlFrom(content);
   return {
     title: "Terms of Service",
-    description: `Terms for using ${content.profile.name}’s personal portfolio website.`,
+    description: `Terms for using ${content.profile.name}’s personal website.`,
     alternates: { canonical: `${siteUrl}/terms` },
   };
 }
@@ -24,9 +24,8 @@ export default async function TermsPage() {
   return (
     <LegalPage name={profile.name} title="Terms of Service" updated={UPDATED}>
       <LegalP>
-        These terms govern use of {siteUrl} (the “Site”), a personal portfolio operated by{" "}
-        {profile.name}. By using the Site, you agree to them. If you do not agree, do not use the
-        Site.
+        These terms govern use of {siteUrl} (the “Site”), the personal website of {profile.name}.
+        By using the Site, you agree to them. If you do not agree, do not use the Site.
       </LegalP>
 
       <LegalH2>The Site</LegalH2>
@@ -40,7 +39,7 @@ export default async function TermsPage() {
       <LegalP>
         Unless a page says otherwise, I own the Site’s original text, layout, and code I published
         here. You may view it in a browser and share links. You may not copy the Site as your own
-        portfolio, scrape it at a volume that harms the service, or reuse project write-ups as if
+        website, scrape it at a volume that harms the service, or reuse project write-ups as if
         they were yours.
       </LegalP>
       <LegalP>

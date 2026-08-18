@@ -9,11 +9,13 @@ export function CrawlerFallback({ content }: { content: SiteContent }) {
       <article>
         <h1>{profile.name}</h1>
         <p>
-          The purpose of this application, {profile.name}, is to publish a personal
-          software-engineering portfolio. Visitors can view selected products and case studies and
-          contact {profile.name}. There is no visitor signup.
+          Application name: {profile.name}. {profile.name} is a {profile.title}. {profile.headline}
         </p>
-        <p>{profile.headline}</p>
+        <p>
+          The purpose of this application is to introduce {profile.name}: who {profile.name} is,
+          selected software work, professional experience, and how to get in contact. Visitors can
+          browse without creating an account. There is no visitor signup.
+        </p>
         <p>{profile.summary}</p>
         <p>
           Location: {profile.location}. {profile.availability}.

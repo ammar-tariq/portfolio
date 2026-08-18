@@ -18,7 +18,7 @@ export function LegalPage({
         <p className="mb-8 text-sm text-muted">
           <Link href="/" className="inline-flex items-center gap-3">
             <BrandMark className="h-8 w-8" name={name} />
-            <span className="link-underline">Portfolio</span>
+            <span className="link-underline">{name}</span>
           </Link>
         </p>
         <header className="border-b border-line pb-6">
