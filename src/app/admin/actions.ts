@@ -25,6 +25,7 @@ import {
   resumePlainText,
   uploadApplicationFiles,
 } from "@/lib/job-application";
+import { emailBodyWithAnswers } from "@/lib/application-email";
 import { answersPdf, resumePdf, resumePdfFilename } from "@/lib/resume-pdf";
 import { hasApplicationMail, sendApplicationMail } from "@/lib/gmail-send";
 import { slugify } from "@/lib/project-helpers";
@@ -533,7 +534,8 @@ export async function sendJobApplication(input: {
       to: input.to,
       cc: input.cc,
       subject: input.subject,
-      text: input.body.trim() || coverLetterText(content, application),
+      text: emailBodyWithAnswers(input.body.trim() || application.coverLetter, application.answers)
+        || coverLetterText(content, application),
       attachments,
     });
     const record = {

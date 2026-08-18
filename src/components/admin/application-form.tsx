@@ -148,8 +148,8 @@ export function ApplicationForm({
       <p className="font-mono text-[11px] tracking-[0.16em] text-subtle uppercase">New application</p>
       {!compact ? (
         <p className="text-sm text-muted">
-          Paste the job description. Gemini will tailor an ATS resume and cover letter from your Mongo projects and
-          experience, then save PDF copies to Cloudinary.
+          Paste the job description or recruiter email. Gemini will tailor an ATS resume and cover letter, answer any
+          screening questions in that text, and save PDF copies to Cloudinary.
         </p>
       ) : (
         <p className="text-sm text-muted">
@@ -199,7 +199,7 @@ export function ApplicationForm({
           className="min-h-48"
           value={jd}
           onChange={(event) => setJd(event.target.value)}
-          placeholder="Paste the full JD, including requirements and nice-to-haves."
+          placeholder="Paste the full JD or recruiter email, including any questions they asked you to answer."
           required
         />
       </Field>
@@ -216,7 +216,7 @@ export function ApplicationForm({
           className="min-h-28"
           value={extraQuestions}
           onChange={(event) => setExtraQuestions(event.target.value)}
-          placeholder="Paste screening questions now, or add them later from the application history."
+          placeholder="Optional. Extra questions only — anything in the JD or recruiter email is answered automatically."
         />
       </Field>
       <div className="sticky bottom-3 z-10 flex flex-wrap items-center gap-3 rounded-full border border-line bg-bg/90 p-2 backdrop-blur md:static md:border-0 md:bg-transparent md:p-0 md:backdrop-blur-none">

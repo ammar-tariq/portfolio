@@ -251,8 +251,8 @@ Rules:
 - skills: 3–6 groups. Use JD skill names when the candidate actually has them. Never add a skill that is not in the portfolio facts.
 - experience: keep exact company names, roles, and periods from the facts. You may rewrite/select bullets. 3–6 bullets per role, each under 240 characters, ATS-plain (no tables, no icons).
 - projects: pick 3–6 most relevant portfolio projects. line is one sentence. Optional 1–2 bullets. Use real titles and slugs.
-- coverLetter: 3 short paragraphs, under 1800 characters. Address the company and role. Mention 1–2 relevant projects by name. No "I am writing to apply".
-- screeningAnswers: if extra questions were provided, answer each separately. If none, return []. Answers must stay inside the facts.
+- coverLetter: 3 short paragraphs, under 1800 characters. Address the company and role. Mention 1–2 relevant projects by name. No "I am writing to apply". Do not put screening answers in the cover letter.
+- screeningAnswers: extract every application question from extra questions, the JD, and any pasted recruiter/hiring email. Include numbered questions, "please reply/answer", work authorization, visa, notice period, salary/compensation, start date, location/remote, why this role/company, and similar prompts. Answer each separately. If there are truly no questions, return []. Answers must stay inside the facts.
 - Do not invent education.
 - Prefer standard ATS section vocabulary in the prose (Summary, Skills, Experience, Projects).
 

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import type { JobApplication } from "@/types/application";
 import { answerApplicationQuestions, deleteJobApplication, generateExistingJobApplication, sendJobApplication, setApplicationStatus } from "@/app/admin/actions";
 import { Field, TextArea, TextInput } from "@/components/admin/fields";
+import { emailBodyWithAnswers } from "@/lib/application-email";
 
 export function ApplicationDetail({
   application,
@@ -24,17 +25,19 @@ export function ApplicationDetail({
   const [to, setTo] = useState("");
   const [cc, setCc] = useState("");
   const [subject, setSubject] = useState(defaultSubject);
-  const [coverLetter, setCoverLetter] = useState(application.coverLetter);
-  const [body, setBody] = useState(application.coverLetter);
+  const autoBody = emailBodyWithAnswers(application.coverLetter, application.answers);
+  const [autoBodySnapshot, setAutoBodySnapshot] = useState(autoBody);
+  const [body, setBody] = useState(autoBody);
   const [attachResume, setAttachResume] = useState(true);
   const [attachAnswers, setAttachAnswers] = useState(false);
+
   const [busy, setBusy] = useState<"answers" | "delete" | "send" | "generate" | null>(null);
   const [error, setError] = useState("");
   const [copied, setCopied] = useState("");
 
-  if (application.coverLetter !== coverLetter) {
-    setCoverLetter(application.coverLetter);
-    setBody(application.coverLetter);
+  if (autoBody !== autoBodySnapshot) {
+    setAutoBodySnapshot(autoBody);
+    setBody(autoBody);
   }
 
   async function copy(label: string, value: string) {
@@ -193,8 +196,9 @@ export function ApplicationDetail({
       <section className="grid gap-4 rounded-3xl border border-line bg-bg-elevated/40 p-5">
         <p className="font-mono text-[11px] tracking-[0.16em] text-subtle uppercase">Send application</p>
         <p className="text-sm text-muted">
-          Sends from your Gmail, attaches a PDF resume, and marks this application as applied. Gmail API is preferred
-          (stores message/thread ids); SMTP App Password is the fallback.
+          Sends from your Gmail, attaches a PDF resume, and marks this application as applied. Screening questions from
+          the JD or recruiter email are answered in the body. Gmail API is preferred (stores message/thread ids); SMTP
+          App Password is the fallback.
         </p>
         <div className="grid gap-4 md:grid-cols-2">
           <Field label="To">
@@ -214,8 +218,14 @@ export function ApplicationDetail({
           <TextInput value={subject} onChange={(event) => setSubject(event.target.value)} />
         </Field>
         <Field label="Body">
-          <TextArea className="min-h-40" value={body} onChange={(event) => setBody(event.target.value)} />
+          <TextArea className="min-h-56" value={body} onChange={(event) => setBody(event.target.value)} />
         </Field>
+        {application.answers.length ? (
+          <p className="text-sm text-muted">
+            {application.answers.length} screening answer
+            {application.answers.length === 1 ? "" : "s"} included below the letter. Edit before sending if you want.
+          </p>
+        ) : null}
         <div className="flex flex-wrap gap-4 text-sm text-muted">
           <label className="inline-flex items-center gap-2">
             <input type="checkbox" checked={attachResume} onChange={(event) => setAttachResume(event.target.checked)} />
@@ -228,7 +238,7 @@ export function ApplicationDetail({
               onChange={(event) => setAttachAnswers(event.target.checked)}
               disabled={!application.answers.length}
             />
-            Attach screening answers
+            Also attach answers as PDF
           </label>
         </div>
         <button
@@ -351,7 +361,8 @@ export function ApplicationDetail({
       <section className="grid gap-4 rounded-3xl border border-line bg-bg-elevated/40 p-5">
         <p className="font-mono text-[11px] tracking-[0.16em] text-subtle uppercase">Application questions</p>
         <p className="text-sm text-muted">
-          Paste new screening questions. Answers are saved to this application’s history and uploaded as a PDF.
+          Paste new screening questions, or generate from questions already in the JD / recruiter email. Answers are
+          included in the send-email body and saved as a PDF.
         </p>
         <Field label="Questions">
           <TextArea
