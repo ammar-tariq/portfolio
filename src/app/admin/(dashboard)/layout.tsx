@@ -1,5 +1,7 @@
 import { signOut } from "@/auth";
 import { requireAdmin } from "@/lib/admin";
+import { hasFirebaseMessaging } from "@/lib/env";
+import { PushEnable } from "@/components/admin/push-enable";
 import Link from "next/link";
 
 const links = [
@@ -28,6 +30,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
             <p className="font-serif text-xl">Content</p>
           </div>
           <div className="flex items-center gap-3 text-sm">
+            <PushEnable configured={hasFirebaseMessaging()} />
             <Link href="/" className="text-muted hover:text-fg">
               View site
             </Link>

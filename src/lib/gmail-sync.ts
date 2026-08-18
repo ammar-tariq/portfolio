@@ -118,6 +118,15 @@ async function ingestMessage(messageId: string, threadId: string, tracked: Set<s
   doc.inboxStatus = inboxStatus;
   doc.lastReplyAt = new Date(latest.receivedAt ?? Date.now());
   await doc.save();
+  void import("@/lib/admin-push")
+    .then(({ sendAdminPush }) =>
+      sendAdminPush({
+        title: `${reply.classification} · ${String(doc.company)}`,
+        body: `${String(doc.role)}: ${reply.snippet || reply.subject || "New reply"}`,
+        url: `/admin/applications/${String(doc._id)}`,
+      }),
+    )
+    .catch((error) => console.error("application reply push failed", error));
   return 1;
 }
 

@@ -63,7 +63,34 @@ export function pageLabel(path: string, titles: Map<string, string>) {
   return path;
 }
 
+export function localDateKey(timeZone: string, date = new Date()) {
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(date);
+}
+
+export function localHour(timeZone: string, date = new Date()) {
+  return Number(
+    new Intl.DateTimeFormat("en-US", { timeZone, hour: "numeric", hourCycle: "h23" }).format(date),
+  );
+}
+
+export function localDayStart(timeZone: string, date = new Date()) {
+  const hour = localHour(timeZone, date);
+  const minute = Number(
+    new Intl.DateTimeFormat("en-US", { timeZone, minute: "numeric" }).format(date),
+  );
+  return new Date(date.getTime() - (hour * 60 + minute) * 60 * 1000);
+}
+
 export async function getAnalytics(days = 30): Promise<AnalyticsSummary> {
+  return getAnalyticsSince(new Date(Date.now() - days * 24 * 60 * 60 * 1000));
+}
+
+export async function getAnalyticsSince(since: Date): Promise<AnalyticsSummary> {
   const empty: AnalyticsSummary = {
     views: 0,
     uniques: 0,
@@ -75,7 +102,6 @@ export async function getAnalytics(days = 30): Promise<AnalyticsSummary> {
   };
   if (!hasMongo()) return empty;
   await connectDb();
-  const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
   const match = { createdAt: { $gte: since } };
 
   const [views, uniqueDocs, pages, referrers, countries, cities, projects] = await Promise.all([

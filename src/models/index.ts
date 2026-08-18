@@ -288,3 +288,25 @@ const gmailSyncSchema = new Schema(
 
 export const GmailSyncModel =
   mongoose.models.GmailSync ?? mongoose.model("GmailSync", gmailSyncSchema);
+
+const adminPushTokenSchema = new Schema(
+  {
+    token: { type: String, required: true, unique: true, index: true },
+    userAgent: { type: String, default: "" },
+  },
+  { timestamps: true },
+);
+
+export const AdminPushTokenModel =
+  mongoose.models.AdminPushToken ?? mongoose.model("AdminPushToken", adminPushTokenSchema);
+
+const adminNotifySchema = new Schema(
+  {
+    _id: { type: String, default: "notify" },
+    lastDigestOn: String,
+  },
+  { timestamps: true },
+);
+
+export const AdminNotifyModel =
+  mongoose.models.AdminNotify ?? mongoose.model("AdminNotify", adminNotifySchema);

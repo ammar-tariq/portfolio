@@ -2,9 +2,10 @@ import geoip from "geoip-lite";
 import nodemailer from "nodemailer";
 import { ProjectModel, VisitNotifyModel } from "@/models";
 import { connectDb } from "@/lib/db";
-import { hasMongo, hasVisitNotify, siteHost } from "@/lib/env";
+import { hasFirebaseMessaging, hasMongo, hasSmtpVisitNotify, hasVisitNotify, siteHost } from "@/lib/env";
 import { isPrivateIp } from "@/lib/client-ip";
 import { pageLabel } from "@/lib/analytics";
+import { sendAdminPush } from "@/lib/admin-push";
 
 const BOT =
   /bot|crawl|spider|slurp|preview|facebookexternalhit|whatsapp|telegram|discord|linkedinbot|embedly|quora|pinterest|slack|vkshare|skypeuri/i;
@@ -105,11 +106,30 @@ export async function notifyVisitSummary(input: {
   const where = formatLocation(location);
   const referrer = input.referrer?.trim() || "direct";
   const host = siteHost();
-  const subject = `Visitor from ${where}`;
+  const duration = formatDuration(durationMs);
+  const title = `Visitor from ${where}`;
+  const body = `${duration} · ${pageLabel(paths[0] ?? "/", titles)}${paths.length > 1 ? ` +${paths.length - 1}` : ""}`;
+
+  if (hasFirebaseMessaging()) {
+    try {
+      const pushed = await sendAdminPush({
+        title,
+        body: `${body} · ${referrer === "direct" ? "direct" : referrer}`,
+        url: "/admin",
+      });
+      if (pushed.sent) return;
+    } catch (error) {
+      console.error("visit notify push failed", error);
+    }
+  }
+
+  if (!hasSmtpVisitNotify()) return;
+
+  const subject = title;
   const text = [
     `Someone visited ${host} from ${where}.`,
     "",
-    `Time on site: ${formatDuration(durationMs)}`,
+    `Time on site: ${duration}`,
     `Came from: ${referrer}`,
     "",
     "Pages:",
@@ -118,7 +138,7 @@ export async function notifyVisitSummary(input: {
 
   const html = `
     <p>Someone visited <strong>${escapeHtml(host)}</strong> from <strong>${escapeHtml(where)}</strong>.</p>
-    <p>Time on site: ${escapeHtml(formatDuration(durationMs))}<br/>Came from: ${escapeHtml(referrer)}</p>
+    <p>Time on site: ${escapeHtml(duration)}<br/>Came from: ${escapeHtml(referrer)}</p>
     <p>Pages:</p>
     <ul>${pageLines.map((line) => `<li>${escapeHtml(line.replace(/^• /, ""))}</li>`).join("")}</ul>
   `;

@@ -1,7 +1,6 @@
 import gplay from "google-play-scraper";
-import { hasCloudinary, hasGemini } from "@/lib/env";
+import { hasGemini } from "@/lib/env";
 import { slugify } from "@/lib/project-helpers";
-import { uploadImage } from "@/lib/cloudinary";
 import { draftProjectWithGemini } from "@/lib/draft-project";
 import type { Industry, Project, ProjectScreenshot } from "@/types/content";
 
@@ -121,6 +120,36 @@ function isAllowedImageHost(hostname: string) {
 function sizedImageUrl(url: string) {
   if (url.includes("play-lh.googleusercontent.com") && !url.includes("=")) return `${url}=w1280`;
   return url;
+}
+
+function storeShot(url: string, alt: string): ProjectScreenshot | null {
+  try {
+    const parsed = new URL(url);
+    if (!isAllowedImageHost(parsed.hostname)) return null;
+    return { src: sizedImageUrl(url), alt };
+  } catch {
+    return null;
+  }
+}
+
+function storeImageUrl(url?: string) {
+  if (!url) return undefined;
+  return storeShot(url, "")?.src;
+}
+
+function attachStoreImages(listing: StoreListing) {
+  const iosScreenshots = listing.iosScreenshots
+    .map((url, index) => storeShot(url, `${listing.title} iOS screenshot ${index + 1}`))
+    .filter((shot): shot is ProjectScreenshot => Boolean(shot));
+  const androidScreenshots = listing.androidScreenshots
+    .map((url, index) => storeShot(url, `${listing.title} Android screenshot ${index + 1}`))
+    .filter((shot): shot is ProjectScreenshot => Boolean(shot));
+  return {
+    iosScreenshots,
+    androidScreenshots,
+    logo: storeImageUrl(listing.icon),
+    banner: storeImageUrl(listing.banner),
+  };
 }
 
 async function fetchPlay(playUrl: string): Promise<StoreListing> {
@@ -259,81 +288,7 @@ function mergeListings(play?: StoreListing, apple?: StoreListing): StoreListing 
   };
 }
 
-async function fetchAllowedImage(url: string) {
-  const parsed = new URL(url);
-  if (!isAllowedImageHost(parsed.hostname)) {
-    throw new Error(`Blocked image host: ${parsed.hostname}`);
-  }
-  const response = await fetch(sizedImageUrl(url), {
-    headers: { "User-Agent": USER_AGENT, Accept: "image/*" },
-    signal: AbortSignal.timeout(20000),
-    redirect: "follow",
-  });
-  if (!response.ok) throw new Error(`Could not download image (${response.status})`);
-  const buffer = Buffer.from(await response.arrayBuffer());
-  if (buffer.byteLength > 8 * 1024 * 1024) throw new Error("Store image is larger than 8MB");
-  return buffer;
-}
-
-async function uploadShotList(urls: string[], folder: string, prefix: string, title: string) {
-  const shots: ProjectScreenshot[] = [];
-  for (const [index, url] of urls.entries()) {
-    try {
-      const buffer = await fetchAllowedImage(url);
-      const uploaded = await uploadImage({ buffer, folder, filename: `${prefix}-${index + 1}` });
-      shots.push({
-        src: uploaded.url,
-        publicId: uploaded.publicId,
-        alt: `${title} ${prefix} screenshot ${index + 1}`,
-      });
-    } catch (error) {
-      console.error(`store import ${prefix}`, error);
-    }
-  }
-  return shots;
-}
-
-async function uploadStoreImages(listing: StoreListing, folder: string) {
-  if (!hasCloudinary()) {
-    return {
-      iosScreenshots: [] as ProjectScreenshot[],
-      androidScreenshots: [] as ProjectScreenshot[],
-      logo: undefined as { url: string; publicId: string } | undefined,
-      banner: undefined as { url: string; publicId: string } | undefined,
-      skipped: true,
-    };
-  }
-
-  let logo: { url: string; publicId: string } | undefined;
-  let banner: { url: string; publicId: string } | undefined;
-
-  if (listing.icon) {
-    try {
-      const buffer = await fetchAllowedImage(listing.icon);
-      logo = await uploadImage({ buffer, folder, filename: "logo" });
-    } catch (error) {
-      console.error("store import logo", error);
-    }
-  }
-
-  if (listing.banner) {
-    try {
-      const buffer = await fetchAllowedImage(listing.banner);
-      banner = await uploadImage({ buffer, folder, filename: "banner" });
-    } catch (error) {
-      console.error("store import banner", error);
-    }
-  }
-
-  const [iosScreenshots, androidScreenshots] = await Promise.all([
-    uploadShotList(listing.iosScreenshots, folder, "ios", listing.title),
-    uploadShotList(listing.androidScreenshots, folder, "android", listing.title),
-  ]);
-
-  return { iosScreenshots, androidScreenshots, logo, banner, skipped: false };
-}
-
-function listingNotes(listing: StoreListing) {
+async function fetchPlay(playUrl: string): Promise<StoreListing> {
   return [
     `Imported from app store listing(s) for ${listing.title}.`,
     listing.playUrl ? `Play Store: ${listing.playUrl}` : "",

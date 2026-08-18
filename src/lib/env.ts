@@ -35,10 +35,35 @@ export function googleAnalyticsId() {
   return /^G-[A-Z0-9]+$/i.test(id) ? id : "";
 }
 
-export function hasVisitNotify() {
+export function hasSmtpVisitNotify() {
   return Boolean(
     (process.env.NOTIFY_EMAIL?.trim() || process.env.SMTP_USER?.trim()) &&
       process.env.SMTP_USER?.trim() &&
       process.env.SMTP_PASS?.trim(),
   );
+}
+
+export function hasFirebaseMessaging() {
+  return Boolean(
+    process.env.FIREBASE_PROJECT_ID?.trim() &&
+      process.env.FIREBASE_CLIENT_EMAIL?.trim() &&
+      process.env.FIREBASE_PRIVATE_KEY?.trim() &&
+      process.env.FIREBASE_WEB_API_KEY?.trim() &&
+      process.env.FIREBASE_WEB_APP_ID?.trim() &&
+      process.env.FIREBASE_MESSAGING_SENDER_ID?.trim() &&
+      process.env.FIREBASE_VAPID_KEY?.trim(),
+  );
+}
+
+export function hasVisitNotify() {
+  return hasSmtpVisitNotify() || hasFirebaseMessaging();
+}
+
+export function notifyTimeZone() {
+  return process.env.NOTIFY_TZ?.trim() || "Asia/Karachi";
+}
+
+export function notifyDigestHour() {
+  const hour = Number(process.env.NOTIFY_DIGEST_HOUR);
+  return Number.isFinite(hour) ? Math.min(23, Math.max(0, Math.trunc(hour))) : 21;
 }
