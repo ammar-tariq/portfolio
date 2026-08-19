@@ -72,3 +72,7 @@ export function notifyDigestHour() {
   const hour = Number(process.env.NOTIFY_DIGEST_HOUR);
   return Number.isFinite(hour) ? Math.min(23, Math.max(0, Math.trunc(hour))) : 21;
 }
+
+export function hasUsajobs() {
+  return Boolean(process.env.USAJOBS_API_KEY?.trim() && process.env.USAJOBS_USER_AGENT?.trim());
+}

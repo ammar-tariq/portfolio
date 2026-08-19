@@ -28,6 +28,8 @@ After changing `.env`, restart `npm run dev` or the production container.
 | `GMAIL_CLIENT_*` / `GMAIL_REFRESH_TOKEN` / `GMAIL_USER` | no | Send applications + sync replies |
 | `GMAIL_SYNC_SECRET` | with Gmail API | Internal sync/push routes |
 | `GMAIL_PUBSUB_TOPIC` | no | Instant Gmail push (poll works without it) |
+| `USAJOBS_API_KEY` / `USAJOBS_USER_AGENT` | no | Admin job-search USAJOBS adapter |
+| `JOB_POLL_LOOP` | no | `1` to poll listings in `next dev`; production on unless `0` |
 | `SITE_HOST` | production | Traefik hostname (no `https://`) |
 | `VPS_HOST` / `VPS_USER` / `VPS_SSH_KEY` / `VPS_APP_DIR` | production | GitHub Actions deploy secrets |
 
@@ -462,7 +464,36 @@ Also: **Actions → General → Workflow permissions → Read and write** so `GI
 
 ---
 
-## 12. Search Console / Bing (not env)
+## 12. USAJOBS (optional job search)
+
+Used only by **Admin → Job search**. Most discovery sources need **no key** (Greenhouse, Lever, Ashby, Remote OK, Remotive, Himalayas, Arbeitnow, We Work Remotely RSS). Company board tokens live in Mongo, not `.env`.
+
+USAJOBS is official and free. Eligibility for a Pakistan-based applicant is usually low; listings are still ingested and ranked down, never hidden.
+
+1. Open [https://developer.usajobs.gov/apirequest/](https://developer.usajobs.gov/apirequest/)
+2. Request an API key. Describe use as a personal job-search tracker (no commercial resale of the feed).
+3. When the key arrives:
+
+```env
+USAJOBS_API_KEY=paste_key
+USAJOBS_USER_AGENT=you@gmail.com
+```
+
+`USAJOBS_USER_AGENT` should be the email they associate with the key (their docs send it as User-Agent). Leave both empty to skip this adapter.
+
+Local polling is off unless:
+
+```env
+JOB_POLL_LOOP=1
+```
+
+Production polls about every 20 minutes unless `JOB_POLL_LOOP=0`. You can always press **Poll now** on `/admin/jobs`.
+
+Do **not** create LinkedIn, Indeed, Greenhouse Job Board (apply) keys, or spray-apply SaaS accounts for this module.
+
+---
+
+## 13. Search Console / Bing (not env)
 
 Paste verification tokens in **Admin → SEO**. They live in Mongo, not `.env`. Then submit `https://your-domain.com/sitemap.xml`.
 

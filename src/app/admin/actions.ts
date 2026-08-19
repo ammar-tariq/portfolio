@@ -9,6 +9,7 @@ import {
   ExperienceModel,
   IndustryModel,
   JobApplicationModel,
+  JobListingModel,
   OpenSourceModel,
   PrincipleModel,
   ProjectModel,
@@ -509,7 +510,11 @@ export async function answerApplicationQuestions(
 export async function setApplicationStatus(id: string, status: ApplicationStatus) {
   await ready();
   await JobApplicationModel.findByIdAndUpdate(id, { status });
+  if (status === "applied") {
+    await JobListingModel.findOneAndUpdate({ applicationId: id }, { status: "applied" });
+  }
   revalidateApplications(id);
+  revalidatePath("/admin/jobs");
 }
 
 export async function deleteJobApplication(id: string) {
@@ -518,8 +523,10 @@ export async function deleteJobApplication(id: string) {
   if (doc) {
     await destroyApplicationFiles(applicationFromDoc(doc).files);
   }
+  await JobListingModel.findOneAndUpdate({ applicationId: id }, { $unset: { applicationId: 1 }, status: "saved" });
   await JobApplicationModel.deleteOne({ _id: id });
   revalidateApplications();
+  revalidatePath("/admin/jobs");
 }
 
 export async function sendJobApplication(input: {

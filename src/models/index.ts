@@ -311,3 +311,98 @@ const adminNotifySchema = new Schema(
 
 export const AdminNotifyModel =
   mongoose.models.AdminNotify ?? mongoose.model("AdminNotify", adminNotifySchema);
+
+const watchAts = [
+  "greenhouse",
+  "lever",
+  "ashby",
+  "workable",
+  "recruitee",
+  "personio",
+  "breezy",
+  "smartrecruiters",
+  "bamboohr",
+] as const;
+
+const companyWatchSchema = new Schema(
+  {
+    name: { type: String, required: true },
+    ats: { type: String, required: true, enum: watchAts },
+    token: { type: String, required: true },
+    enabled: { type: Boolean, default: true },
+    lastPolledAt: Date,
+    lastError: String,
+  },
+  { timestamps: true },
+);
+
+companyWatchSchema.index({ ats: 1, token: 1 }, { unique: true });
+
+export const CompanyWatchModel =
+  mongoose.models.CompanyWatch ?? mongoose.model("CompanyWatch", companyWatchSchema);
+
+const jobSourceEnum = [
+  ...watchAts,
+  "remote-ok",
+  "remotive",
+  "himalayas",
+  "arbeitnow",
+  "we-work-remotely",
+  "usajobs",
+];
+
+const jobListingSchema = new Schema(
+  {
+    source: { type: String, required: true, enum: jobSourceEnum, index: true },
+    canonicalKey: { type: String, required: true, unique: true },
+    applyUrl: { type: String, required: true },
+    sourceUrls: { type: [String], default: [] },
+    atsJobId: String,
+    boardToken: String,
+    title: { type: String, required: true },
+    company: { type: String, required: true },
+    location: { type: String, default: "" },
+    remote: { type: Boolean, default: false },
+    descriptionText: { type: String, default: "" },
+    postedAt: Date,
+    titleCompanyLocationHash: { type: String, required: true, index: true },
+    priorityScore: { type: Number, default: 0, index: true },
+    eligibilityNotes: { type: String, default: "" },
+    visaLanguage: { type: Boolean, default: false },
+    citizenshipRequirement: { type: Boolean, default: false },
+    status: {
+      type: String,
+      enum: ["seen", "saved", "skipped", "drafted", "applied", "hidden"],
+      default: "seen",
+      index: true,
+    },
+    applicationId: String,
+  },
+  { timestamps: true },
+);
+
+jobListingSchema.index({ status: 1, priorityScore: -1, createdAt: -1 });
+jobListingSchema.index({ applyUrl: 1 });
+
+export const JobListingModel =
+  mongoose.models.JobListing ?? mongoose.model("JobListing", jobListingSchema);
+
+const jobPollStateSchema = new Schema(
+  {
+    _id: { type: String, default: "jobs" },
+    lastRunAt: Date,
+    lastError: String,
+    adapterErrors: {
+      type: [{ adapter: String, error: String }],
+      default: [],
+    },
+    lastAdded: { type: Number, default: 0 },
+    lastUpdated: { type: Number, default: 0 },
+    lastSkippedRole: { type: Number, default: 0 },
+    lastWatchIndex: { type: Number, default: 0 },
+  },
+  { timestamps: true },
+);
+
+export const JobPollStateModel =
+  mongoose.models.JobPollState ?? mongoose.model("JobPollState", jobPollStateSchema);

@@ -21,7 +21,7 @@ Content is served from MongoDB. `npm run seed` restores from a private snapshot 
 
 ## Dashboard
 
-`/admin` is GitHub OAuth, allowlisted to `ADMIN_GITHUB_LOGIN`. From there you can edit projects, experience, skills, philosophy, architecture, about/social, SEO (including Google Search Console / Bing verification tokens), and view first-party analytics (page, referrer, country/city from IP — no browser location permission).
+`/admin` is GitHub OAuth, allowlisted to `ADMIN_GITHUB_LOGIN`. From there you can edit projects, experience, skills, philosophy, architecture, about/social, SEO (including Google Search Console / Bing verification tokens), discover jobs (`/admin/jobs`), and view first-party analytics (page, referrer, country/city from IP — no browser location permission).
 
 Share previews (WhatsApp, iMessage, Slack, Discord, LinkedIn, X, Telegram) use Open Graph tags and a Cloudinary `1200×630` JPEG. Paste your Search Console verification token under **SEO**, then submit `https://your-domain.com/sitemap.xml`.
 

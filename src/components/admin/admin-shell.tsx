@@ -6,18 +6,20 @@ import { usePathname } from "next/navigation";
 import {
   Box,
   Briefcase,
+  Building2,
   ExternalLink,
-  FolderKanban,
   FolderGit2,
+  FolderKanban,
   LayoutDashboard,
+  ListChecks,
   Menu,
   Plus,
   Quote,
+  Radar,
   Search,
   Tags,
   User,
   Wrench,
-  Building2,
   X,
 } from "lucide-react";
 import { cn } from "@/lib/cn";
@@ -31,6 +33,8 @@ const groups = [
   {
     title: "Jobs",
     items: [
+      { href: "/admin/jobs", label: "Job search", icon: Radar, exact: true },
+      { href: "/admin/jobs/watchlist", label: "Watchlist", icon: ListChecks },
       { href: "/admin/applications", label: "Applications", icon: Briefcase },
       { href: "/admin/apply", label: "New application", icon: Plus },
     ],
@@ -57,7 +61,7 @@ const groups = [
 ] as const;
 
 function isActive(pathname: string, href: string, exact?: boolean) {
-  if (exact || href === "/admin") return pathname === "/admin";
+  if (exact || href === "/admin") return pathname === href;
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
@@ -69,6 +73,8 @@ function currentLabel(pathname: string) {
   }
   if (pathname.startsWith("/admin/projects")) return "Projects";
   if (pathname.startsWith("/admin/applications")) return "Applications";
+  if (pathname.startsWith("/admin/jobs/watchlist")) return "Watchlist";
+  if (pathname.startsWith("/admin/jobs")) return "Job search";
   return "Admin";
 }
 

@@ -58,9 +58,11 @@ Server-only (never `NEXT_PUBLIC_`):
 | `ADMIN_GITHUB_LOGIN` | yes | GitHub username allowed into `/admin` |
 | `MONGODB_URI` | yes for CMS/analytics | Atlas connection string |
 | `CLOUDINARY_URL` or `CLOUDINARY_*` | yes for screenshots | Cloudinary credentials |
-| `GEMINI_API_KEY` | no | Admin “draft from notes” |
+| `GEMINI_API_KEY` | no | Admin drafts, job-application copy, listing score notes |
 | `GEMINI_MODEL` | no | Defaults to `gemini-2.5-flash` |
 | `NOTIFY_EMAIL` / `NOTIFY_FROM` / `SMTP_*` | no | Visit summary email |
+| `USAJOBS_API_KEY` / `USAJOBS_USER_AGENT` | no | Optional USAJOBS search in `/admin/jobs` |
+| `JOB_POLL_LOOP` | no | `1` in `next dev`; production polls unless `0` |
 
 There are no `NEXT_PUBLIC_` variables. Site URL in HTML/SEO comes from content (`profile.website` in Mongo or `src/data/profile.ts`).
 

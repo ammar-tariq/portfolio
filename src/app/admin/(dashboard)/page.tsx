@@ -30,6 +30,7 @@ export default async function AdminHomePage() {
       </div>
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <QuickLink href="/admin/jobs" title="Job search" hint="Discover and rank listings" />
         <QuickLink href="/admin/applications" title="Applications" hint="Inbox and history" />
         <QuickLink href="/admin/projects" title="Projects" hint="Case studies" />
         <QuickLink href="/admin/about" title="Profile" hint="Name, social, nav" />
