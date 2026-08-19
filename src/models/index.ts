@@ -348,6 +348,11 @@ const jobSourceEnum = [
   "himalayas",
   "arbeitnow",
   "we-work-remotely",
+  "jobicy",
+  "working-nomads",
+  "the-muse",
+  "hn-who-is-hiring",
+  "landing-jobs",
   "usajobs",
 ];
 
@@ -401,8 +406,23 @@ const jobPollStateSchema = new Schema(
     lastUpdated: { type: Number, default: 0 },
     lastSkippedRole: { type: Number, default: 0 },
     lastWatchIndex: { type: Number, default: 0 },
-    enabledBoards: { type: [String], default: ["remote-ok", "remotive", "himalayas", "arbeitnow", "we-work-remotely"] },
+    enabledBoards: {
+      type: [String],
+      default: [
+        "remote-ok",
+        "remotive",
+        "himalayas",
+        "arbeitnow",
+        "we-work-remotely",
+        "jobicy",
+        "working-nomads",
+        "the-muse",
+        "hn-who-is-hiring",
+        "landing-jobs",
+      ],
+    },
     includeCompanyAts: { type: Boolean, default: false },
+    enabledBoardsVersion: { type: Number, default: 0 },
   },
   { timestamps: true },
 );

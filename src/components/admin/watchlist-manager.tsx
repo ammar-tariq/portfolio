@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { addCompanyWatch, deleteCompanyWatch, pollCompanyWatch, seedSuggestedWatchlist, setCompanyWatchEnabled } from "@/app/admin/job-actions";
+import { addCompanyWatch, deleteCompanyWatch, seedSuggestedWatchlist, setCompanyWatchEnabled } from "@/app/admin/job-actions";
 import { AdminButton, AdminBadge } from "@/components/admin/admin-ui";
 import { Field, TextInput } from "@/components/admin/fields";
 import { parseWatchInput } from "@/lib/jobs/watch-input";
@@ -75,13 +75,13 @@ export function WatchlistManager({ items }: { items: CompanyWatch[] }) {
           />
         </Field>
       </div>
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap items-center gap-3">
         <AdminButton type="button" variant="primary" disabled={busy || !token.trim()} onClick={() => void onAdd()}>
-          Add board
+          Add
         </AdminButton>
-        <AdminButton type="button" variant="secondary" disabled={busy} onClick={() => void onSeed()}>
-          Seed suggested companies
-        </AdminButton>
+        <button type="button" className="text-sm text-muted hover:text-fg" disabled={busy} onClick={() => void onSeed()}>
+          Add suggested companies
+        </button>
       </div>
       {items.length === 0 ? (
         <p className="text-sm text-muted">
@@ -109,39 +109,23 @@ export function WatchlistManager({ items }: { items: CompanyWatch[] }) {
                   {item.lastError ? <span className="text-amber-300">{item.lastError}</span> : null}
                 </p>
               </div>
-              <div className="flex gap-2">
-                <AdminButton
+              <div className="flex items-center gap-3 text-sm">
+                <button
                   type="button"
-                  variant="secondary"
-                  onClick={() =>
-                    void pollCompanyWatch(item.id).then((result) => {
-                      setMessage(
-                        result.ok
-                          ? `Polled ${item.name}: +${result.added} / ~${result.updated}`
-                          : result.error,
-                      );
-                      router.refresh();
-                    })
-                  }
-                >
-                  Poll
-                </AdminButton>
-                <AdminButton
-                  type="button"
-                  variant="ghost"
+                  className="text-muted hover:text-fg"
                   onClick={() =>
                     void setCompanyWatchEnabled(item.id, !item.enabled).then(() => router.refresh())
                   }
                 >
-                  {item.enabled ? "Disable" : "Enable"}
-                </AdminButton>
-                <AdminButton
+                  {item.enabled ? "Turn off" : "Turn on"}
+                </button>
+                <button
                   type="button"
-                  variant="danger"
+                  className="text-muted hover:text-fg"
                   onClick={() => void deleteCompanyWatch(item.id).then(() => router.refresh())}
                 >
                   Remove
-                </AdminButton>
+                </button>
               </div>
             </li>
           ))

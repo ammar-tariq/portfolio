@@ -116,9 +116,13 @@ export function SimpleEditor({
                   >
                     {String(item.title ?? item.label ?? item.role ?? item.slug)}
                   </button>
-                  <AdminButton type="button" variant="ghost" onClick={() => void remove(key)}>
+                  <button
+                    type="button"
+                    className="shrink-0 px-2 text-sm text-muted hover:text-fg"
+                    onClick={() => void remove(key)}
+                  >
                     Delete
-                  </AdminButton>
+                  </button>
                 </li>
               );
             })
@@ -127,13 +131,10 @@ export function SimpleEditor({
       </AdminPanel>
       {active ? (
         <AdminPanel className="p-5">
-          <div className="mb-5 flex items-center justify-between gap-3">
+          <div className="mb-5">
             <p className="text-sm font-medium">
               {String(active.id || active.slug || active.role || active.label) ? "Edit item" : "New item"}
             </p>
-            <AdminButton type="button" variant="ghost" onClick={() => setActive(null)}>
-              Cancel
-            </AdminButton>
           </div>
           <div className="grid gap-4">
             {kind === "experience" ? (
@@ -152,13 +153,13 @@ export function SimpleEditor({
               </>
             ) : null}
             {kind === "opensource" ? <OpenSourceFields value={active} onChange={setActive} /> : null}
-            <div className="flex flex-wrap gap-2 pt-2">
+            <div className="flex flex-wrap items-center gap-3 pt-2">
               <AdminButton type="button" variant="primary" onClick={() => void save()}>
                 Save
               </AdminButton>
-              <AdminButton type="button" variant="secondary" onClick={() => setActive(null)}>
+              <button type="button" className="text-sm text-muted hover:text-fg" onClick={() => setActive(null)}>
                 Cancel
-              </AdminButton>
+              </button>
             </div>
             {error ? <p className="text-sm text-muted">{error}</p> : null}
             {!canDraft && kind !== "industry" && kind !== "opensource" ? (

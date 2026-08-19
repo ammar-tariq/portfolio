@@ -27,8 +27,12 @@ export default async function ApplicationsPage() {
       <AdminPageHeader
         eyebrow="Jobs"
         title="Applications"
-        description="Inbox for tailored resumes and letters. Create a new one from a posting, then open it to send or track replies."
-        actions={<AdminLink href="/admin/apply" variant="primary">New application</AdminLink>}
+        description="Tailored resumes and letters. Start from Jobs, or paste a posting URL."
+        actions={
+          <a href="/admin/apply" className="text-sm text-muted hover:text-fg">
+            Paste a job URL
+          </a>
+        }
       />
 
       {hasGmailApi() ? (
@@ -49,8 +53,11 @@ export default async function ApplicationsPage() {
         ) : (
           <ul className="divide-y divide-line">
             {items.map((item) => (
-              <li key={item.id} className="flex flex-wrap items-center justify-between gap-3 px-4 py-3.5">
-                <div className="min-w-0">
+              <li key={item.id}>
+                <a
+                  href={`/admin/applications/${item.id}`}
+                  className="block px-4 py-3.5 transition-colors hover:bg-fg/4"
+                >
                   <p className="truncate font-medium">
                     {item.role} · {item.company}
                   </p>
@@ -62,8 +69,7 @@ export default async function ApplicationsPage() {
                     {item.createdAt ? <span>{new Date(item.createdAt).toLocaleDateString()}</span> : null}
                     {item.sentAt ? <span>sent {new Date(item.sentAt).toLocaleDateString()}</span> : null}
                   </p>
-                </div>
-                <AdminLink href={`/admin/applications/${item.id}`}>Open</AdminLink>
+                </a>
               </li>
             ))}
           </ul>

@@ -10,6 +10,7 @@ import { SUGGESTED_WATCHLIST } from "@/lib/jobs/seed-watchlist";
 import { parseWatchInput } from "@/lib/jobs/watch-input";
 import {
   BOARD_SOURCES,
+  ENABLED_BOARDS_VERSION,
   LISTING_STATUSES,
   WATCH_ATS,
   type BoardSource,
@@ -56,7 +57,7 @@ export async function saveJobBoardSettings(input: {
   if (!enabled.length) return { ok: false, error: "Turn on at least one job board." };
   await JobPollStateModel.findByIdAndUpdate(
     "jobs",
-    { enabledBoards: enabled, includeCompanyAts: Boolean(input.includeCompanyAts) },
+    { enabledBoards: enabled, includeCompanyAts: Boolean(input.includeCompanyAts), enabledBoardsVersion: ENABLED_BOARDS_VERSION },
     { upsert: true },
   );
   revalidateJobs();

@@ -11,9 +11,7 @@ import {
   FolderGit2,
   FolderKanban,
   LayoutDashboard,
-  ListChecks,
   Menu,
-  Plus,
   Quote,
   Radar,
   Search,
@@ -33,10 +31,8 @@ const groups = [
   {
     title: "Jobs",
     items: [
-      { href: "/admin/jobs", label: "Job search", icon: Radar, exact: true },
-      { href: "/admin/jobs/watchlist", label: "Company ATS", icon: ListChecks },
+      { href: "/admin/jobs", label: "Jobs", icon: Radar, exact: true },
       { href: "/admin/applications", label: "Applications", icon: Briefcase },
-      { href: "/admin/apply", label: "New application", icon: Plus },
     ],
   },
   {
@@ -73,8 +69,7 @@ function currentLabel(pathname: string) {
   }
   if (pathname.startsWith("/admin/projects")) return "Projects";
   if (pathname.startsWith("/admin/applications")) return "Applications";
-  if (pathname.startsWith("/admin/jobs/watchlist")) return "Company ATS";
-  if (pathname.startsWith("/admin/jobs")) return "Job search";
+  if (pathname.startsWith("/admin/jobs")) return "Jobs";
   return "Admin";
 }
 

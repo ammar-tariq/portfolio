@@ -3,7 +3,7 @@ import { connectDb } from "@/lib/db";
 import { JobListingModel } from "@/models";
 import { listingFromDoc } from "@/lib/jobs/from-doc";
 import { ListingActions } from "@/components/admin/listing-actions";
-import { AdminBadge, AdminLink, AdminPageHeader, AdminPanel } from "@/components/admin/admin-ui";
+import { AdminBadge, AdminPageHeader, AdminPanel } from "@/components/admin/admin-ui";
 
 export const dynamic = "force-dynamic";
 
@@ -20,7 +20,11 @@ export default async function JobListingPage({ params }: { params: Promise<{ id:
         eyebrow={item.source}
         title={item.title}
         description={`${item.company}${item.location ? ` · ${item.location}` : ""}`}
-        actions={<AdminLink href="/admin/jobs">Back to inbox</AdminLink>}
+        actions={
+          <a href="/admin/jobs" className="text-sm text-muted hover:text-fg">
+            Back to jobs
+          </a>
+        }
       />
       <div className="flex flex-wrap gap-2">
         <AdminBadge>{item.status}</AdminBadge>
@@ -30,7 +34,7 @@ export default async function JobListingPage({ params }: { params: Promise<{ id:
         {item.citizenshipRequirement ? <AdminBadge tone="warn">citizenship</AdminBadge> : null}
       </div>
       {item.eligibilityNotes ? <p className="text-sm text-muted">{item.eligibilityNotes}</p> : null}
-      <ListingActions listing={item} />
+      <ListingActions listing={item} showOpen />
       <AdminPanel className="p-5">
         <p className="font-mono text-[10px] tracking-wide text-subtle uppercase">Description</p>
         <div className="mt-3 max-w-3xl whitespace-pre-wrap text-sm leading-relaxed text-muted">

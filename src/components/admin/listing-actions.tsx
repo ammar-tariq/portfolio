@@ -3,21 +3,19 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { prepareListingApplication, setListingStatus } from "@/app/admin/job-actions";
-import { AdminButton, AdminLink } from "@/components/admin/admin-ui";
-import { adminButtonClass } from "@/components/admin/admin-styles";
-import type { JobListing, ListingStatus } from "@/types/job-search";
+import { AdminButton } from "@/components/admin/admin-ui";
+import type { JobListing } from "@/types/job-search";
 
-export function ListingActions({ listing }: { listing: JobListing }) {
+export function ListingActions({
+  listing,
+  showOpen,
+}: {
+  listing: JobListing;
+  showOpen?: boolean;
+}) {
   const router = useRouter();
   const [pending, start] = useTransition();
   const [error, setError] = useState("");
-
-  function setStatus(status: ListingStatus) {
-    start(async () => {
-      await setListingStatus(listing.id, status);
-      router.refresh();
-    });
-  }
 
   async function prepare() {
     setError("");
@@ -28,28 +26,27 @@ export function ListingActions({ listing }: { listing: JobListing }) {
   return (
     <div className="flex flex-wrap items-center gap-2">
       <AdminButton type="button" variant="primary" disabled={pending} onClick={() => void prepare()}>
-        Prepare application
+        Prepare
       </AdminButton>
-      <AdminLink href={`/admin/jobs/${listing.id}`}>Details</AdminLink>
-      {listing.applyUrl ? (
-        <a href={listing.applyUrl} target="_blank" rel="noreferrer" className={adminButtonClass("secondary")}>
+      {showOpen && listing.applyUrl ? (
+        <a href={listing.applyUrl} target="_blank" rel="noreferrer" className="text-sm text-muted hover:text-fg">
           Open posting
         </a>
       ) : null}
-      {listing.status !== "saved" ? (
-        <AdminButton type="button" variant="ghost" disabled={pending} onClick={() => setStatus("saved")}>
-          Save
-        </AdminButton>
-      ) : null}
       {listing.status !== "skipped" ? (
-        <AdminButton type="button" variant="ghost" disabled={pending} onClick={() => setStatus("skipped")}>
+        <button
+          type="button"
+          disabled={pending}
+          className="text-sm text-muted hover:text-fg disabled:opacity-50"
+          onClick={() =>
+            start(async () => {
+              await setListingStatus(listing.id, "skipped");
+              router.refresh();
+            })
+          }
+        >
           Skip
-        </AdminButton>
-      ) : null}
-      {listing.status !== "hidden" ? (
-        <AdminButton type="button" variant="ghost" disabled={pending} onClick={() => setStatus("hidden")}>
-          Hide
-        </AdminButton>
+        </button>
       ) : null}
       {error ? <p className="w-full text-sm text-muted">{error}</p> : null}
     </div>

@@ -2,7 +2,7 @@ import Link from "next/link";
 import { getAnalytics } from "@/lib/analytics";
 import { VisitorMap } from "@/components/admin/visitor-map";
 import { googleAnalyticsId } from "@/lib/env";
-import { AdminLink, AdminPageHeader, AdminPanel } from "@/components/admin/admin-ui";
+import { AdminPageHeader, AdminPanel } from "@/components/admin/admin-ui";
 
 export const dynamic = "force-dynamic";
 
@@ -14,14 +14,6 @@ export default async function AdminHomePage() {
         eyebrow="Last 30 days"
         title="Dashboard"
         description="Traffic on this site, plus shortcuts into the work you do most."
-        actions={
-          <>
-            <AdminLink href="/admin/apply" variant="primary">
-              New application
-            </AdminLink>
-            <AdminLink href="/admin/projects/new">New project</AdminLink>
-          </>
-        }
       />
 
       <div className="grid gap-3 sm:grid-cols-2">
@@ -29,12 +21,10 @@ export default async function AdminHomePage() {
         <Stat label="Unique visitors" value={stats.uniques} />
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <QuickLink href="/admin/jobs" title="Job search" hint="Poll job boards" />
-        <QuickLink href="/admin/applications" title="Applications" hint="Inbox and history" />
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        <QuickLink href="/admin/jobs" title="Jobs" hint="Find matching roles" />
+        <QuickLink href="/admin/applications" title="Applications" hint="Resumes you prepared" />
         <QuickLink href="/admin/projects" title="Projects" hint="Case studies" />
-        <QuickLink href="/admin/about" title="Profile" hint="Name, social, nav" />
-        <QuickLink href="/admin/seo" title="SEO" hint="Titles and verification" />
       </div>
 
       <AdminPanel className="p-5">

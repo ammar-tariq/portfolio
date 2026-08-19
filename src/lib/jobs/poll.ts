@@ -6,25 +6,27 @@ import { fetchWatchJobs } from "@/lib/jobs/adapters/ats";
 import {
   fetchArbeitnowJobs,
   fetchHimalayasJobs,
+  fetchHnWhoIsHiringJobs,
+  fetchJobicyJobs,
+  fetchLandingJobs,
+  fetchMuseJobs,
   fetchRemoteOkJobs,
   fetchRemotiveJobs,
   fetchUsaJobs,
   fetchWeWorkRemotelyJobs,
+  fetchWorkingNomadsJobs,
 } from "@/lib/jobs/adapters/boards";
 import { sleep } from "@/lib/jobs/http";
 import { pushAdapterError, upsertJobs } from "@/lib/jobs/upsert";
 import { watchFromDoc } from "@/lib/jobs/from-doc";
 import type { AdapterError, BoardSource, JobPollResult, WatchAts } from "@/types/job-search";
-import { BOARD_SOURCES, DEFAULT_ENABLED_BOARDS } from "@/types/job-search";
+import { ENABLED_BOARDS_VERSION, resolveEnabledBoards } from "@/types/job-search";
 import { getSiteContentForParams } from "@/lib/content";
 import { stackTermsFromContent, type StackTerm } from "@/lib/jobs/stack";
 import type { NormalizedJob } from "@/lib/jobs/normalize";
 
-function normalizeEnabledBoards(value: unknown): BoardSource[] {
-  const allowed = new Set<string>(BOARD_SOURCES);
-  const list = Array.isArray(value) ? value.map(String) : [];
-  const enabled = list.filter((id): id is BoardSource => allowed.has(id));
-  return enabled.length ? enabled : [...DEFAULT_ENABLED_BOARDS];
+function normalizeEnabledBoards(value: unknown, version = 0): BoardSource[] {
+  return resolveEnabledBoards(Array.isArray(value) ? value.map(String) : [], version);
 }
 
 const DELAY_MS = 250;
@@ -126,7 +128,10 @@ export async function pollJobSources(): Promise<JobPollResult | { ok: false; err
   let skippedRole = 0;
 
   const saved = await JobPollStateModel.findById("jobs").lean();
-  const enabled = normalizeEnabledBoards((saved as { enabledBoards?: unknown } | null)?.enabledBoards);
+  const enabled = normalizeEnabledBoards(
+    (saved as { enabledBoards?: unknown } | null)?.enabledBoards,
+    Number((saved as { enabledBoardsVersion?: number } | null)?.enabledBoardsVersion) || 0,
+  );
   const includeCompanyAts = Boolean((saved as { includeCompanyAts?: boolean } | null)?.includeCompanyAts);
 
   const boardRuns: { name: BoardSource; run: () => Promise<NormalizedJob[]> }[] = [
@@ -135,6 +140,11 @@ export async function pollJobSources(): Promise<JobPollResult | { ok: false; err
     { name: "himalayas", run: fetchHimalayasJobs },
     { name: "arbeitnow", run: fetchArbeitnowJobs },
     { name: "we-work-remotely", run: fetchWeWorkRemotelyJobs },
+    { name: "jobicy", run: fetchJobicyJobs },
+    { name: "working-nomads", run: fetchWorkingNomadsJobs },
+    { name: "the-muse", run: fetchMuseJobs },
+    { name: "hn-who-is-hiring", run: fetchHnWhoIsHiringJobs },
+    { name: "landing-jobs", run: fetchLandingJobs },
   ];
   if (hasUsajobs()) boardRuns.push({ name: "usajobs", run: fetchUsaJobs });
 
@@ -191,6 +201,8 @@ export async function pollJobSources(): Promise<JobPollResult | { ok: false; err
       lastUpdated: updated,
       lastSkippedRole: skippedRole,
       lastWatchIndex: nextIndex,
+      enabledBoards: enabled,
+      enabledBoardsVersion: ENABLED_BOARDS_VERSION,
     },
     { upsert: true },
   );

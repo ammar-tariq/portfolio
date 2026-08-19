@@ -1,7 +1,7 @@
 import { hasGemini } from "@/lib/env";
 import { parseSharedJob } from "@/lib/job-posting";
 import { ApplicationForm } from "@/components/admin/application-form";
-import { AdminLink, AdminPageHeader, AdminPanel } from "@/components/admin/admin-ui";
+import { AdminPageHeader, AdminPanel } from "@/components/admin/admin-ui";
 
 export const dynamic = "force-dynamic";
 
@@ -17,9 +17,13 @@ export default async function ApplyPage({
     <div className="space-y-6">
       <AdminPageHeader
         eyebrow="Jobs"
-        title="New application"
-        description="Paste or share a job posting. Generate a tailored resume and letter, or save a draft and finish later."
-        actions={<AdminLink href="/admin/applications">Back to inbox</AdminLink>}
+        title="Paste a job URL"
+        description="For LinkedIn, Indeed, or any posting the boards miss. Then generate a resume and letter."
+        actions={
+          <a href="/admin/applications" className="text-sm text-muted hover:text-fg">
+            Back to applications
+          </a>
+        }
       />
 
       <AdminPanel className="p-5">

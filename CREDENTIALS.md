@@ -466,7 +466,7 @@ Also: **Actions → General → Workflow permissions → Read and write** so `GI
 
 ## 12. USAJOBS (optional job search)
 
-Used only by **Admin → Job search**. Most discovery sources need **no key** (Greenhouse, Lever, Ashby, Remote OK, Remotive, Himalayas, Arbeitnow, We Work Remotely RSS). Company board tokens live in Mongo, not `.env`.
+Used only by **Admin → Jobs**. Most discovery sources need **no key** (Remote OK, Remotive, Himalayas, Arbeitnow, We Work Remotely, Jobicy, Working Nomads, The Muse, HN Who’s Hiring, Landing.jobs, plus Greenhouse/Lever/Ashby company boards). Company board tokens live in Mongo, not `.env`.
 
 USAJOBS is official and free. Eligibility for a Pakistan-based applicant is usually low; listings are still ingested and ranked down, never hidden.
 

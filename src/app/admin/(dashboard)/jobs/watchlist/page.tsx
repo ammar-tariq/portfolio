@@ -3,7 +3,7 @@ import { hasMongo } from "@/lib/env";
 import { CompanyWatchModel } from "@/models";
 import { watchFromDoc } from "@/lib/jobs/from-doc";
 import { WatchlistManager } from "@/components/admin/watchlist-manager";
-import { AdminLink, AdminPageHeader } from "@/components/admin/admin-ui";
+import { AdminPageHeader } from "@/components/admin/admin-ui";
 
 export const dynamic = "force-dynamic";
 
@@ -22,9 +22,13 @@ export default async function WatchlistPage() {
     <div className="space-y-6">
       <AdminPageHeader
         eyebrow="Jobs"
-        title="Company ATS (optional)"
-        description="Only used if you turn on “Also poll optional company ATS tokens” on Job search. Discovery is job-board-first; this is extra Greenhouse/Lever/Ashby tokens, not a required company list."
-        actions={<AdminLink href="/admin/jobs">Back to listings</AdminLink>}
+        title="Extra company boards"
+        description="Optional. Most people can ignore this — Job search already uses public boards."
+        actions={
+          <a href="/admin/jobs" className="text-sm text-muted hover:text-fg">
+            Back to jobs
+          </a>
+        }
       />
       <WatchlistManager items={items} />
     </div>

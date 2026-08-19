@@ -1,5 +1,5 @@
 import type { CompanyWatch, JobListing, JobPollState, ListingStatus } from "@/types/job-search";
-import { BOARD_SOURCES, DEFAULT_ENABLED_BOARDS, LISTING_STATUSES, type BoardSource } from "@/types/job-search";
+import { LISTING_STATUSES, resolveEnabledBoards } from "@/types/job-search";
 
 function str(value: unknown, max = 8000) {
   if (value == null) return "";
@@ -65,14 +65,10 @@ export function pollStateFromDoc(doc: unknown): JobPollState {
     lastAdded: Number(data.lastAdded) || 0,
     lastUpdated: Number(data.lastUpdated) || 0,
     lastSkippedRole: Number(data.lastSkippedRole) || 0,
-    enabledBoards: (() => {
-      const enabled = Array.isArray(data.enabledBoards)
-        ? (data.enabledBoards as string[]).filter((id): id is BoardSource =>
-            (BOARD_SOURCES as readonly string[]).includes(id),
-          )
-        : [];
-      return enabled.length ? enabled : [...DEFAULT_ENABLED_BOARDS];
-    })(),
+    enabledBoards: resolveEnabledBoards(
+      Array.isArray(data.enabledBoards) ? data.enabledBoards.map(String) : [],
+      Number(data.enabledBoardsVersion) || 0,
+    ),
     includeCompanyAts: Boolean(data.includeCompanyAts),
   };
 }
