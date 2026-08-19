@@ -1,4 +1,4 @@
-import type { Project, ProjectScreenshot } from "@/types/content";
+import type { Profile, Project, ProjectScreenshot, Social } from "@/types/content";
 
 function cloudName() {
   const url = process.env.CLOUDINARY_URL ?? "";
@@ -29,6 +29,14 @@ function rewriteShot(shot: ProjectScreenshot): ProjectScreenshot {
     ...shot,
     src: resolveMediaUrl(shot.src, shot.publicId) ?? shot.src,
   };
+}
+
+export function profilePhotoSrc(profile: Profile, social?: Social) {
+  const uploaded = resolveMediaUrl(profile.photoUrl, profile.photoPublicId);
+  if (uploaded) return uploaded;
+  const handle = social?.githubHandle?.replace(/^@/, "").trim();
+  if (handle && handle !== "your-handle") return `https://github.com/${handle}.png?size=800`;
+  return undefined;
 }
 
 export function rewriteProjectMedia(project: Project): Project {

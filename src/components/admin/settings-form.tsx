@@ -97,6 +97,23 @@ export function SettingsForm({
           >
             <TextArea value={profile.aboutBody} onChange={(e) => setSettings({ ...settings, profile: { ...profile, aboutBody: e.target.value } })} />
           </Field>
+          <ImageUpload
+            label="Portrait (shown greyscale on About)"
+            folder="portfolio/profile"
+            value={profile.photoUrl}
+            onUploaded={(asset) =>
+              setSettings({
+                ...settings,
+                profile: { ...profile, photoUrl: asset.url, photoPublicId: asset.publicId },
+              })
+            }
+            onUrl={(url) =>
+              setSettings({
+                ...settings,
+                profile: { ...profile, photoUrl: url, photoPublicId: undefined },
+              })
+            }
+          />
           <div className="grid gap-4 md:grid-cols-2">
             <Field label="Location"><TextInput value={profile.location} onChange={(e) => setSettings({ ...settings, profile: { ...profile, location: e.target.value } })} /></Field>
             <Field label="Availability"><TextInput value={profile.availability} onChange={(e) => setSettings({ ...settings, profile: { ...profile, availability: e.target.value } })} /></Field>

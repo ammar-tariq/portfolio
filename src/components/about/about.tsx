@@ -2,26 +2,56 @@
 
 import { Container, Section, Eyebrow } from "@/components/ui/section";
 import { Reveal } from "@/components/ui/reveal";
+import { RemoteImage } from "@/components/ui/remote-image";
 import { useContent } from "@/components/providers/content-provider";
 import { siteFaq } from "@/lib/faq";
+import { profilePhotoSrc } from "@/lib/media-url";
+import { cn } from "@/lib/cn";
 import Link from "next/link";
 
 export function About() {
   const content = useContent();
   const { profile, social } = content;
   const faq = siteFaq(content);
+  const photo = profilePhotoSrc(profile, social);
   return (
     <Section id="about">
       <Container>
-        <div className="grid gap-12 lg:grid-cols-[0.9fr_1.1fr] lg:items-start">
-          <div>
-            <Eyebrow>About</Eyebrow>
-            <h2 className="mt-5 font-serif text-[1.85rem] leading-[1.08] md:text-5xl">
-              {profile.aboutHeadline}
-            </h2>
-          </div>
+        <Eyebrow>About</Eyebrow>
+        <div
+          className={cn(
+            "mt-8 grid gap-12 lg:items-start",
+            photo ? "lg:grid-cols-[minmax(0,17rem)_1fr]" : "lg:grid-cols-[0.9fr_1.1fr]",
+          )}
+        >
+          {photo ? (
+            <Reveal>
+              <figure className="relative aspect-[3/4] max-w-xs overflow-hidden rounded-2xl lg:max-w-none">
+                <RemoteImage
+                  src={photo}
+                  alt={profile.name}
+                  fill
+                  sizes="(max-width: 1024px) 20rem, 17rem"
+                  className="object-cover object-[center_20%] grayscale contrast-[1.08]"
+                />
+              </figure>
+            </Reveal>
+          ) : (
+            <div>
+              <h2 className="font-serif text-[1.85rem] leading-[1.08] md:text-5xl">
+                {profile.aboutHeadline}
+              </h2>
+            </div>
+          )}
           <Reveal>
-            <p className="text-lg leading-relaxed text-muted md:text-xl">{profile.aboutBody}</p>
+            {photo ? (
+              <h2 className="font-serif text-[1.85rem] leading-[1.08] md:text-5xl">
+                {profile.aboutHeadline}
+              </h2>
+            ) : null}
+            <p className={cn("text-lg leading-relaxed text-muted md:text-xl", photo && "mt-6")}>
+              {profile.aboutBody}
+            </p>
             <dl className="mt-10 grid gap-8 sm:grid-cols-3">
               <div>
                 <dt className="font-mono text-[11px] tracking-[0.2em] text-subtle uppercase">

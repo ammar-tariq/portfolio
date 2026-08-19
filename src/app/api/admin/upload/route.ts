@@ -20,6 +20,7 @@ function isAllowedFolder(folder: string) {
   return (
     folder === "portfolio/uploads" ||
     folder === "portfolio/og" ||
+    folder === "portfolio/profile" ||
     /^portfolio\/projects\/[a-z0-9-]{1,80}$/.test(folder)
   );
 }

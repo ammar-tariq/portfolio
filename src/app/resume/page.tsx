@@ -4,6 +4,7 @@ import { PrintButton } from "@/components/ui/print-button";
 import { BrandMark } from "@/components/ui/brand-mark";
 import { JsonLd } from "@/components/seo/json-ld";
 import { getSiteContent } from "@/lib/content";
+import { profilePhotoSrc } from "@/lib/media-url";
 import { resumeProfilePageJsonLd, routeMetadata } from "@/lib/seo";
 import { publicProjects } from "@/lib/project-helpers";
 
@@ -20,6 +21,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function ResumePage() {
   const content = await getSiteContent();
   const { profile, social, experience, skillCategories, projects } = content;
+  const photo = profilePhotoSrc(profile, social);
   return (
     <div className="min-h-svh bg-bg text-fg">
       <JsonLd data={resumeProfilePageJsonLd(content)} />
@@ -33,10 +35,24 @@ export default async function ResumePage() {
           <PrintButton />
         </p>
         <header className="border-b border-line pb-6">
-          <h1 className="text-3xl font-medium tracking-tight sm:text-4xl">{profile.name}</h1>
-          <p className="mt-2 text-muted">
-            {profile.title} · {profile.location}
-          </p>
+          <div className="flex items-start gap-5">
+            {photo ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={photo}
+                alt=""
+                width={72}
+                height={72}
+                className="h-[72px] w-[72px] shrink-0 rounded-xl object-cover object-[center_20%] grayscale contrast-[1.08] print:grayscale"
+              />
+            ) : null}
+            <div>
+              <h1 className="text-3xl font-medium tracking-tight sm:text-4xl">{profile.name}</h1>
+              <p className="mt-2 text-muted">
+                {profile.title} · {profile.location}
+              </p>
+            </div>
+          </div>
           <p className="mt-4 flex flex-wrap gap-x-4 gap-y-1 text-sm text-subtle">
             <a href={`mailto:${profile.email}`}>{profile.email}</a>
             <a href={social.calendly}>Calendly</a>

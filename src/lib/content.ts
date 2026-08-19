@@ -15,7 +15,7 @@ import {
 import { staticContent } from "@/lib/static-content";
 import { canonicalizeSectionHref } from "@/lib/home-sections";
 import { BLOG_PATH } from "@/lib/blog";
-import { rewriteProjectMedia } from "@/lib/media-url";
+import { resolveMediaUrl, rewriteProjectMedia } from "@/lib/media-url";
 import type {
   ArchitectureContent,
   CommandItem,
@@ -176,11 +176,19 @@ function openSourceFromDoc(doc: unknown): OpenSourceProject {
 function settingsFromDoc(doc: unknown): SiteSettings {
   const data = asRecord(doc);
   const fallback = staticContent();
+  const profile = { ...fallback.profile, ...(data.profile as SiteSettings["profile"] | undefined) };
+  const seo = { ...fallback.seo, ...(data.seo as SiteSettings["seo"] | undefined) };
   return {
-    profile: { ...fallback.profile, ...(data.profile as SiteSettings["profile"] | undefined) },
+    profile: {
+      ...profile,
+      photoUrl: resolveMediaUrl(profile.photoUrl, profile.photoPublicId) ?? profile.photoUrl,
+    },
     social: { ...fallback.social, ...(data.social as SiteSettings["social"] | undefined) },
     navItems: Array.isArray(data.navItems) ? (data.navItems as SiteSettings["navItems"]) : fallback.navItems,
-    seo: { ...fallback.seo, ...(data.seo as SiteSettings["seo"] | undefined) },
+    seo: {
+      ...seo,
+      defaultOgImage: resolveMediaUrl(seo.defaultOgImage, seo.defaultOgImagePublicId) ?? seo.defaultOgImage,
+    },
   };
 }
 

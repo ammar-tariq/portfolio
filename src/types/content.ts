@@ -178,6 +178,8 @@ export type Profile = {
   focus: string[];
   aboutHeadline: string;
   aboutBody: string;
+  photoUrl?: string;
+  photoPublicId?: string;
 };
 
 export type Social = {

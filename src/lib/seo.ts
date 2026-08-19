@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import type { Project, SiteContent } from "@/types/content";
 import { ogImages } from "@/lib/og";
+import { profilePhotoSrc } from "@/lib/media-url";
 import { coverImage, allScreenshots } from "@/lib/project-media";
 import { publicProjects } from "@/lib/project-helpers";
 import { siteFaq } from "@/lib/faq";
@@ -38,7 +39,7 @@ export function personJsonLd(content: SiteContent) {
     description: profile.summary || seo.description,
     url: siteUrl,
     email: profile.email,
-    image: seo.defaultOgImage ?? `${siteUrl}/opengraph-image`,
+    image: profilePhotoSrc(profile, social) ?? seo.defaultOgImage ?? `${siteUrl}/opengraph-image`,
     sameAs: [
       social.github,
       social.linkedin,
