@@ -42,7 +42,7 @@ export default async function ResumePage() {
             <a href={social.calendly}>Calendly</a>
             <a href={social.whatsapp}>WhatsApp</a>
             <a href={social.github}>GitHub</a>
-            <a href={social.medium}>Blogs</a>
+            <Link href="/blog">Blogs</Link>
             <a href={social.linkedin}>LinkedIn</a>
             <a href={social.upwork}>Upwork</a>
           </p>

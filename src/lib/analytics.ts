@@ -59,6 +59,7 @@ export function pageLabel(path: string, titles: Map<string, string>) {
   if (path === "/") return "Home";
   if (path === "/work") return "Work";
   if (path === "/resume") return "Resume";
+  if (path === "/blog") return "Blogs";
   const section = homeSectionFromPathname(path);
   if (section) return section.label;
   const match = /^\/work\/([^/?#]+)/.exec(path);

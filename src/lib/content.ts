@@ -14,12 +14,14 @@ import {
 } from "@/models";
 import { staticContent } from "@/lib/static-content";
 import { canonicalizeSectionHref } from "@/lib/home-sections";
+import { BLOG_PATH } from "@/lib/blog";
 import { rewriteProjectMedia } from "@/lib/media-url";
 import type {
   ArchitectureContent,
   CommandItem,
   Experience,
   Industry,
+  NavItem,
   OpenSourceProject,
   Principle,
   Project,
@@ -203,7 +205,7 @@ function buildCommands(settings: SiteSettings): CommandItem[] {
     { id: "experience", label: "View Experience", hint: "Career timeline", href: "/experience" },
     { id: "skills", label: "View Skills", hint: "Technology ecosystem", href: "/skills" },
     { id: "about", label: "About", hint: "Profile", href: "/about" },
-    { id: "blogs", label: "Blogs", hint: "Medium", href: social.medium, external: true },
+    { id: "blogs", label: "Blogs", hint: "Medium", href: BLOG_PATH },
     { id: "contact", label: "Contact", hint: "Start a conversation", href: "/contact" },
     { id: "ai", label: "AI Systems", hint: "LLM orchestration", href: "/ai" },
     { id: "architecture", label: "Architecture", hint: "System map", href: "/architecture" },
@@ -216,6 +218,17 @@ function buildCommands(settings: SiteSettings): CommandItem[] {
     { id: "email", label: "Email", hint: profile.email, href: `mailto:${profile.email}`, external: true },
     { id: "theme", label: "Toggle theme", hint: "Light / dark", href: "action:theme" },
   ];
+}
+
+function normalizeNavItem(item: NavItem, medium: string): NavItem {
+  const isBlog =
+    item.id === "blogs" ||
+    item.id === "blog" ||
+    item.href === BLOG_PATH ||
+    (Boolean(medium) && item.href === medium);
+  if (isBlog) return { ...item, href: BLOG_PATH, external: false };
+  if (item.external) return item;
+  return { ...item, href: canonicalizeSectionHref(item.href) };
 }
 
 function assemble(parts: {
@@ -232,9 +245,7 @@ function assemble(parts: {
     ...parts,
     profile: parts.settings.profile,
     social: parts.settings.social,
-    navItems: parts.settings.navItems.map((item) =>
-      item.external ? item : { ...item, href: canonicalizeSectionHref(item.href) },
-    ),
+    navItems: parts.settings.navItems.map((item) => normalizeNavItem(item, parts.settings.social.medium)),
     seo: parts.settings.seo,
     commands: buildCommands(parts.settings),
   };

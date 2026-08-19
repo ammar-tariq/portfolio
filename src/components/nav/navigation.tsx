@@ -212,7 +212,7 @@ export function Navigation() {
                 </a>
                 <div className="flex flex-wrap gap-x-4 gap-y-2">
                   <a href={social.github}>GitHub</a>
-                  <a href={social.medium}>Blogs</a>
+                  <Link href="/blog">Blogs</Link>
                   <a href={social.linkedin}>LinkedIn</a>
                   <a href={social.upwork}>Upwork</a>
                   <a href={social.calendly}>Calendly</a>

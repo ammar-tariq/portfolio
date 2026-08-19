@@ -20,5 +20,5 @@ export const navItems = [
   { id: "open-source", label: "Open source", href: "/open-source" },
   { id: "experience", label: "Experience", href: "/experience" },
   { id: "skills", label: "Skills", href: "/skills" },
-  { id: "blogs", label: "Blogs", href: social.medium, external: true },
+  { id: "blogs", label: "Blogs", href: "/blog" },
 ] as const;

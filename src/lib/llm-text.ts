@@ -76,7 +76,7 @@ ${current ? `- Current role: ${current.role} at ${current.company} (${current.pe
 - Portfolio (case studies): ${siteUrl}/work
 - GitHub: ${social.github}
 - LinkedIn: ${social.linkedin}
-- Blog (Medium): ${social.medium}
+- Blog: ${siteUrl}/blog
 - Upwork: ${social.upwork}
 - Calendly: ${social.calendly}
 - WhatsApp: ${social.whatsapp}

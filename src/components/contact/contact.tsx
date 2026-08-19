@@ -61,7 +61,7 @@ export function Contact() {
     { id: "upwork", label: "Upwork", value: hostLabel(social.upwork), href: social.upwork, icon: UpworkIcon },
     { id: "linkedin", label: "LinkedIn", value: hostLabel(social.linkedin), href: social.linkedin, icon: LinkedInIcon },
     { id: "github", label: "GitHub", value: hostLabel(social.github), href: social.github, icon: GitHubIcon },
-    { id: "medium", label: "Blogs", value: hostLabel(social.medium), href: social.medium, icon: MediumIcon },
+    { id: "medium", label: "Blogs", value: hostLabel(social.medium), href: "/blog", icon: MediumIcon },
   ] as const;
 
   async function copyEmail() {

@@ -9,6 +9,7 @@ import { easeOutExpo } from "@/lib/motion";
 import { scrollToSection } from "@/lib/scroll";
 import { goToHomeSection } from "@/lib/section-nav";
 import { homeSectionFromHref, isHomeShellPath } from "@/lib/home-sections";
+import { BLOG_PATH } from "@/lib/blog";
 
 export function CommandPalette() {
   const { commandOpen, setCommandOpen } = useSite();
@@ -70,6 +71,10 @@ function Palette({ onClose }: { onClose: () => void }) {
     }
     if (href.startsWith("#")) {
       scrollToSection(href);
+      return;
+    }
+    if (href === BLOG_PATH) {
+      window.location.assign(href);
       return;
     }
     router.push(href);

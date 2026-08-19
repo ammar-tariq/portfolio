@@ -49,7 +49,7 @@ export function staticSettings(): SiteSettings {
       id: item.id,
       label: item.label,
       href: item.href,
-      external: "external" in item ? item.external : undefined,
+      ...("external" in item && item.external ? { external: true as const } : {}),
     })),
     seo: {
       title: `${profileData.name} | ${profileData.title}`,
@@ -91,7 +91,7 @@ export function staticContent(): SiteContent {
       { id: "experience", label: "View Experience", hint: "Career timeline", href: "/experience" },
       { id: "skills", label: "View Skills", hint: "Technology ecosystem", href: "/skills" },
       { id: "about", label: "About", hint: "Profile", href: "/about" },
-      { id: "blogs", label: "Blogs", hint: "Medium", href: settings.social.medium, external: true },
+      { id: "blogs", label: "Blogs", hint: "Medium", href: "/blog" },
       { id: "contact", label: "Contact", hint: "Start a conversation", href: "/contact" },
       { id: "ai", label: "AI Systems", hint: "LLM orchestration", href: "/ai" },
       { id: "architecture", label: "Architecture", hint: "System map", href: "/architecture" },

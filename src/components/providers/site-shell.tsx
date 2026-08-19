@@ -96,9 +96,9 @@ export function SiteShell({
             <a href={social.linkedin} className="link-underline" data-cursor="external">
               LinkedIn
             </a>
-            <a href={social.medium} className="link-underline" data-cursor="external">
+            <Link href="/blog" className="link-underline">
               Blogs
-            </a>
+            </Link>
             <a href={social.upwork} className="link-underline" data-cursor="external">
               Upwork
             </a>

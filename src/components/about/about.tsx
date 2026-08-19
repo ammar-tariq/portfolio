@@ -51,9 +51,9 @@ export function About() {
                 LinkedIn
               </a>
               {"  ·  "}
-              <a href={social.medium} className="link-underline text-fg" data-cursor="external">
+              <Link href="/blog" className="link-underline text-fg">
                 Blogs
-              </a>
+              </Link>
               {"  ·  "}
               <Link href="/resume" className="link-underline text-fg">
                 Resume
