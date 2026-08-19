@@ -1,0 +1,933 @@
+{
+  "meta": {
+    "date": "2026-08-19",
+    "models_tools_used": [
+      "Perplexity",
+      "web search"
+    ],
+    "confidence": "low-to-moderate",
+    "research_limitations": [
+      "Only a small number of primary sources were available in the current research pass.",
+      "Pricing and product status for AI job-automation tools change frequently.",
+      "Several search results were secondary reviews rather than official documentation.",
+      "No source should be marked as having an official API unless its own documentation or public endpoint was verified."
+    ],
+    "exhausted_buckets": {
+      "famous_platforms": {
+        "exhausted": false,
+        "why": "The required platforms were not individually verified."
+      },
+      "ats_engines": {
+        "exhausted": false,
+        "why": "Only a subset of ATS feed patterns was confirmed."
+      },
+      "boards_aggregators_niches": {
+        "exhausted": false,
+        "why": "The requested regional, visa, university, government, and specialty sources require a broader source-by-source pass."
+      },
+      "direct_company_sources": {
+        "exhausted": false,
+        "why": "Company board tokens and URLs were not individually verified."
+      },
+      "ai_job_automation": {
+        "exhausted": false,
+        "why": "Available results were mostly comparison articles, not official product documentation."
+      }
+    }
+  },
+  "sources": [
+    {
+      "id": "greenhouse-public-job-board-api",
+      "name": "Greenhouse",
+      "kind": "ats",
+      "fame": "famous",
+      "url": "https://boards-api.greenhouse.io/",
+      "cost": "free",
+      "cost_notes": "Public job-board listings can be retrieved without paying Greenhouse; employer ATS pricing is separate.",
+      "data_access": {
+        "official_listing_api": true,
+        "rss": false,
+        "json_ld_jobposting": true,
+        "public_job_board_json": true,
+        "documented_apply_api": false,
+        "email_or_mailto": false,
+        "html_only_public": true,
+        "login_wall": false,
+        "captcha_or_bot_defense": false,
+        "against_tos_to_scrape": false,
+        "notes": "Public board pattern: https://boards-api.greenhouse.io/v1/boards/{board_token}/jobs. A job detail endpoint can be derived from the board API response. Confirm employer-specific terms before high-volume polling."
+      },
+      "automation": {
+        "discover": "full",
+        "ingest_url_and_jd": "full",
+        "prepare_materials": "n/a — our app does this",
+        "submit_application": "partial",
+        "track_status": "none"
+      },
+      "needs_company_slug": true,
+      "global_search": false,
+      "geo": {
+        "remote_roles": "mixed",
+        "relocation_or_visa": "mixed",
+        "pakistan_can_apply": "sometimes",
+        "priority_hint": "high",
+        "priority_reason": "A stable public feed makes company-watchlist ingestion practical even though eligibility varies by employer."
+      },
+      "listing_fields_available": [
+        "url",
+        "title",
+        "company",
+        "location",
+        "remote",
+        "description",
+        "questions",
+        "posted_at",
+        "board_token"
+      ],
+      "tracking_fit": "Strong fit when the board token and Greenhouse job ID are retained; canonical application URL should still be stored separately.",
+      "risks": [
+        "duplicate-cross-post",
+        "stale-data",
+        "tos"
+      ],
+      "verdict": "watch",
+      "sources_you_used": [
+        "https://boards-api.greenhouse.io/",
+        "https://dev.to/agenticemail/every-major-ats-has-a-public-job-feed-here-is-how-to-read-them-all-3k10"
+      ]
+    },
+    {
+      "id": "lever-public-postings-api",
+      "name": "Lever",
+      "kind": "ats",
+      "fame": "famous",
+      "url": "https://api.lever.co/",
+      "cost": "free",
+      "cost_notes": "Public job postings are exposed through a public endpoint; employer product pricing is separate.",
+      "data_access": {
+        "official_listing_api": true,
+        "rss": false,
+        "json_ld_jobposting": true,
+        "public_job_board_json": true,
+        "documented_apply_api": false,
+        "email_or_mailto": false,
+        "html_only_public": true,
+        "login_wall": false,
+        "captcha_or_bot_defense": false,
+        "against_tos_to_scrape": false,
+        "notes": "Common public postings pattern: https://api.lever.co/v0/postings/{company_slug}?mode=json. Verify current documentation and rate limits before polling."
+      },
+      "automation": {
+        "discover": "full",
+        "ingest_url_and_jd": "full",
+        "prepare_materials": "n/a — our app does this",
+        "submit_application": "partial",
+        "track_status": "none"
+      },
+      "needs_company_slug": true,
+      "global_search": false,
+      "geo": {
+        "remote_roles": "mixed",
+        "relocation_or_visa": "mixed",
+        "pakistan_can_apply": "sometimes",
+        "priority_hint": "high",
+        "priority_reason": "Public company-level postings are useful for a free watchlist and preserve a relatively stable posting identifier."
+      },
+      "listing_fields_available": [
+        "url",
+        "title",
+        "company",
+        "location",
+        "remote",
+        "description",
+        "questions",
+        "posted_at",
+        "board_token"
+      ],
+      "tracking_fit": "Good fit if the Lever posting ID and company slug are stored; duplicate roles may also appear on third-party boards.",
+      "risks": [
+        "duplicate-cross-post",
+        "stale-data",
+        "tos"
+      ],
+      "verdict": "watch",
+      "sources_you_used": [
+        "https://api.lever.co/",
+        "https://dev.to/agenticemail/every-major-ats-has-a-public-job-feed-here-is-how-to-read-them-all-3k10"
+      ]
+    },
+    {
+      "id": "ashby-public-job-board-api",
+      "name": "Ashby",
+      "kind": "ats",
+      "fame": "famous",
+      "url": "https://api.ashbyhq.com/",
+      "cost": "free",
+      "cost_notes": "Public job-board data is available for participating companies; employer product pricing is separate.",
+      "data_access": {
+        "official_listing_api": true,
+        "rss": false,
+        "json_ld_jobposting": true,
+        "public_job_board_json": true,
+        "documented_apply_api": false,
+        "email_or_mailto": false,
+        "html_only_public": true,
+        "login_wall": false,
+        "captcha_or_bot_defense": false,
+        "against_tos_to_scrape": false,
+        "notes": "Common public board pattern: https://api.ashbyhq.com/posting-api/job-board/{board_name}. Confirm current Ashby documentation and employer terms."
+      },
+      "automation": {
+        "discover": "full",
+        "ingest_url_and_jd": "full",
+        "prepare_materials": "n/a — our app does this",
+        "submit_application": "partial",
+        "track_status": "none"
+      },
+      "needs_company_slug": true,
+      "global_search": false,
+      "geo": {
+        "remote_roles": "common",
+        "relocation_or_visa": "mixed",
+        "pakistan_can_apply": "sometimes",
+        "priority_hint": "high",
+        "priority_reason": "Ashby is widely used by technology companies and provides a practical public-feed pattern for a free company watchlist."
+      },
+      "listing_fields_available": [
+        "url",
+        "title",
+        "company",
+        "location",
+        "remote",
+        "description",
+        "questions",
+        "posted_at",
+        "board_token"
+      ],
+      "tracking_fit": "Very good when the Ashby posting ID and board name are persisted; use the public application URL as the human-click target.",
+      "risks": [
+        "duplicate-cross-post",
+        "stale-data",
+        "tos"
+      ],
+      "verdict": "watch",
+      "sources_you_used": [
+        "https://api.ashbyhq.com/",
+        "https://dev.to/agenticemail/every-major-ats-has-a-public-job-feed-here-is-how-to-read-them-all-3k10"
+      ]
+    },
+    {
+      "id": "smartrecruiters-public-postings-api",
+      "name": "SmartRecruiters",
+      "kind": "ats",
+      "fame": "famous",
+      "url": "https://developers.smartrecruiters.com/",
+      "cost": "free",
+      "cost_notes": "Public postings may be readable without a paid account; employer and partner API access can have separate restrictions.",
+      "data_access": {
+        "official_listing_api": true,
+        "rss": false,
+        "json_ld_jobposting": true,
+        "public_job_board_json": true,
+        "documented_apply_api": false,
+        "email_or_mailto": false,
+        "html_only_public": true,
+        "login_wall": false,
+        "captcha_or_bot_defense": false,
+        "against_tos_to_scrape": false,
+        "notes": "Common public postings pattern: https://api.smartrecruiters.com/v1/companies/{company_identifier}/postings. Verify current documentation and limits."
+      },
+      "automation": {
+        "discover": "full",
+        "ingest_url_and_jd": "full",
+        "prepare_materials": "n/a — our app does this",
+        "submit_application": "partial",
+        "track_status": "none"
+      },
+      "needs_company_slug": true,
+      "global_search": false,
+      "geo": {
+        "remote_roles": "mixed",
+        "relocation_or_visa": "mixed",
+        "pakistan_can_apply": "sometimes",
+        "priority_hint": "medium",
+        "priority_reason": "The public company-level feed is useful, but it requires maintaining a company identifier list."
+      },
+      "listing_fields_available": [
+        "url",
+        "title",
+        "company",
+        "location",
+        "remote",
+        "description",
+        "questions",
+        "posted_at",
+        "board_token"
+      ],
+      "tracking_fit": "Good if the SmartRecruiters posting identifier and company identifier are stored; cross-post deduplication remains necessary.",
+      "risks": [
+        "duplicate-cross-post",
+        "stale-data",
+        "tos"
+      ],
+      "verdict": "watch",
+      "sources_you_used": [
+        "https://developers.smartrecruiters.com/",
+        "https://dev.to/agenticemail/every-major-ats-has-a-public-job-feed-here-is-how-to-read-them-all-3k10"
+      ]
+    },
+    {
+      "id": "google-for-jobs",
+      "name": "Google for Jobs",
+      "kind": "aggregator",
+      "fame": "famous",
+      "url": "https://developers.google.com/search/docs/appearance/structured-data/job-posting",
+      "cost": "free",
+      "cost_notes": "Free discovery surface; it is not a public job-search API that an application owns.",
+      "data_access": {
+        "official_listing_api": false,
+        "rss": false,
+        "json_ld_jobposting": true,
+        "public_job_board_json": false,
+        "documented_apply_api": false,
+        "email_or_mailto": false,
+        "html_only_public": true,
+        "login_wall": false,
+        "captcha_or_bot_defense": true,
+        "against_tos_to_scrape": true,
+        "notes": "Use as a human discovery surface. Job pages commonly expose schema.org JobPosting JSON-LD, but Google search-result extraction is not an owned public API."
+      },
+      "automation": {
+        "discover": "partial",
+        "ingest_url_and_jd": "partial",
+        "prepare_materials": "n/a — our app does this",
+        "submit_application": "none",
+        "track_status": "none"
+      },
+      "needs_company_slug": false,
+      "global_search": true,
+      "geo": {
+        "remote_roles": "common",
+        "relocation_or_visa": "mixed",
+        "pakistan_can_apply": "sometimes",
+        "priority_hint": "medium",
+        "priority_reason": "It is broad and free for human discovery, but it is unsuitable as a dependable owned ingestion API."
+      },
+      "listing_fields_available": [
+        "url",
+        "title",
+        "company",
+        "location",
+        "remote",
+        "description",
+        "questions",
+        "posted_at"
+      ],
+      "tracking_fit": "Useful only after the user saves a canonical job URL; result duplication and changing aggregations weaken identity.",
+      "risks": [
+        "tos",
+        "ban",
+        "stale-data",
+        "duplicate-cross-post",
+        "no-stable-id"
+      ],
+      "verdict": "paste-url",
+      "sources_you_used": [
+        "https://developers.google.com/search/docs/appearance/structured-data/job-posting"
+      ]
+    },
+    {
+      "id": "teal",
+      "name": "Teal",
+      "kind": "tracker",
+      "fame": "famous",
+      "url": "https://www.tealhq.com/",
+      "cost": "free-tier",
+      "cost_notes": "Free job tracking and organization are available; premium AI and resume features may be paid. Verify current limits before implementation.",
+      "data_access": {
+        "official_listing_api": false,
+        "rss": false,
+        "json_ld_jobposting": false,
+        "public_job_board_json": false,
+        "documented_apply_api": false,
+        "email_or_mailto": false,
+        "html_only_public": true,
+        "login_wall": true,
+        "captcha_or_bot_defense": false,
+        "against_tos_to_scrape": false,
+        "notes": "No public listing API was verified in this research pass."
+      },
+      "automation": {
+        "discover": "partial",
+        "ingest_url_and_jd": "partial",
+        "prepare_materials": "partial",
+        "submit_application": "none",
+        "track_status": "native"
+      },
+      "needs_company_slug": false,
+      "global_search": true,
+      "geo": {
+        "remote_roles": "mixed",
+        "relocation_or_visa": "unknown",
+        "pakistan_can_apply": "unknown",
+        "priority_hint": "low",
+        "priority_reason": "It overlaps with the proposed tracker rather than supplying a clearly verifiable free source feed."
+      },
+      "listing_fields_available": [
+        "url",
+        "title",
+        "company",
+        "location",
+        "remote",
+        "description"
+      ],
+      "tracking_fit": "Useful as a comparison product, but it is not a dependable source for an independent ingestion pipeline.",
+      "risks": [
+        "login-wall",
+        "stale-data",
+        "duplicate-cross-post"
+      ],
+      "verdict": "skip",
+      "sources_you_used": [
+        "https://www.tealhq.com/",
+        "https://jobr.pro/post/best-ai-job-search-automation-tools"
+      ]
+    },
+    {
+      "id": "huntr",
+      "name": "Huntr",
+      "kind": "tracker",
+      "fame": "famous",
+      "url": "https://huntr.co/",
+      "cost": "free-tier",
+      "cost_notes": "A free tracking tier is reported; premium limits and features should be verified on the current pricing page.",
+      "data_access": {
+        "official_listing_api": false,
+        "rss": false,
+        "json_ld_jobposting": false,
+        "public_job_board_json": false,
+        "documented_apply_api": false,
+        "email_or_mailto": false,
+        "html_only_public": true,
+        "login_wall": true,
+        "captcha_or_bot_defense": false,
+        "against_tos_to_scrape": false,
+        "notes": "No public listing API was verified."
+      },
+      "automation": {
+        "discover": "partial",
+        "ingest_url_and_jd": "partial",
+        "prepare_materials": "partial",
+        "submit_application": "none",
+        "track_status": "native"
+      },
+      "needs_company_slug": false,
+      "global_search": true,
+      "geo": {
+        "remote_roles": "mixed",
+        "relocation_or_visa": "unknown",
+        "pakistan_can_apply": "unknown",
+        "priority_hint": "low",
+        "priority_reason": "It is mainly a competing tracker and does not provide a verified public source feed."
+      },
+      "listing_fields_available": [
+        "url",
+        "title",
+        "company",
+        "location",
+        "remote",
+        "description"
+      ],
+      "tracking_fit": "Relevant for feature comparison, not as a source to poll.",
+      "risks": [
+        "login-wall",
+        "no-stable-id"
+      ],
+      "verdict": "skip",
+      "sources_you_used": [
+        "https://huntr.co/",
+        "https://jobr.pro/post/best-ai-job-search-automation-tools"
+      ]
+    },
+    {
+      "id": "simplify",
+      "name": "Simplify",
+      "kind": "ai-apply-saas",
+      "fame": "famous",
+      "url": "https://simplify.jobs/",
+      "cost": "free-tier",
+      "cost_notes": "Free browser autofill and job-search features are reported; premium subscription pricing and limits vary.",
+      "data_access": {
+        "official_listing_api": false,
+        "rss": false,
+        "json_ld_jobposting": false,
+        "public_job_board_json": false,
+        "documented_apply_api": false,
+        "email_or_mailto": false,
+        "html_only_public": true,
+        "login_wall": true,
+        "captcha_or_bot_defense": true,
+        "against_tos_to_scrape": false,
+        "notes": "No public listing API was verified. The product is primarily a browser-assisted autofill tool rather than an owned source feed."
+      },
+      "automation": {
+        "discover": "partial",
+        "ingest_url_and_jd": "partial",
+        "prepare_materials": "partial",
+        "submit_application": "partial",
+        "track_status": "native"
+      },
+      "needs_company_slug": false,
+      "global_search": true,
+      "geo": {
+        "remote_roles": "mixed",
+        "relocation_or_visa": "unknown",
+        "pakistan_can_apply": "unknown",
+        "priority_hint": "low",
+        "priority_reason": "It can reduce form-filling effort but does not match the MVP goal of free, source-owned listing ingestion."
+      },
+      "listing_fields_available": [
+        "url",
+        "title",
+        "company",
+        "location",
+        "remote",
+        "description",
+        "questions"
+      ],
+      "tracking_fit": "Useful for comparison because it tracks applications, but browser automation can be fragile across ATS forms.",
+      "risks": [
+        "ban",
+        "captcha-or-bot-defense",
+        "no-stable-id"
+      ],
+      "verdict": "paid-optional",
+      "sources_you_used": [
+        "https://simplify.jobs/",
+        "https://jobr.pro/post/best-ai-job-search-automation-tools"
+      ]
+    },
+    {
+      "id": "lazyapply",
+      "name": "LazyApply",
+      "kind": "ai-apply-saas",
+      "fame": "famous",
+      "url": "https://lazyapply.com/",
+      "cost": "paid",
+      "cost_notes": "Secondary 2026 reports describe annual or volume-based plans ranging roughly from $99 to $249; verify current official pricing.",
+      "data_access": {
+        "official_listing_api": false,
+        "rss": false,
+        "json_ld_jobposting": false,
+        "public_job_board_json": false,
+        "documented_apply_api": false,
+        "email_or_mailto": false,
+        "html_only_public": true,
+        "login_wall": true,
+        "captcha_or_bot_defense": true,
+        "against_tos_to_scrape": true,
+        "notes": "No public listing API was verified. Product descriptions emphasize browser-based bulk applications."
+      },
+      "automation": {
+        "discover": "partial",
+        "ingest_url_and_jd": "partial",
+        "prepare_materials": "partial",
+        "submit_application": "full",
+        "track_status": "partial"
+      },
+      "needs_company_slug": false,
+      "global_search": true,
+      "geo": {
+        "remote_roles": "mixed",
+        "relocation_or_visa": "unknown",
+        "pakistan_can_apply": "unknown",
+        "priority_hint": "low",
+        "priority_reason": "Bulk automated submission conflicts with the human-review pipeline and creates material ToS and account-risk concerns."
+      },
+      "listing_fields_available": [
+        "url",
+        "title",
+        "company",
+        "location",
+        "remote",
+        "description",
+        "questions"
+      ],
+      "tracking_fit": "May record submitted applications, but it is not a trustworthy canonical listing source.",
+      "risks": [
+        "tos",
+        "ban",
+        "captcha-or-bot-defense",
+        "no-stable-id",
+        "duplicate-cross-post"
+      ],
+      "verdict": "skip",
+      "sources_you_used": [
+        "https://lazyapply.com/",
+        "https://www.remotejobassistant.com/blog/best-ai-auto-apply-tools-2026",
+        "https://valasys.com/top-10-ai-tools-for-automated-job-applications-tested-and-ranked/"
+      ]
+    },
+    {
+      "id": "loopcv",
+      "name": "LoopCV",
+      "kind": "ai-apply-saas",
+      "fame": "famous",
+      "url": "https://loopcv.pro/",
+      "cost": "free-tier",
+      "cost_notes": "Secondary reports describe a free tier and paid plans around €9.99–€24.99 per month; verify current official pricing.",
+      "data_access": {
+        "official_listing_api": false,
+        "rss": false,
+        "json_ld_jobposting": false,
+        "public_job_board_json": false,
+        "documented_apply_api": false,
+        "email_or_mailto": false,
+        "html_only_public": true,
+        "login_wall": true,
+        "captcha_or_bot_defense": true,
+        "against_tos_to_scrape": true,
+        "notes": "No public listing API was verified."
+      },
+      "automation": {
+        "discover": "partial",
+        "ingest_url_and_jd": "partial",
+        "prepare_materials": "partial",
+        "submit_application": "partial",
+        "track_status": "native"
+      },
+      "needs_company_slug": false,
+      "global_search": true,
+      "geo": {
+        "remote_roles": "mixed",
+        "relocation_or_visa": "unknown",
+        "pakistan_can_apply": "unknown",
+        "priority_hint": "low",
+        "priority_reason": "It may provide discovery and tracking, but automated submission and third-party-board dependence reduce suitability for a controlled personal pipeline."
+      },
+      "listing_fields_available": [
+        "url",
+        "title",
+        "company",
+        "location",
+        "remote",
+        "description"
+      ],
+      "tracking_fit": "Potentially useful for comparison, but independent ingestion should prefer primary ATS feeds.",
+      "risks": [
+        "tos",
+        "ban",
+        "captcha-or-bot-defense",
+        "duplicate-cross-post"
+      ],
+      "verdict": "paid-optional",
+      "sources_you_used": [
+        "https://loopcv.pro/",
+        "https://www.remotejobassistant.com/blog/best-ai-auto-apply-tools-2026",
+        "https://valasys.com/top-10-ai-tools-for-automated-job-applications-tested-and-ranked/"
+      ]
+    },
+    {
+      "id": "jobscan",
+      "name": "Jobscan",
+      "kind": "ai-apply-saas",
+      "fame": "famous",
+      "url": "https://www.jobscan.co/",
+      "cost": "free-tier",
+      "cost_notes": "Secondary reports describe a limited free tier and a paid plan around $49.95 per month; it is primarily resume/JD matching, not listing discovery or submission.",
+      "data_access": {
+        "official_listing_api": false,
+        "rss": false,
+        "json_ld_jobposting": false,
+        "public_job_board_json": false,
+        "documented_apply_api": false,
+        "email_or_mailto": false,
+        "html_only_public": true,
+        "login_wall": true,
+        "captcha_or_bot_defense": false,
+        "against_tos_to_scrape": false,
+        "notes": "No listing feed was verified."
+      },
+      "automation": {
+        "discover": "none",
+        "ingest_url_and_jd": "manual",
+        "prepare_materials": "partial",
+        "submit_application": "none",
+        "track_status": "none"
+      },
+      "needs_company_slug": false,
+      "global_search": false,
+      "geo": {
+        "remote_roles": "unknown",
+        "relocation_or_visa": "unknown",
+        "pakistan_can_apply": "unknown",
+        "priority_hint": "low",
+        "priority_reason": "It may help tailor materials but does not supply the listing and tracking infrastructure requested."
+      },
+      "listing_fields_available": [
+        "url",
+        "description"
+      ],
+      "tracking_fit": "A downstream resume-quality tool, not a source or tracker.",
+      "risks": [
+        "login-wall"
+      ],
+      "verdict": "paid-optional",
+      "sources_you_used": [
+        "https://www.jobscan.co/",
+        "https://www.aicreator.co/blog/best-ai-job-application-tools",
+        "https://jobloo.co/blog/best-ai-job-search-tools/"
+      ]
+    }
+  ],
+  "duplicates_and_crossposting": {
+    "description": "The same role may exist first on an employer ATS, then be syndicated to LinkedIn, Indeed, Google for Jobs, Otta, or another aggregator. Treat the employer ATS posting as the preferred canonical record when it is available.",
+    "recommended_key_order": [
+      "canonical_url",
+      "source-specific ATS job ID plus company slug",
+      "normalized title plus company plus location hash",
+      "description fingerprint as a fallback"
+    ],
+    "canonicalization_rules": [
+      "Prefer the employer application URL over an aggregator redirect.",
+      "Remove tracking parameters such as UTM parameters before comparison.",
+      "Store every observed source URL in a crosspost table rather than discarding it.",
+      "Keep first_seen_at, last_seen_at, and source-specific posted_at separately."
+    ]
+  },
+  "tracker_schema_recommendation": {
+    "required_fields": [
+      "source",
+      "source_kind",
+      "canonical_job_id",
+      "source_job_id",
+      "company",
+      "title",
+      "location",
+      "remote_policy",
+      "visa_or_relocation_notes",
+      "canonical_url",
+      "apply_url",
+      "job_description_snapshot",
+      "questions",
+      "posted_at",
+      "first_seen_at",
+      "last_seen_at",
+      "status",
+      "status_history",
+      "materials_used",
+      "next_action",
+      "next_action_at",
+      "notes"
+    ],
+    "status_enum": [
+      "seen",
+      "drafted",
+      "applied",
+      "interview",
+      "offer",
+      "rejected",
+      "ghosted"
+    ],
+    "stable_id_warning": "Google for Jobs, social networks, search-result pages, and many aggregators may lack a stable public identifier. Preserve the original URL and use a normalized title-company-location-description fingerprint."
+  },
+  "pakistan_relocation_remote": {
+    "ranked_tactics": [
+      "Watch employer ATS feeds for companies explicitly advertising remote-worldwide roles.",
+      "Search for visa sponsorship, relocation, EU Blue Card, UK Skilled Worker, Canada work permit, Australia sponsorship, UAE relocation, and KSA relocation.",
+      "Prioritize boards with explicit remote-region or visa filters, while retaining all roles for human review.",
+      "Check the employer's location and employment-model wording; remote often means remote within a particular country or payroll region.",
+      "Use company career pages to verify whether a board's remote label is accurate and current."
+    ],
+    "priority_terms": [
+      "remote worldwide",
+      "work from anywhere",
+      "visa sponsorship",
+      "relocation assistance",
+      "EU Blue Card",
+      "highly skilled migrant",
+      "Skilled Worker visa",
+      "Pakistan contractor",
+      "EOR",
+      "UAE relocation",
+      "Saudi relocation"
+    ],
+    "honest_base_rate": "Many US listings restrict employment to the United States or require existing work authorization; those roles should receive a lower score, not be silently excluded.",
+    "eligibility_policy": "Use Pakistan eligibility, sponsorship, and relocation only as ranking signals. Never use them as hard filters."
+  },
+  "direct_company_playbook": {
+    "watchlist_strategy": [
+      "Maintain a company table containing company name, careers URL, ATS vendor, board token or slug, geography, and last successful fetch.",
+      "Prefer Greenhouse, Lever, and Ashby board identifiers when verified.",
+      "Use careers.company.com, company.com/careers, jobs.company.com, and company.com/jobs as discovery patterns.",
+      "Parse public JobPosting JSON-LD only after the user initiates a fetch of the public page where required.",
+      "Record every source URL and do not treat a listing disappearing as proof of rejection."
+    ],
+    "verified_example_companies": [],
+    "unverified_examples": [
+      "Stripe",
+      "GitLab",
+      "Atlassian",
+      "Canva",
+      "Shopify",
+      "Cloudflare",
+      "Datadog",
+      "OpenAI",
+      "Anthropic",
+      "Databricks",
+      "Figma",
+      "Notion",
+      "Vercel",
+      "Supabase",
+      "Automattic",
+      "Mozilla",
+      "Red Hat",
+      "Canonical",
+      "Revolut",
+      "Wise",
+      "Miro",
+      "Intercom",
+      "HubSpot",
+      "Dropbox",
+      "Twilio",
+      "MongoDB",
+      "Elastic",
+      "Booking.com",
+      "Delivery Hero",
+      "Careem",
+      "Airbnb",
+      "Microsoft",
+      "Google",
+      "Amazon",
+      "Meta"
+    ],
+    "verification_note": "The company examples above were not assigned ATS tokens or board URLs because those identifiers were not verified in this research pass."
+  },
+  "ai_saas_landscape": [
+    {
+      "name": "Teal",
+      "primary_function": "Job tracking, job organization, resume customization",
+      "search": "partial",
+      "autofill": "partial",
+      "submit": "none",
+      "listing_url_and_jd": "partial",
+      "tracking": "native",
+      "cost": "free-tier",
+      "fit_for_our_model": "Mostly complementary; useful as a tracker comparison.",
+      "risk": "Account-gated features and unclear public source access."
+    },
+    {
+      "name": "Huntr",
+      "primary_function": "Job CRM and application tracking",
+      "search": "partial",
+      "autofill": "partial",
+      "submit": "none",
+      "listing_url_and_jd": "partial",
+      "tracking": "native",
+      "cost": "free-tier",
+      "fit_for_our_model": "Competing tracker rather than a primary listing source.",
+      "risk": "No verified public listing API."
+    },
+    {
+      "name": "Simplify",
+      "primary_function": "Browser autofill, job discovery, AI answers, and tracking",
+      "search": "partial",
+      "autofill": "full",
+      "submit": "partial",
+      "listing_url_and_jd": "partial",
+      "tracking": "native",
+      "cost": "free-tier",
+      "fit_for_our_model": "Useful optional assistant after a human chooses a job.",
+      "risk": "Browser automation may encounter CAPTCHAs, changing forms, or site restrictions."
+    },
+    {
+      "name": "LazyApply",
+      "primary_function": "Bulk auto-application",
+      "search": "partial",
+      "autofill": "full",
+      "submit": "full",
+      "listing_url_and_jd": "partial",
+      "tracking": "partial",
+      "cost": "paid",
+      "fit_for_our_model": "Poor fit because the proposed product intentionally keeps submission human-controlled.",
+      "risk": "High ToS, account, CAPTCHA, and low-tailoring risks."
+    },
+    {
+      "name": "LoopCV",
+      "primary_function": "Automated job discovery and applications",
+      "search": "partial",
+      "autofill": "partial",
+      "submit": "partial",
+      "listing_url_and_jd": "partial",
+      "tracking": "native",
+      "cost": "free-tier",
+      "fit_for_our_model": "Optional comparison product; not necessary for a free ATS-first MVP.",
+      "risk": "Third-party-board dependence and automated-submission risk."
+    },
+    {
+      "name": "Jobscan",
+      "primary_function": "Resume and JD keyword matching",
+      "search": "none",
+      "autofill": "none",
+      "submit": "none",
+      "listing_url_and_jd": "manual",
+      "tracking": "none",
+      "cost": "free-tier",
+      "fit_for_our_model": "Potential downstream tailoring aid.",
+      "risk": "Paid limits may make repeated use expensive."
+    }
+  ],
+  "recommended_mvp": {
+    "max_watch_sources": 15,
+    "ordered_sources": [
+      "Greenhouse public boards",
+      "Lever public postings",
+      "Ashby public job boards",
+      "SmartRecruiters public postings",
+      "Employer career pages with JobPosting JSON-LD",
+      "Google for Jobs as human discovery",
+      "YC Work at a Startup",
+      "Remote OK",
+      "Remotive",
+      "We Work Remotely",
+      "Himalayas",
+      "Arbeitnow",
+      "Rozee",
+      "Naukri Gulf",
+      "USAJOBS or the relevant government portal for the target country"
+    ],
+    "poll": [
+      "Greenhouse boards for a curated company list",
+      "Lever slugs for a curated company list",
+      "Ashby boards for a curated company list",
+      "SmartRecruiters company feeds where identifiers are verified"
+    ],
+    "paste_url": [
+      "LinkedIn",
+      "Indeed",
+      "Glassdoor",
+      "Workday",
+      "Taleo",
+      "iCIMS",
+      "Google for Jobs",
+      "company career pages without a verified public feed"
+    ],
+    "ignore_initially": [
+      "Bulk auto-apply products",
+      "Unverified aggregator APIs",
+      "Sources requiring login for every listing",
+      "Sources with high duplicate volume and no stable job identifier"
+    ],
+    "principle": "Build discovery around official public ATS feeds and user-initiated public-page fetches; keep application submission outside the MVP."
+  },
+  "open_questions": [
+    "Which of the requested platforms currently publish official public listing APIs or RSS feeds?",
+    "What are the current official prices and free-tier limits for each AI job product?",
+    "Which requested products have been acquired, discontinued, or rebranded as of August 2026?",
+    "Which 30 companies have verified Greenhouse, Lever, or Ashby board tokens suitable for the initial watchlist?",
+    "What rate limits and terms apply to each public ATS feed?",
+    "Which regional boards provide reliable Pakistan, UAE, KSA, EU, UK, Canada, or Australia eligibility metadata?",
+    "Which sources expose stable posted_at values rather than only page timestamps?",
+    "Which boards expose screening questions before a human opens the application flow?"
+  ]
+}

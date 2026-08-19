@@ -1,0 +1,1427 @@
+{
+  "meta": {
+    "date": "2026-08-19",
+    "batch": 2,
+    "models_tools_used": [
+      "Perplexity",
+      "web search"
+    ],
+    "confidence": "moderate",
+    "scope": "Additional job boards, remote feeds, ATS career-site engines, regional sources, and tracker-adjacent products.",
+    "verification_policy": "Official_listing_api is true only where the source itself or a clearly documented public endpoint was found. Secondary endpoint references are marked in notes and should be rechecked before production use.",
+    "exhausted_buckets": {
+      "famous_platforms": {
+        "exhausted": false,
+        "why": "This batch prioritizes additional options rather than rechecking every famous platform."
+      },
+      "ats_engines": {
+        "exhausted": false,
+        "why": "Several underdog ATS products still need individual primary-documentation verification."
+      },
+      "boards_aggregators_niches": {
+        "exhausted": false,
+        "why": "Regional, visa, language-specific, government, and university sources remain incomplete."
+      },
+      "direct_company_sources": {
+        "exhausted": false,
+        "why": "Company tokens and board URLs need a separate verification pass."
+      },
+      "ai_job_automation": {
+        "exhausted": false,
+        "why": "The present batch emphasizes listing sources and ATS engines."
+      }
+    }
+  },
+  "sources": [
+    {
+      "id": "remote-ok",
+      "name": "Remote OK",
+      "kind": "job-board",
+      "fame": "famous",
+      "url": "https://remoteok.com/",
+      "cost": "free",
+      "cost_notes": "Public job feeds are available without a paid account. Employer promotion and other commercial products may be separate.",
+      "data_access": {
+        "official_listing_api": true,
+        "rss": true,
+        "json_ld_jobposting": true,
+        "public_job_board_json": true,
+        "documented_apply_api": false,
+        "email_or_mailto": false,
+        "html_only_public": true,
+        "login_wall": false,
+        "captcha_or_bot_defense": true,
+        "against_tos_to_scrape": false,
+        "notes": "Public feeds: https://remoteok.com/api and https://remoteok.com/remote-jobs.rss. The feed is broad and may include sponsored or stale listings."
+      },
+      "automation": {
+        "discover": "full",
+        "ingest_url_and_jd": "full",
+        "prepare_materials": "n/a — our app does this",
+        "submit_application": "partial",
+        "track_status": "none"
+      },
+      "needs_company_slug": false,
+      "global_search": true,
+      "geo": {
+        "remote_roles": "common",
+        "relocation_or_visa": "rare",
+        "pakistan_can_apply": "sometimes",
+        "priority_hint": "high",
+        "priority_reason": "A free JSON and RSS feed makes it practical for broad remote discovery, although country eligibility needs manual verification."
+      },
+      "listing_fields_available": [
+        "url",
+        "title",
+        "company",
+        "location",
+        "remote",
+        "description",
+        "posted_at"
+      ],
+      "tracking_fit": "Good for ingestion because listing URLs and feed records are available; retain a description hash because source IDs may not be permanent.",
+      "risks": [
+        "stale-data",
+        "duplicate-cross-post",
+        "no-stable-id",
+        "captcha-or-bot-defense"
+      ],
+      "verdict": "watch",
+      "sources_you_used": [
+        "https://remoteok.com/",
+        "https://remoteok.featurebase.app/help/articles/3140840-is-there-an-api-or-rssjson-feed-of-remote-jobs"
+      ]
+    },
+    {
+      "id": "remote-ok-rss",
+      "name": "Remote OK RSS",
+      "kind": "rss-or-api",
+      "fame": "famous",
+      "url": "https://remoteok.com/remote-jobs.rss",
+      "cost": "free",
+      "cost_notes": "Public RSS feed with no card requirement.",
+      "data_access": {
+        "official_listing_api": false,
+        "rss": true,
+        "json_ld_jobposting": false,
+        "public_job_board_json": false,
+        "documented_apply_api": false,
+        "email_or_mailto": false,
+        "html_only_public": false,
+        "login_wall": false,
+        "captcha_or_bot_defense": false,
+        "against_tos_to_scrape": false,
+        "notes": "Feed URL: https://remoteok.com/remote-jobs.rss."
+      },
+      "automation": {
+        "discover": "full",
+        "ingest_url_and_jd": "partial",
+        "prepare_materials": "n/a — our app does this",
+        "submit_application": "manual",
+        "track_status": "none"
+      },
+      "needs_company_slug": false,
+      "global_search": true,
+      "geo": {
+        "remote_roles": "common",
+        "relocation_or_visa": "rare",
+        "pakistan_can_apply": "sometimes",
+        "priority_hint": "high",
+        "priority_reason": "RSS is simple and free to poll, but descriptions and eligibility metadata may be incomplete."
+      },
+      "listing_fields_available": [
+        "url",
+        "title",
+        "company",
+        "location",
+        "remote",
+        "description",
+        "posted_at"
+      ],
+      "tracking_fit": "Useful as a lightweight discovery feed; use canonical URL plus normalized title-company-location identity.",
+      "risks": [
+        "stale-data",
+        "duplicate-cross-post",
+        "no-stable-id"
+      ],
+      "verdict": "watch",
+      "sources_you_used": [
+        "https://remoteok.com/remote-jobs.rss",
+        "https://remoteok.featurebase.app/help/articles/3140840-is-there-an-api-or-rssjson-feed-of-remote-jobs"
+      ]
+    },
+    {
+      "id": "himalayas",
+      "name": "Himalayas",
+      "kind": "job-board",
+      "fame": "underdog",
+      "url": "https://himalayas.app/",
+      "cost": "free",
+      "cost_notes": "The public API and RSS feed are described as free and unauthenticated.",
+      "data_access": {
+        "official_listing_api": true,
+        "rss": true,
+        "json_ld_jobposting": true,
+        "public_job_board_json": true,
+        "documented_apply_api": false,
+        "email_or_mailto": false,
+        "html_only_public": true,
+        "login_wall": false,
+        "captcha_or_bot_defense": false,
+        "against_tos_to_scrape": false,
+        "notes": "Public API: https://himalayas.app/jobs/api. RSS: https://himalayas.app/jobs/rss. Search and filtering by keyword, country, timezone, and seniority are described on the API page."
+      },
+      "automation": {
+        "discover": "full",
+        "ingest_url_and_jd": "full",
+        "prepare_materials": "n/a — our app does this",
+        "submit_application": "partial",
+        "track_status": "none"
+      },
+      "needs_company_slug": false,
+      "global_search": true,
+      "geo": {
+        "remote_roles": "common",
+        "relocation_or_visa": "mixed",
+        "pakistan_can_apply": "sometimes",
+        "priority_hint": "high",
+        "priority_reason": "Country and timezone filters are especially useful for ranking opportunities for a Pakistan-based remote applicant."
+      },
+      "listing_fields_available": [
+        "url",
+        "title",
+        "company",
+        "location",
+        "remote",
+        "description",
+        "questions",
+        "posted_at"
+      ],
+      "tracking_fit": "Excellent for a free MVP if the API supplies a stable listing URL or ID; preserve the feed ID and a content hash.",
+      "risks": [
+        "duplicate-cross-post",
+        "stale-data",
+        "no-stable-id"
+      ],
+      "verdict": "watch",
+      "sources_you_used": [
+        "https://himalayas.app/",
+        "https://himalayas.app/api",
+        "https://himalayas.app/rss"
+      ]
+    },
+    {
+      "id": "himalayas-api",
+      "name": "Himalayas Jobs API",
+      "kind": "rss-or-api",
+      "fame": "underdog",
+      "url": "https://himalayas.app/jobs/api",
+      "cost": "free",
+      "cost_notes": "Public JSON API described as free and requiring no API key.",
+      "data_access": {
+        "official_listing_api": true,
+        "rss": false,
+        "json_ld_jobposting": false,
+        "public_job_board_json": true,
+        "documented_apply_api": false,
+        "email_or_mailto": false,
+        "html_only_public": false,
+        "login_wall": false,
+        "captcha_or_bot_defense": false,
+        "against_tos_to_scrape": false,
+        "notes": "Endpoint: https://himalayas.app/jobs/api. The API page describes pagination and keyword, country, timezone, seniority, and employment-type filtering."
+      },
+      "automation": {
+        "discover": "full",
+        "ingest_url_and_jd": "full",
+        "prepare_materials": "n/a — our app does this",
+        "submit_application": "manual",
+        "track_status": "none"
+      },
+      "needs_company_slug": false,
+      "global_search": true,
+      "geo": {
+        "remote_roles": "common",
+        "relocation_or_visa": "mixed",
+        "pakistan_can_apply": "sometimes",
+        "priority_hint": "high",
+        "priority_reason": "It provides one of the clearest free remote-job APIs for region-aware discovery."
+      },
+      "listing_fields_available": [
+        "url",
+        "title",
+        "company",
+        "location",
+        "remote",
+        "description",
+        "posted_at"
+      ],
+      "tracking_fit": "Strong if the API returns a stable job identifier; otherwise use URL and content fingerprint.",
+      "risks": [
+        "duplicate-cross-post",
+        "stale-data"
+      ],
+      "verdict": "watch",
+      "sources_you_used": [
+        "https://himalayas.app/api",
+        "https://himalayas.app/jobs/api"
+      ]
+    },
+    {
+      "id": "we-work-remotely",
+      "name": "We Work Remotely",
+      "kind": "job-board",
+      "fame": "famous",
+      "url": "https://weworkremotely.com/",
+      "cost": "free",
+      "cost_notes": "Public job browsing and RSS discovery are free; employer postings are commercial.",
+      "data_access": {
+        "official_listing_api": false,
+        "rss": true,
+        "json_ld_jobposting": true,
+        "public_job_board_json": false,
+        "documented_apply_api": false,
+        "email_or_mailto": false,
+        "html_only_public": true,
+        "login_wall": false,
+        "captcha_or_bot_defense": false,
+        "against_tos_to_scrape": false,
+        "notes": "Public RSS feed: https://weworkremotely.com/remote-jobs.rss. No official JSON listing API was verified."
+      },
+      "automation": {
+        "discover": "full",
+        "ingest_url_and_jd": "partial",
+        "prepare_materials": "n/a — our app does this",
+        "submit_application": "manual",
+        "track_status": "none"
+      },
+      "needs_company_slug": false,
+      "global_search": true,
+      "geo": {
+        "remote_roles": "common",
+        "relocation_or_visa": "rare",
+        "pakistan_can_apply": "sometimes",
+        "priority_hint": "high",
+        "priority_reason": "Its RSS feed is free and remote-focused, though many roles restrict hiring to particular countries."
+      },
+      "listing_fields_available": [
+        "url",
+        "title",
+        "company",
+        "location",
+        "remote",
+        "description",
+        "posted_at"
+      ],
+      "tracking_fit": "Good discovery source; store the feed GUID if present and fall back to canonical URL.",
+      "risks": [
+        "stale-data",
+        "duplicate-cross-post",
+        "no-stable-id"
+      ],
+      "verdict": "watch",
+      "sources_you_used": [
+        "https://weworkremotely.com/",
+        "https://dev.to/scrapemint/four-remote-job-boards-have-free-public-apis-here-is-one-schema-for-all-of-them-5a4k"
+      ]
+    },
+    {
+      "id": "remotive",
+      "name": "Remotive",
+      "kind": "job-board",
+      "fame": "famous",
+      "url": "https://remotive.com/",
+      "cost": "free",
+      "cost_notes": "A public remote-jobs API is available for discovery; employer services may be paid.",
+      "data_access": {
+        "official_listing_api": true,
+        "rss": false,
+        "json_ld_jobposting": true,
+        "public_job_board_json": true,
+        "documented_apply_api": false,
+        "email_or_mailto": false,
+        "html_only_public": true,
+        "login_wall": false,
+        "captcha_or_bot_defense": false,
+        "against_tos_to_scrape": false,
+        "notes": "Public API pattern: https://remotive.com/api/remote-jobs. Search and limit parameters are described in public API references; verify current official terms before polling at scale."
+      },
+      "automation": {
+        "discover": "full",
+        "ingest_url_and_jd": "full",
+        "prepare_materials": "n/a — our app does this",
+        "submit_application": "manual",
+        "track_status": "none"
+      },
+      "needs_company_slug": false,
+      "global_search": true,
+      "geo": {
+        "remote_roles": "common",
+        "relocation_or_visa": "mixed",
+        "pakistan_can_apply": "sometimes",
+        "priority_hint": "high",
+        "priority_reason": "Remote-focused structured listings and search parameters make it practical for a free discovery pipeline."
+      },
+      "listing_fields_available": [
+        "url",
+        "title",
+        "company",
+        "location",
+        "remote",
+        "description",
+        "posted_at"
+      ],
+      "tracking_fit": "Good if listing IDs and publication dates are retained; cross-posting with company ATS pages is likely.",
+      "risks": [
+        "stale-data",
+        "duplicate-cross-post",
+        "no-stable-id"
+      ],
+      "verdict": "watch",
+      "sources_you_used": [
+        "https://remotive.com/",
+        "https://dev.to/scrapemint/four-remote-job-boards-have-free-public-apis-here-is-one-schema-for-all-of-them-5a4k"
+      ]
+    },
+    {
+      "id": "recruitee",
+      "name": "Recruitee",
+      "kind": "ats",
+      "fame": "underdog",
+      "url": "https://support.recruitee.com/en/articles/1066282-api-documentation",
+      "cost": "free",
+      "cost_notes": "Public career-page listings may be available without a job-seeker account; employer API access and account features are separate.",
+      "data_access": {
+        "official_listing_api": true,
+        "rss": false,
+        "json_ld_jobposting": true,
+        "public_job_board_json": true,
+        "documented_apply_api": false,
+        "email_or_mailto": false,
+        "html_only_public": true,
+        "login_wall": false,
+        "captcha_or_bot_defense": false,
+        "against_tos_to_scrape": false,
+        "notes": "Official API documentation exists, but the Careers Site API requires an employer-generated API token. A commonly available public career-page pattern is https://{company}.recruitee.com/api/offers/; verify whether the specific employer exposes it publicly."
+      },
+      "automation": {
+        "discover": "partial",
+        "ingest_url_and_jd": "partial",
+        "prepare_materials": "n/a — our app does this",
+        "submit_application": "partial",
+        "track_status": "none"
+      },
+      "needs_company_slug": true,
+      "global_search": false,
+      "geo": {
+        "remote_roles": "mixed",
+        "relocation_or_visa": "mixed",
+        "pakistan_can_apply": "sometimes",
+        "priority_hint": "medium",
+        "priority_reason": "The platform is useful for company watchlists, but the official Careers Site API may require employer credentials."
+      },
+      "listing_fields_available": [
+        "url",
+        "title",
+        "company",
+        "location",
+        "remote",
+        "description",
+        "posted_at",
+        "board_token"
+      ],
+      "tracking_fit": "Good when the public offer record includes a stable offer ID; otherwise store the career URL and content hash.",
+      "risks": [
+        "stale-data",
+        "duplicate-cross-post",
+        "no-stable-id"
+      ],
+      "verdict": "watch",
+      "sources_you_used": [
+        "https://support.recruitee.com/en/articles/1066282-api-documentation",
+        "https://dev.to/agenticemail/every-major-ats-has-a-public-job-feed-here-is-how-to-read-them-all-3k10"
+      ]
+    },
+    {
+      "id": "teamtailor",
+      "name": "Teamtailor",
+      "kind": "ats",
+      "fame": "underdog",
+      "url": "https://docs.teamtailor.com/",
+      "cost": "free",
+      "cost_notes": "Public career pages may be viewed without payment; the official API is generally intended for customer integrations.",
+      "data_access": {
+        "official_listing_api": true,
+        "rss": true,
+        "json_ld_jobposting": true,
+        "public_job_board_json": false,
+        "documented_apply_api": false,
+        "email_or_mailto": false,
+        "html_only_public": true,
+        "login_wall": false,
+        "captcha_or_bot_defense": false,
+        "against_tos_to_scrape": false,
+        "notes": "Official API documentation describes listing jobs, departments, locations, and job URLs. API hosts include https://api.teamtailor.com and https://api.na.teamtailor.com. A public XML feed may be enabled by the employer; do not assume every company has one."
+      },
+      "automation": {
+        "discover": "partial",
+        "ingest_url_and_jd": "partial",
+        "prepare_materials": "n/a — our app does this",
+        "submit_application": "partial",
+        "track_status": "none"
+      },
+      "needs_company_slug": true,
+      "global_search": false,
+      "geo": {
+        "remote_roles": "mixed",
+        "relocation_or_visa": "mixed",
+        "pakistan_can_apply": "sometimes",
+        "priority_hint": "medium",
+        "priority_reason": "It can be valuable for targeted company watchlists, but public access varies by employer configuration."
+      },
+      "listing_fields_available": [
+        "url",
+        "title",
+        "company",
+        "location",
+        "remote",
+        "description",
+        "questions",
+        "posted_at",
+        "board_token"
+      ],
+      "tracking_fit": "Good if the Teamtailor job ID and employer career-domain URL are saved.",
+      "risks": [
+        "stale-data",
+        "duplicate-cross-post",
+        "no-stable-id"
+      ],
+      "verdict": "watch",
+      "sources_you_used": [
+        "https://docs.teamtailor.com/",
+        "https://fantastic.jobs/ats/teamtailor"
+      ]
+    },
+    {
+      "id": "workable",
+      "name": "Workable",
+      "kind": "ats",
+      "fame": "famous",
+      "url": "https://apply.workable.com/",
+      "cost": "free",
+      "cost_notes": "Public career pages can expose published jobs without a job-seeker subscription; employer features are paid.",
+      "data_access": {
+        "official_listing_api": true,
+        "rss": false,
+        "json_ld_jobposting": true,
+        "public_job_board_json": true,
+        "documented_apply_api": false,
+        "email_or_mailto": false,
+        "html_only_public": true,
+        "login_wall": false,
+        "captcha_or_bot_defense": false,
+        "against_tos_to_scrape": false,
+        "notes": "Common public career feed pattern: https://apply.workable.com/api/v1/widget/accounts/{account}. Verify the current official public-widget documentation and account-specific availability."
+      },
+      "automation": {
+        "discover": "partial",
+        "ingest_url_and_jd": "full",
+        "prepare_materials": "n/a — our app does this",
+        "submit_application": "partial",
+        "track_status": "none"
+      },
+      "needs_company_slug": true,
+      "global_search": false,
+      "geo": {
+        "remote_roles": "mixed",
+        "relocation_or_visa": "mixed",
+        "pakistan_can_apply": "sometimes",
+        "priority_hint": "medium",
+        "priority_reason": "Public account-level feeds can make company monitoring feasible, though discovery still requires a company list."
+      },
+      "listing_fields_available": [
+        "url",
+        "title",
+        "company",
+        "location",
+        "remote",
+        "description",
+        "questions",
+        "posted_at",
+        "board_token"
+      ],
+      "tracking_fit": "Useful when the Workable shortcode and job shortcode are preserved; canonical apply URLs are generally clear.",
+      "risks": [
+        "stale-data",
+        "duplicate-cross-post",
+        "no-stable-id"
+      ],
+      "verdict": "watch",
+      "sources_you_used": [
+        "https://apply.workable.com/",
+        "https://dev.to/agenticemail/every-major-ats-has-a-public-job-feed-here-is-how-to-read-them-all-3k10",
+        "https://cavuno.com/blog/ats-platforms-public-job-posting-apis"
+      ]
+    },
+    {
+      "id": "personio",
+      "name": "Personio",
+      "kind": "ats",
+      "fame": "famous",
+      "url": "https://www.personio.com/",
+      "cost": "free",
+      "cost_notes": "Some public employer career pages expose an XML job feed; Personio employer software is commercial.",
+      "data_access": {
+        "official_listing_api": false,
+        "rss": false,
+        "json_ld_jobposting": true,
+        "public_job_board_json": false,
+        "documented_apply_api": false,
+        "email_or_mailto": false,
+        "html_only_public": true,
+        "login_wall": false,
+        "captcha_or_bot_defense": false,
+        "against_tos_to_scrape": false,
+        "notes": "Common public XML pattern: https://{company}.jobs.personio.de/xml?language=en. Treat this as a career-page feed pattern unless Personio’s current official documentation confirms universal availability."
+      },
+      "automation": {
+        "discover": "partial",
+        "ingest_url_and_jd": "partial",
+        "prepare_materials": "n/a — our app does this",
+        "submit_application": "partial",
+        "track_status": "none"
+      },
+      "needs_company_slug": true,
+      "global_search": false,
+      "geo": {
+        "remote_roles": "mixed",
+        "relocation_or_visa": "common",
+        "pakistan_can_apply": "sometimes",
+        "priority_hint": "medium",
+        "priority_reason": "Personio is common among European employers, where relocation and work-permit information can be more explicit."
+      },
+      "listing_fields_available": [
+        "url",
+        "title",
+        "company",
+        "location",
+        "remote",
+        "description",
+        "posted_at",
+        "board_token"
+      ],
+      "tracking_fit": "Moderate; XML feeds can provide stable URLs but may lack a universal stable ID.",
+      "risks": [
+        "stale-data",
+        "duplicate-cross-post",
+        "no-stable-id"
+      ],
+      "verdict": "watch",
+      "sources_you_used": [
+        "https://www.personio.com/",
+        "https://dev.to/agenticemail/every-major-ats-has-a-public-job-feed-here-is-how-to-read-them-all-3k10",
+        "https://cavuno.com/blog/ats-platforms-public-job-posting-apis"
+      ]
+    },
+    {
+      "id": "bamboohr-career-pages",
+      "name": "BambooHR Career Pages",
+      "kind": "ats",
+      "fame": "famous",
+      "url": "https://www.bamboohr.com/",
+      "cost": "free",
+      "cost_notes": "Public job pages may be browsed without payment; employer ATS features are commercial.",
+      "data_access": {
+        "official_listing_api": false,
+        "rss": false,
+        "json_ld_jobposting": true,
+        "public_job_board_json": true,
+        "documented_apply_api": false,
+        "email_or_mailto": false,
+        "html_only_public": true,
+        "login_wall": false,
+        "captcha_or_bot_defense": false,
+        "against_tos_to_scrape": false,
+        "notes": "Common career-page pattern: https://{company}.bamboohr.com/careers/list. A JSON response is frequently observed, but a universal official unauthenticated listing API was not verified."
+      },
+      "automation": {
+        "discover": "partial",
+        "ingest_url_and_jd": "partial",
+        "prepare_materials": "n/a — our app does this",
+        "submit_application": "partial",
+        "track_status": "none"
+      },
+      "needs_company_slug": true,
+      "global_search": false,
+      "geo": {
+        "remote_roles": "mixed",
+        "relocation_or_visa": "mixed",
+        "pakistan_can_apply": "sometimes",
+        "priority_hint": "medium",
+        "priority_reason": "It is useful for company-level monitoring, but public feed behavior and metadata differ by employer."
+      },
+      "listing_fields_available": [
+        "url",
+        "title",
+        "company",
+        "location",
+        "remote",
+        "description",
+        "questions",
+        "posted_at",
+        "board_token"
+      ],
+      "tracking_fit": "Moderate; save the employer subdomain and job URL because stable IDs are not guaranteed.",
+      "risks": [
+        "stale-data",
+        "duplicate-cross-post",
+        "no-stable-id"
+      ],
+      "verdict": "paste-url",
+      "sources_you_used": [
+        "https://www.bamboohr.com/",
+        "https://dev.to/agenticemail/every-major-ats-has-a-public-job-feed-here-is-how-to-read-them-all-3k10"
+      ]
+    },
+    {
+      "id": "jazzhr",
+      "name": "JazzHR",
+      "kind": "ats",
+      "fame": "underdog",
+      "url": "https://www.jazzhr.com/",
+      "cost": "free",
+      "cost_notes": "Employer software is commercial; public job-board pages may be viewable without a job-seeker account.",
+      "data_access": {
+        "official_listing_api": false,
+        "rss": false,
+        "json_ld_jobposting": true,
+        "public_job_board_json": false,
+        "documented_apply_api": false,
+        "email_or_mailto": false,
+        "html_only_public": true,
+        "login_wall": false,
+        "captcha_or_bot_defense": false,
+        "against_tos_to_scrape": false,
+        "notes": "Public board behavior varies by employer. No universal unauthenticated listing API was verified in this pass."
+      },
+      "automation": {
+        "discover": "manual",
+        "ingest_url_and_jd": "partial",
+        "prepare_materials": "n/a — our app does this",
+        "submit_application": "partial",
+        "track_status": "none"
+      },
+      "needs_company_slug": true,
+      "global_search": false,
+      "geo": {
+        "remote_roles": "mixed",
+        "relocation_or_visa": "unknown",
+        "pakistan_can_apply": "unknown",
+        "priority_hint": "low",
+        "priority_reason": "It is worth supporting through pasted career URLs but does not yet justify a first-wave polling connector."
+      },
+      "listing_fields_available": [
+        "url",
+        "title",
+        "company",
+        "location",
+        "remote",
+        "description",
+        "questions"
+      ],
+      "tracking_fit": "Paste-url support is adequate; stable IDs and public feed behavior need employer-specific validation.",
+      "risks": [
+        "stale-data",
+        "duplicate-cross-post",
+        "no-stable-id"
+      ],
+      "verdict": "paste-url",
+      "sources_you_used": [
+        "https://www.jazzhr.com/",
+        "https://jobo.world/docs/introduction"
+      ]
+    },
+    {
+      "id": "breezy-hr",
+      "name": "Breezy HR",
+      "kind": "ats",
+      "fame": "underdog",
+      "url": "https://breezy.hr/",
+      "cost": "free-tier",
+      "cost_notes": "Employer product has paid plans and possibly a limited free tier; job-seeker access to public postings is normally free.",
+      "data_access": {
+        "official_listing_api": false,
+        "rss": false,
+        "json_ld_jobposting": true,
+        "public_job_board_json": false,
+        "documented_apply_api": false,
+        "email_or_mailto": false,
+        "html_only_public": true,
+        "login_wall": false,
+        "captcha_or_bot_defense": false,
+        "against_tos_to_scrape": false,
+        "notes": "Public career-page feeds are reported by integration references, but no official universal endpoint was independently verified here."
+      },
+      "automation": {
+        "discover": "manual",
+        "ingest_url_and_jd": "partial",
+        "prepare_materials": "n/a — our app does this",
+        "submit_application": "partial",
+        "track_status": "none"
+      },
+      "needs_company_slug": true,
+      "global_search": false,
+      "geo": {
+        "remote_roles": "mixed",
+        "relocation_or_visa": "unknown",
+        "pakistan_can_apply": "unknown",
+        "priority_hint": "low",
+        "priority_reason": "Support public career URLs, but defer polling until a current public-feed contract is confirmed."
+      },
+      "listing_fields_available": [
+        "url",
+        "title",
+        "company",
+        "location",
+        "remote",
+        "description",
+        "questions"
+      ],
+      "tracking_fit": "Reasonable for pasted URLs; stable identifiers vary by employer career page.",
+      "risks": [
+        "stale-data",
+        "duplicate-cross-post",
+        "no-stable-id"
+      ],
+      "verdict": "paste-url",
+      "sources_you_used": [
+        "https://breezy.hr/",
+        "https://jobo.world/docs/introduction"
+      ]
+    },
+    {
+      "id": "workable-public-career-pages",
+      "name": "Workable Public Career Pages",
+      "kind": "career-page-pattern",
+      "fame": "famous",
+      "url": "https://apply.workable.com/",
+      "cost": "free",
+      "cost_notes": "Public pages are free to view; employer software is paid.",
+      "data_access": {
+        "official_listing_api": true,
+        "rss": false,
+        "json_ld_jobposting": true,
+        "public_job_board_json": true,
+        "documented_apply_api": false,
+        "email_or_mailto": false,
+        "html_only_public": true,
+        "login_wall": false,
+        "captcha_or_bot_defense": false,
+        "against_tos_to_scrape": false,
+        "notes": "Public widget pattern commonly uses https://apply.workable.com/api/v1/widget/accounts/{account}. Treat account-specific availability as variable."
+      },
+      "automation": {
+        "discover": "partial",
+        "ingest_url_and_jd": "full",
+        "prepare_materials": "n/a — our app does this",
+        "submit_application": "partial",
+        "track_status": "none"
+      },
+      "needs_company_slug": true,
+      "global_search": false,
+      "geo": {
+        "remote_roles": "mixed",
+        "relocation_or_visa": "mixed",
+        "pakistan_can_apply": "sometimes",
+        "priority_hint": "medium",
+        "priority_reason": "It provides structured company-level data without requiring a paid job-seeker account."
+      },
+      "listing_fields_available": [
+        "url",
+        "title",
+        "company",
+        "location",
+        "remote",
+        "description",
+        "questions",
+        "posted_at",
+        "board_token"
+      ],
+      "tracking_fit": "Good when company and job shortcodes are retained; use the public apply URL as the canonical human destination.",
+      "risks": [
+        "stale-data",
+        "duplicate-cross-post"
+      ],
+      "verdict": "watch",
+      "sources_you_used": [
+        "https://apply.workable.com/",
+        "https://cavuno.com/blog/ats-platforms-public-job-posting-apis"
+      ]
+    },
+    {
+      "id": "personio-xml-career-feed",
+      "name": "Personio XML Career Feed",
+      "kind": "rss-or-api",
+      "fame": "famous",
+      "url": "https://www.personio.com/",
+      "cost": "free",
+      "cost_notes": "Employer career feed is public where enabled; no user subscription is required to read it.",
+      "data_access": {
+        "official_listing_api": false,
+        "rss": false,
+        "json_ld_jobposting": false,
+        "public_job_board_json": false,
+        "documented_apply_api": false,
+        "email_or_mailto": false,
+        "html_only_public": false,
+        "login_wall": false,
+        "captcha_or_bot_defense": false,
+        "against_tos_to_scrape": false,
+        "notes": "Common XML pattern: https://{company}.jobs.personio.de/xml?language=en. Marked unverified as a universal official feed."
+      },
+      "automation": {
+        "discover": "partial",
+        "ingest_url_and_jd": "partial",
+        "prepare_materials": "n/a — our app does this",
+        "submit_application": "manual",
+        "track_status": "none"
+      },
+      "needs_company_slug": true,
+      "global_search": false,
+      "geo": {
+        "remote_roles": "mixed",
+        "relocation_or_visa": "common",
+        "pakistan_can_apply": "sometimes",
+        "priority_hint": "medium",
+        "priority_reason": "European employer coverage can make relocation and work-permit language more discoverable."
+      },
+      "listing_fields_available": [
+        "url",
+        "title",
+        "company",
+        "location",
+        "remote",
+        "description",
+        "posted_at"
+      ],
+      "tracking_fit": "Moderate; use XML job URL plus title-company-location hash because a stable ID may be absent.",
+      "risks": [
+        "stale-data",
+        "duplicate-cross-post",
+        "no-stable-id"
+      ],
+      "verdict": "paste-url",
+      "sources_you_used": [
+        "https://www.personio.com/",
+        "https://cavuno.com/blog/ats-platforms-public-job-posting-apis"
+      ]
+    },
+    {
+      "id": "recruitee-public-offers",
+      "name": "Recruitee Public Offers Feed",
+      "kind": "career-page-pattern",
+      "fame": "underdog",
+      "url": "https://support.recruitee.com/en/articles/1066282-api-documentation",
+      "cost": "free",
+      "cost_notes": "Public employer offers can be viewed without a job-seeker subscription; authenticated Careers API access is employer-controlled.",
+      "data_access": {
+        "official_listing_api": false,
+        "rss": false,
+        "json_ld_jobposting": true,
+        "public_job_board_json": true,
+        "documented_apply_api": false,
+        "email_or_mailto": false,
+        "html_only_public": true,
+        "login_wall": false,
+        "captcha_or_bot_defense": false,
+        "against_tos_to_scrape": false,
+        "notes": "Common public pattern: https://{company}.recruitee.com/api/offers/. The official API documentation states the Careers Site API requires authentication, so do not treat every public pattern as guaranteed."
+      },
+      "automation": {
+        "discover": "partial",
+        "ingest_url_and_jd": "partial",
+        "prepare_materials": "n/a — our app does this",
+        "submit_application": "partial",
+        "track_status": "none"
+      },
+      "needs_company_slug": true,
+      "global_search": false,
+      "geo": {
+        "remote_roles": "mixed",
+        "relocation_or_visa": "mixed",
+        "pakistan_can_apply": "sometimes",
+        "priority_hint": "medium",
+        "priority_reason": "Useful for targeted startup and European-company monitoring when a public offers endpoint is available."
+      },
+      "listing_fields_available": [
+        "url",
+        "title",
+        "company",
+        "location",
+        "remote",
+        "description",
+        "posted_at",
+        "board_token"
+      ],
+      "tracking_fit": "Good enough for an adapter with fallback identity matching; exact stable-ID behavior needs testing.",
+      "risks": [
+        "stale-data",
+        "duplicate-cross-post",
+        "no-stable-id"
+      ],
+      "verdict": "watch",
+      "sources_you_used": [
+        "https://support.recruitee.com/en/articles/1066282-api-documentation",
+        "https://cavuno.com/blog/ats-platforms-public-job-posting-apis"
+      ]
+    },
+    {
+      "id": "teamtailor-public-career-pages",
+      "name": "Teamtailor Public Career Pages",
+      "kind": "career-page-pattern",
+      "fame": "underdog",
+      "url": "https://docs.teamtailor.com/",
+      "cost": "free",
+      "cost_notes": "Public pages are free to browse; employer API access is controlled by the customer account.",
+      "data_access": {
+        "official_listing_api": true,
+        "rss": true,
+        "json_ld_jobposting": true,
+        "public_job_board_json": false,
+        "documented_apply_api": false,
+        "email_or_mailto": false,
+        "html_only_public": true,
+        "login_wall": false,
+        "captcha_or_bot_defense": false,
+        "against_tos_to_scrape": false,
+        "notes": "Official API documentation covers jobs and job URLs. API hosts include api.teamtailor.com and api.na.teamtailor.com. Public XML feed availability depends on employer configuration."
+      },
+      "automation": {
+        "discover": "partial",
+        "ingest_url_and_jd": "partial",
+        "prepare_materials": "n/a — our app does this",
+        "submit_application": "partial",
+        "track_status": "none"
+      },
+      "needs_company_slug": true,
+      "global_search": false,
+      "geo": {
+        "remote_roles": "mixed",
+        "relocation_or_visa": "mixed",
+        "pakistan_can_apply": "sometimes",
+        "priority_hint": "medium",
+        "priority_reason": "A useful underdog ATS for company watchlists, particularly when an employer exposes structured career data."
+      },
+      "listing_fields_available": [
+        "url",
+        "title",
+        "company",
+        "location",
+        "remote",
+        "description",
+        "questions",
+        "posted_at",
+        "board_token"
+      ],
+      "tracking_fit": "Good if the Teamtailor job ID and company career domain are retained.",
+      "risks": [
+        "stale-data",
+        "duplicate-cross-post",
+        "no-stable-id"
+      ],
+      "verdict": "watch",
+      "sources_you_used": [
+        "https://docs.teamtailor.com/",
+        "https://fantastic.jobs/ats/teamtailor"
+      ]
+    },
+    {
+      "id": "remote-job-rss-aggregator-pattern",
+      "name": "Remote Job RSS Aggregator Pattern",
+      "kind": "rss-or-api",
+      "fame": "underdog",
+      "url": "https://dev.to/scrapemint/four-remote-job-boards-have-free-public-apis-here-is-one-schema-for-all-of-them-5a4k",
+      "cost": "free",
+      "cost_notes": "The underlying feeds are public; do not assume all third-party normalization services are free.",
+      "data_access": {
+        "official_listing_api": false,
+        "rss": true,
+        "json_ld_jobposting": false,
+        "public_job_board_json": true,
+        "documented_apply_api": false,
+        "email_or_mailto": false,
+        "html_only_public": false,
+        "login_wall": false,
+        "captcha_or_bot_defense": false,
+        "against_tos_to_scrape": false,
+        "notes": "This is a research reference, not an owned job source. It documents Remote OK JSON, Remotive JSON, We Work Remotely RSS, and Himalayas API."
+      },
+      "automation": {
+        "discover": "full",
+        "ingest_url_and_jd": "partial",
+        "prepare_materials": "n/a — our app does this",
+        "submit_application": "manual",
+        "track_status": "none"
+      },
+      "needs_company_slug": false,
+      "global_search": true,
+      "geo": {
+        "remote_roles": "common",
+        "relocation_or_visa": "rare",
+        "pakistan_can_apply": "sometimes",
+        "priority_hint": "medium",
+        "priority_reason": "It is useful for designing adapters but should not replace direct use of the individual feeds."
+      },
+      "listing_fields_available": [
+        "url",
+        "title",
+        "company",
+        "location",
+        "remote",
+        "description",
+        "posted_at"
+      ],
+      "tracking_fit": "Useful as a schema reference only; the individual source should be stored as the actual source.",
+      "risks": [
+        "duplicate-cross-post",
+        "stale-data",
+        "no-stable-id"
+      ],
+      "verdict": "skip",
+      "sources_you_used": [
+        "https://dev.to/scrapemint/four-remote-job-boards-have-free-public-apis-here-is-one-schema-for-all-of-them-5a4k"
+      ]
+    },
+    {
+      "id": "jobo-ats-reference",
+      "name": "JOBO ATS Provider Reference",
+      "kind": "other",
+      "fame": "underdog",
+      "url": "https://jobo.world/docs/introduction",
+      "cost": "unknown",
+      "cost_notes": "This is an integration/reference product rather than a primary job board. Pricing and terms were not verified.",
+      "data_access": {
+        "official_listing_api": false,
+        "rss": false,
+        "json_ld_jobposting": false,
+        "public_job_board_json": false,
+        "documented_apply_api": true,
+        "email_or_mailto": false,
+        "html_only_public": true,
+        "login_wall": false,
+        "captcha_or_bot_defense": false,
+        "against_tos_to_scrape": false,
+        "notes": "Documentation lists integrations including BambooHR, Personio, JazzHR, Recruitee, Teamtailor, Rippling, Breezy HR, and Homerun. It is not itself a source for the personal pipeline."
+      },
+      "automation": {
+        "discover": "partial",
+        "ingest_url_and_jd": "partial",
+        "prepare_materials": "n/a — our app does this",
+        "submit_application": "partial",
+        "track_status": "export"
+      },
+      "needs_company_slug": true,
+      "global_search": false,
+      "geo": {
+        "remote_roles": "unknown",
+        "relocation_or_visa": "unknown",
+        "pakistan_can_apply": "unknown",
+        "priority_hint": "low",
+        "priority_reason": "It may help understand ATS coverage but does not provide a clearly free, primary listing feed for the MVP."
+      },
+      "listing_fields_available": [
+        "url",
+        "title",
+        "company",
+        "location",
+        "description"
+      ],
+      "tracking_fit": "Useful for ecosystem mapping, not as a canonical source.",
+      "risks": [
+        "stale-data",
+        "tos",
+        "no-stable-id"
+      ],
+      "verdict": "skip",
+      "sources_you_used": [
+        "https://jobo.world/docs/introduction",
+        "https://jobo.world/docs/api-reference/auto-apply/providers"
+      ]
+    }
+  ],
+  "duplicates_and_crossposting": {
+    "new_observations": [
+      "Remote OK, Remotive, We Work Remotely, and Himalayas can all carry overlapping remote roles.",
+      "ATS feeds are usually closer to the employer source than aggregator records.",
+      "A role found through an aggregator should be linked to an ATS record when company, title, location, and description substantially match."
+    ],
+    "dedupe_key": {
+      "primary": "canonical_url",
+      "secondary": "source plus stable job ID plus company slug",
+      "fallback": "normalized title plus company plus location plus description fingerprint"
+    },
+    "recommended_relationships": [
+      "job_record",
+      "observed_source_url",
+      "crosspost_match",
+      "status_history"
+    ]
+  },
+  "tracker_schema_recommendation": {
+    "additional_fields": [
+      "feed_id",
+      "company_slug",
+      "board_token",
+      "source_last_modified",
+      "description_hash",
+      "eligibility_evidence",
+      "work_authorization_required",
+      "sponsorship_language",
+      "remote_region",
+      "timezone_overlap",
+      "salary_currency",
+      "source_expiry_observed"
+    ],
+    "status_enum": [
+      "seen",
+      "drafted",
+      "applied",
+      "interview",
+      "offer",
+      "rejected",
+      "ghosted"
+    ],
+    "stable_id_sources": [
+      "Greenhouse",
+      "Lever",
+      "Ashby",
+      "SmartRecruiters",
+      "Workable",
+      "Teamtailor"
+    ],
+    "unstable_or_variable_id_sources": [
+      "Remote OK",
+      "We Work Remotely RSS",
+      "Personio XML",
+      "BambooHR career pages",
+      "Google for Jobs",
+      "aggregator search results"
+    ]
+  },
+  "pakistan_relocation_remote": {
+    "ranked_discovery_tactics": [
+      "Himalayas country and timezone filters",
+      "Remote OK, Remotive, We Work Remotely, and similar worldwide-remote feeds",
+      "Employer ATS searches containing remote worldwide, EOR, contractor, and Pakistan",
+      "EU relocation and Blue Card searches",
+      "UK Skilled Worker searches",
+      "UAE and KSA relocation searches",
+      "Canada and Australia work-permit or sponsorship searches"
+    ],
+    "scoring_signals": [
+      "Pakistan explicitly listed as an eligible country",
+      "Remote worldwide or work-from-anywhere wording",
+      "Employer-of-record or contractor language",
+      "Relocation assistance",
+      "Visa sponsorship",
+      "Timezone overlap compatible with Pakistan"
+    ],
+    "never_hard_filter": true,
+    "honest_caveat": "Remote boards contain many jobs that are remote only within a specified country or region. A lower score is more honest than exclusion because eligibility language can be incomplete or outdated."
+  },
+  "direct_company_playbook": {
+    "new_patterns": [
+      "apply.workable.com/{account}",
+      "{company}.recruitee.com",
+      "{company}.jobs.personio.de",
+      "{company}.bamboohr.com/careers/list",
+      "{company}.teamtailor.com",
+      "company.com/careers with JobPosting JSON-LD"
+    ],
+    "company_watchlist_fields": [
+      "company_name",
+      "careers_url",
+      "ats_vendor",
+      "company_slug",
+      "board_token",
+      "country",
+      "remote_policy",
+      "last_checked",
+      "last_successful_fetch"
+    ],
+    "verification_note": "Do not infer a company slug from a search snippet alone. Verify the employer career page and preserve the exact public URL."
+  },
+  "ai_saas_landscape": [
+    {
+      "name": "Teal",
+      "category": "tracker and resume assistant",
+      "our_model_difference": "We retain control of discovery, material preparation, and human submission.",
+      "listing_url_and_jd": "partial",
+      "tracking": "native",
+      "submit": "none",
+      "cost": "free-tier",
+      "mvp_relevance": "low-to-medium"
+    },
+    {
+      "name": "Huntr",
+      "category": "job CRM and tracker",
+      "our_model_difference": "We use source feeds and a custom pipeline rather than relying on a closed tracker.",
+      "listing_url_and_jd": "partial",
+      "tracking": "native",
+      "submit": "none",
+      "cost": "free-tier",
+      "mvp_relevance": "low-to-medium"
+    },
+    {
+      "name": "Simplify",
+      "category": "browser autofill and application assistant",
+      "our_model_difference": "We do not automate submission and can use it only as an optional human-controlled downstream tool.",
+      "listing_url_and_jd": "partial",
+      "tracking": "native",
+      "submit": "partial",
+      "cost": "free-tier",
+      "mvp_relevance": "optional"
+    },
+    {
+      "name": "LazyApply",
+      "category": "bulk auto-apply",
+      "our_model_difference": "Our model deliberately avoids unattended mass submission.",
+      "listing_url_and_jd": "partial",
+      "tracking": "partial",
+      "submit": "full",
+      "cost": "paid",
+      "mvp_relevance": "ignore"
+    },
+    {
+      "name": "LoopCV",
+      "category": "automated discovery and application",
+      "our_model_difference": "Our source-of-truth is the employer or board listing, with a human deciding whether to apply.",
+      "listing_url_and_jd": "partial",
+      "tracking": "native",
+      "submit": "partial",
+      "cost": "free-tier",
+      "mvp_relevance": "ignore initially"
+    },
+    {
+      "name": "Jobscan",
+      "category": "resume/JD matching",
+      "our_model_difference": "It may be used after ingestion to improve materials, but it is not a source or tracker.",
+      "listing_url_and_jd": "manual",
+      "tracking": "none",
+      "submit": "none",
+      "cost": "free-tier",
+      "mvp_relevance": "optional"
+    }
+  ],
+  "recommended_mvp": {
+    "new_free_watch_sources": [
+      {
+        "order": 1,
+        "source": "Himalayas API",
+        "mode": "poll",
+        "reason": "Free public API with country, timezone, keyword, and seniority filtering."
+      },
+      {
+        "order": 2,
+        "source": "Remote OK API",
+        "mode": "poll",
+        "reason": "Free public JSON feed for broad remote discovery."
+      },
+      {
+        "order": 3,
+        "source": "Remotive API",
+        "mode": "poll",
+        "reason": "Structured remote-job API with search support."
+      },
+      {
+        "order": 4,
+        "source": "Himalayas RSS",
+        "mode": "poll",
+        "reason": "Simple backup or low-complexity ingestion route."
+      },
+      {
+        "order": 5,
+        "source": "Remote OK RSS",
+        "mode": "poll",
+        "reason": "Simple feed with broad remote coverage."
+      },
+      {
+        "order": 6,
+        "source": "We Work Remotely RSS",
+        "mode": "poll",
+        "reason": "Established remote-only source with public RSS."
+      },
+      {
+        "order": 7,
+        "source": "Greenhouse",
+        "mode": "poll",
+        "reason": "Employer-level structured feed for verified company watchlists."
+      },
+      {
+        "order": 8,
+        "source": "Lever",
+        "mode": "poll",
+        "reason": "Employer-level structured feed with clear posting URLs."
+      },
+      {
+        "order": 9,
+        "source": "Ashby",
+        "mode": "poll",
+        "reason": "Strong technology-company coverage and structured public postings."
+      },
+      {
+        "order": 10,
+        "source": "SmartRecruiters",
+        "mode": "poll",
+        "reason": "Useful enterprise-company coverage where company identifiers are known."
+      },
+      {
+        "order": 11,
+        "source": "Workable",
+        "mode": "poll-or-fetch",
+        "reason": "Public employer career feed pattern with useful job metadata."
+      },
+      {
+        "order": 12,
+        "source": "Recruitee",
+        "mode": "poll-or-fetch",
+        "reason": "Good underdog ATS coverage, but public access varies by company."
+      },
+      {
+        "order": 13,
+        "source": "Teamtailor",
+        "mode": "fetch",
+        "reason": "Useful public career pages and documented API ecosystem."
+      },
+      {
+        "order": 14,
+        "source": "Personio XML",
+        "mode": "fetch",
+        "reason": "European-company coverage and potentially useful relocation metadata."
+      },
+      {
+        "order": 15,
+        "source": "Google for Jobs",
+        "mode": "paste-url",
+        "reason": "Broad human discovery only; do not build an owned scraper or unofficial API dependency."
+      }
+    ],
+    "ignore_initially": [
+      "Unattended bulk auto-apply services",
+      "Unverified third-party normalized job APIs",
+      "Authenticated ATS APIs requiring employer credentials",
+      "Feeds with no stable URL, ID, or meaningful description"
+    ],
+    "free_definition": "Count a source as free only when a user can access listing data without a paid plan or card. Employer-paid ATS software does not make its public career listings paid for the applicant."
+  },
+  "open_questions": [
+    "Does Remotive still publish its API under the same terms and rate limits?",
+    "Which Workable accounts expose the public widget endpoint without restrictions?",
+    "Which Recruitee employer pages expose /api/offers publicly rather than requiring a token?",
+    "Does each Teamtailor employer enable an XML feed, or only the authenticated API?",
+    "Which Personio and BambooHR career pages provide stable IDs?",
+    "Which of these feeds explicitly identify worldwide eligibility rather than merely saying remote?",
+    "What are the current terms for automated polling of each public feed?",
+    "Which Pakistan-focused boards currently expose structured public feeds rather than HTML-only listings?"
+  ]
+}
