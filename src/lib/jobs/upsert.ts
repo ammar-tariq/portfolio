@@ -33,6 +33,10 @@ export async function upsertJobs(
     const company = job.company.trim() || job.boardToken || job.source;
     const location = job.location.trim();
     const stackMatches = matchStack(`${title}\n${job.descriptionText}\n${location}`, terms);
+    if (terms.length && !stackMatches.length) {
+      skippedRole += 1;
+      continue;
+    }
     const hash = titleCompanyLocationHash(title, company, location);
     const key = canonicalKey({
       applyUrl,

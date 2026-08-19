@@ -140,6 +140,7 @@ export async function pollJobSources(): Promise<JobPollResult | { ok: false; err
 
   for (const board of boardRuns) {
     if (!enabled.includes(board.name)) continue;
+    const jobs = await collect(board.name, errors, board.run);
     const result = await ingest(jobs, terms);
     added += result.added;
     updated += result.updated;
