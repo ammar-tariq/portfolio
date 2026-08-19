@@ -24,6 +24,29 @@ export function Field({
   );
 }
 
+export function GeminiAction({
+  busy,
+  empty,
+  disabled,
+  onClick,
+}: {
+  busy: boolean;
+  empty?: boolean;
+  disabled?: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      disabled={disabled || busy}
+      onClick={onClick}
+      className="font-mono text-[10px] tracking-[0.14em] text-accent uppercase disabled:opacity-40"
+    >
+      {busy ? "Writing…" : empty ? "Generate" : "Rewrite"}
+    </button>
+  );
+}
+
 export const inputClass =
   "w-full rounded-lg border border-line bg-bg-elevated px-3 py-2.5 text-sm text-fg outline-none focus:border-accent";
 
@@ -53,7 +76,7 @@ export function LinesEditor({
       <TextArea
         value={value.join("\n")}
         placeholder={placeholder ?? "One item per line"}
-        onChange={(event) => onChange(event.target.value.split("\n").map((line) => line.trimEnd()))}
+        onChange={(event) => onChange(event.target.value.split("\n"))}
       />
     </Field>
   );

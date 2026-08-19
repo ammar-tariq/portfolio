@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import type { Industry, Project, ProjectScreenshot, ProjectVisual } from "@/types/content";
 import { saveProject, draftProject, importGithubProject, importStoreProject, rewriteProjectField } from "@/app/admin/actions";
-import { Field, LinesEditor, TextArea, TextInput, Toggle } from "./fields";
+import { Field, GeminiAction, LinesEditor, TextArea, TextInput, Toggle } from "./fields";
 import { ImageUpload, MediaUpload } from "./image-upload";
 import { slugify } from "@/lib/project-helpers";
 import type { ProjectCopyField } from "@/lib/draft-project";
@@ -227,14 +227,12 @@ export function ProjectForm({
 
   function geminiAction(field: ProjectCopyField, empty: boolean) {
     return (
-      <button
-        type="button"
+      <GeminiAction
+        busy={fieldBusy === field}
+        empty={empty}
         disabled={!canDraft || fieldBusy !== null}
         onClick={() => void rewriteField(field)}
-        className="font-mono text-[10px] tracking-[0.14em] text-accent uppercase disabled:opacity-40"
-      >
-        {fieldBusy === field ? "Writing…" : empty ? "Generate" : "Rewrite"}
-      </button>
+      />
     );
   }
 
@@ -411,7 +409,7 @@ export function ProjectForm({
         label="Technologies"
         value={project.technologies}
         onChange={(value) => update("technologies", value)}
-        placeholder="One per line. Type a rough stack (rn, nest, mongo), then Generate."
+        placeholder="One technology per line, including spaces: React Native"
         action={geminiAction("technologies", project.technologies.filter((item) => item.trim()).length === 0)}
       />
       <div className="grid gap-4 md:grid-cols-2">

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Field, LinesEditor, TextArea, TextInput } from "@/components/admin/fields";
+import { Field, GeminiAction, LinesEditor, TextArea, TextInput } from "@/components/admin/fields";
 import { AdminButton, AdminPanel } from "@/components/admin/admin-ui";
 import { cn } from "@/lib/cn";
 import {
@@ -11,6 +11,7 @@ import {
   deleteOpenSource,
   deletePrinciple,
   deleteSkill,
+  rewriteSiteCopy,
   saveExperience,
   saveIndustry,
   saveOpenSource,
@@ -24,12 +25,16 @@ type Kind = "experience" | "skill" | "principle" | "industry" | "opensource";
 export function SimpleEditor({
   kind,
   items,
+  canDraft = false,
 }: {
   kind: Kind;
   items: Record<string, unknown>[];
+  canDraft?: boolean;
 }) {
   const router = useRouter();
   const [active, setActive] = useState<Record<string, unknown> | null>(null);
+  const [busy, setBusy] = useState<string | null>(null);
+  const [error, setError] = useState("");
 
   async function save() {
     if (!active) return;
@@ -61,6 +66,30 @@ export function SimpleEditor({
   }
 
   const activeKey = active ? String(active.id ?? active.slug ?? active.label ?? "") : "";
+
+  async function rewrite(key: string, current: unknown, apply: (value: string | string[]) => void) {
+    if (!active) return;
+    setBusy(key);
+    setError("");
+    const result = await rewriteSiteCopy(key, current, active);
+    setBusy(null);
+    if (!result.ok) {
+      setError(result.error);
+      return;
+    }
+    apply(result.value);
+  }
+
+  function gemini(key: string, empty: boolean, current: unknown, apply: (value: string | string[]) => void) {
+    return (
+      <GeminiAction
+        busy={busy === key}
+        empty={empty}
+        disabled={!canDraft || busy !== null}
+        onClick={() => void rewrite(key, current, apply)}
+      />
+    );
+  }
 
   return (
     <div className="grid gap-6 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
@@ -107,9 +136,11 @@ export function SimpleEditor({
             </AdminButton>
           </div>
           <div className="grid gap-4">
-            {kind === "experience" ? <ExperienceFields value={active} onChange={setActive} /> : null}
-            {kind === "skill" ? <SkillFields value={active} onChange={setActive} /> : null}
-            {kind === "principle" ? <PrincipleFields value={active} onChange={setActive} /> : null}
+            {kind === "experience" ? (
+              <ExperienceFields value={active} onChange={setActive} gemini={gemini} />
+            ) : null}
+            {kind === "skill" ? <SkillFields value={active} onChange={setActive} gemini={gemini} /> : null}
+            {kind === "principle" ? <PrincipleFields value={active} onChange={setActive} gemini={gemini} /> : null}
             {kind === "industry" ? (
               <>
                 <Field label="ID">
@@ -129,6 +160,10 @@ export function SimpleEditor({
                 Cancel
               </AdminButton>
             </div>
+            {error ? <p className="text-sm text-muted">{error}</p> : null}
+            {!canDraft && kind !== "industry" && kind !== "opensource" ? (
+              <p className="text-sm text-muted">Add GEMINI_API_KEY to enable Generate.</p>
+            ) : null}
           </div>
         </AdminPanel>
       ) : (
@@ -169,21 +204,32 @@ function blank(kind: Kind): Record<string, unknown> {
   return { slug: "", title: "", description: "", repoUrl: "", language: "", topicsText: "" };
 }
 
+type GeminiFn = (
+  key: string,
+  empty: boolean,
+  current: unknown,
+  apply: (value: string | string[]) => void,
+) => React.ReactNode;
+
 function ExperienceFields({
   value,
   onChange,
+  gemini,
 }: {
   value: Record<string, unknown>;
   onChange: (value: Record<string, unknown>) => void;
+  gemini: GeminiFn;
 }) {
   const set = (key: string, v: string) =>
     onChange({
       ...value,
       [key]: v,
-      technologies: String(key === "technologiesText" ? v : value.technologiesText ?? "").split("\n").filter(Boolean),
-      responsibilities: String(key === "responsibilitiesText" ? v : value.responsibilitiesText ?? "").split("\n").filter(Boolean),
-      projects: String(key === "projectsText" ? v : value.projectsText ?? "").split("\n").filter(Boolean),
+      technologies: String(key === "technologiesText" ? v : value.technologiesText ?? "").split("\n").filter((line) => line.trim()),
+      responsibilities: String(key === "responsibilitiesText" ? v : value.responsibilitiesText ?? "").split("\n").filter((line) => line.trim()),
+      projects: String(key === "projectsText" ? v : value.projectsText ?? "").split("\n").filter((line) => line.trim()),
     });
+  const techLines = String(value.technologiesText ?? "").split("\n");
+  const responsibilityLines = String(value.responsibilitiesText ?? "").split("\n");
   return (
     <>
       <Field label="ID"><TextInput value={String(value.id ?? "")} onChange={(e) => set("id", e.target.value)} /></Field>
@@ -192,9 +238,32 @@ function ExperienceFields({
       <Field label="Period"><TextInput value={String(value.period ?? "")} onChange={(e) => set("period", e.target.value)} /></Field>
       <Field label="Year"><TextInput value={String(value.year ?? "")} onChange={(e) => set("year", e.target.value)} /></Field>
       <Field label="Location"><TextInput value={String(value.location ?? "")} onChange={(e) => set("location", e.target.value)} /></Field>
-      <Field label="Summary"><TextArea value={String(value.summary ?? "")} onChange={(e) => set("summary", e.target.value)} /></Field>
-      <LinesEditor label="Technologies" value={String(value.technologiesText ?? "").split("\n")} onChange={(v) => set("technologiesText", v.join("\n"))} />
-      <LinesEditor label="Responsibilities" value={String(value.responsibilitiesText ?? "").split("\n")} onChange={(v) => set("responsibilitiesText", v.join("\n"))} />
+      <Field
+        label="Summary"
+        action={gemini("experience.summary", !String(value.summary ?? "").trim(), value.summary, (next) =>
+          onChange({ ...value, summary: String(next) }),
+        )}
+      >
+        <TextArea value={String(value.summary ?? "")} onChange={(e) => set("summary", e.target.value)} />
+      </Field>
+      <LinesEditor
+        label="Technologies"
+        value={techLines}
+        onChange={(v) => set("technologiesText", v.join("\n"))}
+        action={gemini("experience.technologies", techLines.filter((line) => line.trim()).length === 0, techLines, (next) => {
+          const lines = Array.isArray(next) ? next : [String(next)];
+          onChange({ ...value, technologiesText: lines.join("\n"), technologies: lines.filter((line) => line.trim()) });
+        })}
+      />
+      <LinesEditor
+        label="Responsibilities"
+        value={responsibilityLines}
+        onChange={(v) => set("responsibilitiesText", v.join("\n"))}
+        action={gemini("experience.responsibilities", responsibilityLines.filter((line) => line.trim()).length === 0, responsibilityLines, (next) => {
+          const lines = Array.isArray(next) ? next : [String(next)];
+          onChange({ ...value, responsibilitiesText: lines.join("\n"), responsibilities: lines.filter((line) => line.trim()) });
+        })}
+      />
       <LinesEditor label="Project slugs" value={String(value.projectsText ?? "").split("\n")} onChange={(v) => set("projectsText", v.join("\n"))} />
     </>
   );
@@ -203,16 +272,34 @@ function ExperienceFields({
 function SkillFields({
   value,
   onChange,
+  gemini,
 }: {
   value: Record<string, unknown>;
   onChange: (value: Record<string, unknown>) => void;
+  gemini: GeminiFn;
 }) {
+  const itemLines = String(value.itemsText ?? "").split("\n");
   return (
     <>
       <Field label="ID"><TextInput value={String(value.id ?? "")} onChange={(e) => onChange({ ...value, id: e.target.value })} /></Field>
       <Field label="Label"><TextInput value={String(value.label ?? "")} onChange={(e) => onChange({ ...value, label: e.target.value })} /></Field>
-      <Field label="Summary"><TextArea value={String(value.summary ?? "")} onChange={(e) => onChange({ ...value, summary: e.target.value })} /></Field>
-      <LinesEditor label="Items" value={String(value.itemsText ?? "").split("\n")} onChange={(v) => onChange({ ...value, itemsText: v.join("\n") })} />
+      <Field
+        label="Summary"
+        action={gemini("skill.summary", !String(value.summary ?? "").trim(), value.summary, (next) =>
+          onChange({ ...value, summary: String(next) }),
+        )}
+      >
+        <TextArea value={String(value.summary ?? "")} onChange={(e) => onChange({ ...value, summary: e.target.value })} />
+      </Field>
+      <LinesEditor
+        label="Items"
+        value={itemLines}
+        onChange={(v) => onChange({ ...value, itemsText: v.join("\n") })}
+        action={gemini("skill.items", itemLines.filter((line) => line.trim()).length === 0, itemLines, (next) => {
+          const lines = Array.isArray(next) ? next : [String(next)];
+          onChange({ ...value, itemsText: lines.join("\n") });
+        })}
+      />
     </>
   );
 }
@@ -220,16 +307,32 @@ function SkillFields({
 function PrincipleFields({
   value,
   onChange,
+  gemini,
 }: {
   value: Record<string, unknown>;
   onChange: (value: Record<string, unknown>) => void;
+  gemini: GeminiFn;
 }) {
   return (
     <>
       <Field label="ID"><TextInput value={String(value.id ?? "")} onChange={(e) => onChange({ ...value, id: e.target.value })} /></Field>
       <Field label="Title"><TextInput value={String(value.title ?? "")} onChange={(e) => onChange({ ...value, title: e.target.value })} /></Field>
-      <Field label="Statement"><TextInput value={String(value.statement ?? "")} onChange={(e) => onChange({ ...value, statement: e.target.value })} /></Field>
-      <Field label="Body"><TextArea value={String(value.body ?? "")} onChange={(e) => onChange({ ...value, body: e.target.value })} /></Field>
+      <Field
+        label="Statement"
+        action={gemini("principle.statement", !String(value.statement ?? "").trim(), value.statement, (next) =>
+          onChange({ ...value, statement: String(next) }),
+        )}
+      >
+        <TextInput value={String(value.statement ?? "")} onChange={(e) => onChange({ ...value, statement: e.target.value })} />
+      </Field>
+      <Field
+        label="Body"
+        action={gemini("principle.body", !String(value.body ?? "").trim(), value.body, (next) =>
+          onChange({ ...value, body: String(next) }),
+        )}
+      >
+        <TextArea value={String(value.body ?? "")} onChange={(e) => onChange({ ...value, body: e.target.value })} />
+      </Field>
     </>
   );
 }

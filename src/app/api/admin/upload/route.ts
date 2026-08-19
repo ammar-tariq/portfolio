@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { auth } from "@/auth";
+import { getSession } from "@/lib/session";
 import { uploadImage } from "@/lib/cloudinary";
 import { hasCloudinary } from "@/lib/env";
 
@@ -25,7 +25,7 @@ function isAllowedFolder(folder: string) {
 }
 
 export async function POST(request: Request) {
-  const session = await auth();
+  const session = await getSession();
   if (!session?.user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }

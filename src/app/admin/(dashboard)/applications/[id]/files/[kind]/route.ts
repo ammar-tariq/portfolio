@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import mongoose from "mongoose";
-import { auth } from "@/auth";
+import { getSession } from "@/lib/session";
 import { connectDb } from "@/lib/db";
 import { getSiteContentForParams } from "@/lib/content";
 import { applicationFromDoc } from "@/lib/job-application";
@@ -24,7 +24,7 @@ export async function GET(
   _request: Request,
   context: { params: Promise<{ id: string; kind: string }> },
 ) {
-  const session = await auth();
+  const session = await getSession();
   if (!session?.user) {
     return new Response("Unauthorized", { status: 401 });
   }

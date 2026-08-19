@@ -1,4 +1,5 @@
 import { getSiteContent } from "@/lib/content";
+import { hasGemini } from "@/lib/env";
 import { SimpleEditor } from "@/components/admin/simple-editor";
 import { AdminPageHeader } from "@/components/admin/admin-ui";
 
@@ -11,7 +12,7 @@ export default async function PhilosophyAdminPage() {
         title="Philosophy"
         description="Principles on the homepage. Select one to edit, or add a new statement."
       />
-      <SimpleEditor kind="principle" items={content.principles as unknown as Record<string, unknown>[]} />
+      <SimpleEditor kind="principle" canDraft={hasGemini()} items={content.principles as unknown as Record<string, unknown>[]} />
     </div>
   );
 }

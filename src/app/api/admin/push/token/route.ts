@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/auth";
+import { getSession } from "@/lib/session";
 import { hasFirebaseMessaging } from "@/lib/env";
 import { deleteAdminPushToken, saveAdminPushToken } from "@/lib/admin-push";
 
@@ -7,7 +7,7 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export async function POST(request: NextRequest) {
-  const session = await auth();
+  const session = await getSession();
   if (!session?.user) return NextResponse.json({ ok: false }, { status: 401 });
   if (!hasFirebaseMessaging()) return NextResponse.json({ ok: false, error: "Firebase is not configured." }, { status: 503 });
   let body: { token?: string };
@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
-  const session = await auth();
+  const session = await getSession();
   if (!session?.user) return NextResponse.json({ ok: false }, { status: 401 });
   let body: { token?: string };
   try {

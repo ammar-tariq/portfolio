@@ -9,6 +9,21 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     signIn: "/admin/login",
     error: "/admin/login",
   },
+  logger: {
+    error(error) {
+      // Stale cookies after AUTH_SECRET rotation are recovered as signed-out.
+      // Auth.js logs them with console.error, which Next.js surfaces as a page overlay.
+      if (
+        typeof error === "object" &&
+        error &&
+        "type" in error &&
+        error.type === "JWTSessionError"
+      ) {
+        return;
+      }
+      console.error(error);
+    },
+  },
   callbacks: {
     async signIn({ profile }) {
       const admin = adminGithubLogin();

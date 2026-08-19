@@ -1,4 +1,5 @@
 import { getSiteContent } from "@/lib/content";
+import { hasGemini } from "@/lib/env";
 import { SettingsForm } from "@/components/admin/settings-form";
 import { AdminPageHeader } from "@/components/admin/admin-ui";
 
@@ -13,6 +14,7 @@ export default async function AboutAdminPage() {
       />
       <SettingsForm
         mode="about"
+        canDraft={hasGemini()}
         initial={{
           profile: content.profile,
           social: content.social,

@@ -1,18 +1,14 @@
-import { signIn } from "@/auth";
-import { auth } from "@/auth";
-import { redirect } from "next/navigation";
 import { safeAdminCallback } from "@/lib/admin-path";
 import { adminButtonClass } from "@/components/admin/admin-styles";
+import { signInWithGithub } from "./actions";
 
 export default async function LoginPage({
   searchParams,
 }: {
   searchParams: Promise<{ error?: string; callbackUrl?: string }>;
 }) {
-  const session = await auth();
   const { error, callbackUrl } = await searchParams;
   const next = safeAdminCallback(callbackUrl);
-  if (session?.user) redirect(next);
 
   return (
     <div className="flex min-h-svh items-center justify-center bg-bg px-4 text-fg">
@@ -27,13 +23,7 @@ export default async function LoginPage({
             Access denied. This dashboard only accepts the configured GitHub login.
           </p>
         ) : null}
-        <form
-          className="mt-8"
-          action={async (formData) => {
-            "use server";
-            await signIn("github", { redirectTo: safeAdminCallback(String(formData.get("callbackUrl") ?? "")) });
-          }}
-        >
+        <form className="mt-8" action={signInWithGithub}>
           <input type="hidden" name="callbackUrl" value={next} />
           <button type="submit" className={`${adminButtonClass("primary")} h-10 w-full`}>
             Continue with GitHub

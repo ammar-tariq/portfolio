@@ -33,6 +33,8 @@ import { destroyImage } from "@/lib/cloudinary";
 import { fetchPublicJobPage, type SharedJob } from "@/lib/job-posting";
 import type { ArchitectureContent, Industry, Project, SiteSettings } from "@/types/content";
 import { draftProjectWithGemini, rewriteProjectFieldWithGemini, type ProjectCopyField } from "@/lib/draft-project";
+import { rewriteArchitectureSectionWithGemini, type ArchitectureSection } from "@/lib/draft-architecture";
+import { rewriteSiteCopyWithGemini } from "@/lib/draft-site-copy";
 import { importProjectFromStoreUrls } from "@/lib/store-import";
 import {
   importOpenSourceOwnerFromGithub,
@@ -72,6 +74,36 @@ export async function rewriteProjectField(
   await requireAdmin();
   try {
     const value = await rewriteProjectFieldWithGemini({ field, project, notes });
+    return { ok: true, value };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Could not rewrite that field.";
+    return { ok: false, error: message };
+  }
+}
+
+export async function rewriteArchitectureSection(
+  section: ArchitectureSection,
+  architecture: ArchitectureContent,
+  engineer: string,
+): Promise<{ ok: true; value: ArchitectureContent[ArchitectureSection] } | { ok: false; error: string }> {
+  await requireAdmin();
+  try {
+    const value = await rewriteArchitectureSectionWithGemini({ section, architecture, engineer });
+    return { ok: true, value };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Could not rewrite that diagram.";
+    return { ok: false, error: message };
+  }
+}
+
+export async function rewriteSiteCopy(
+  key: string,
+  current: unknown,
+  context: Record<string, unknown>,
+): Promise<{ ok: true; value: string | string[] } | { ok: false; error: string }> {
+  await requireAdmin();
+  try {
+    const value = await rewriteSiteCopyWithGemini({ key, current, context });
     return { ok: true, value };
   } catch (error) {
     const message = error instanceof Error ? error.message : "Could not rewrite that field.";

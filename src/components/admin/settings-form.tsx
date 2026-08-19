@@ -3,21 +3,48 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import type { SiteSettings } from "@/types/content";
-import { saveSettings } from "@/app/admin/actions";
-import { Field, LinesEditor, TextArea, TextInput } from "@/components/admin/fields";
+import { rewriteSiteCopy, saveSettings } from "@/app/admin/actions";
+import { Field, GeminiAction, LinesEditor, TextArea, TextInput } from "@/components/admin/fields";
 import { ImageUpload } from "@/components/admin/image-upload";
 import { AdminButton } from "@/components/admin/admin-ui";
 
 export function SettingsForm({
   initial,
   mode,
+  canDraft = false,
 }: {
   initial: SiteSettings;
   mode: "about" | "seo";
+  canDraft?: boolean;
 }) {
   const router = useRouter();
   const [settings, setSettings] = useState(initial);
   const [saving, setSaving] = useState(false);
+  const [busy, setBusy] = useState<string | null>(null);
+  const [error, setError] = useState("");
+
+  async function rewrite(key: string, current: unknown, apply: (value: string | string[]) => void) {
+    setBusy(key);
+    setError("");
+    const result = await rewriteSiteCopy(key, current, settings as unknown as Record<string, unknown>);
+    setBusy(null);
+    if (!result.ok) {
+      setError(result.error);
+      return;
+    }
+    apply(result.value);
+  }
+
+  function gemini(key: string, empty: boolean, current: unknown, apply: (value: string | string[]) => void) {
+    return (
+      <GeminiAction
+        busy={busy === key}
+        empty={empty}
+        disabled={!canDraft || busy !== null}
+        onClick={() => void rewrite(key, current, apply)}
+      />
+    );
+  }
 
   async function onSubmit(event: React.FormEvent) {
     event.preventDefault();
@@ -38,10 +65,38 @@ export function SettingsForm({
             <Field label="Last name"><TextInput value={profile.lastName} onChange={(e) => setSettings({ ...settings, profile: { ...profile, lastName: e.target.value, name: `${profile.firstName} ${e.target.value}` } })} /></Field>
           </div>
           <Field label="Title"><TextInput value={profile.title} onChange={(e) => setSettings({ ...settings, profile: { ...profile, title: e.target.value } })} /></Field>
-          <Field label="Headline"><TextArea value={profile.headline} onChange={(e) => setSettings({ ...settings, profile: { ...profile, headline: e.target.value } })} /></Field>
-          <Field label="Summary"><TextArea value={profile.summary} onChange={(e) => setSettings({ ...settings, profile: { ...profile, summary: e.target.value } })} /></Field>
-          <Field label="About headline"><TextInput value={profile.aboutHeadline} onChange={(e) => setSettings({ ...settings, profile: { ...profile, aboutHeadline: e.target.value } })} /></Field>
-          <Field label="About body"><TextArea value={profile.aboutBody} onChange={(e) => setSettings({ ...settings, profile: { ...profile, aboutBody: e.target.value } })} /></Field>
+          <Field
+            label="Headline"
+            action={gemini("about.headline", !profile.headline.trim(), profile.headline, (value) =>
+              setSettings({ ...settings, profile: { ...profile, headline: String(value) } }),
+            )}
+          >
+            <TextArea value={profile.headline} onChange={(e) => setSettings({ ...settings, profile: { ...profile, headline: e.target.value } })} />
+          </Field>
+          <Field
+            label="Summary"
+            action={gemini("about.summary", !profile.summary.trim(), profile.summary, (value) =>
+              setSettings({ ...settings, profile: { ...profile, summary: String(value) } }),
+            )}
+          >
+            <TextArea value={profile.summary} onChange={(e) => setSettings({ ...settings, profile: { ...profile, summary: e.target.value } })} />
+          </Field>
+          <Field
+            label="About headline"
+            action={gemini("about.aboutHeadline", !profile.aboutHeadline.trim(), profile.aboutHeadline, (value) =>
+              setSettings({ ...settings, profile: { ...profile, aboutHeadline: String(value) } }),
+            )}
+          >
+            <TextInput value={profile.aboutHeadline} onChange={(e) => setSettings({ ...settings, profile: { ...profile, aboutHeadline: e.target.value } })} />
+          </Field>
+          <Field
+            label="About body"
+            action={gemini("about.aboutBody", !profile.aboutBody.trim(), profile.aboutBody, (value) =>
+              setSettings({ ...settings, profile: { ...profile, aboutBody: String(value) } }),
+            )}
+          >
+            <TextArea value={profile.aboutBody} onChange={(e) => setSettings({ ...settings, profile: { ...profile, aboutBody: e.target.value } })} />
+          </Field>
           <div className="grid gap-4 md:grid-cols-2">
             <Field label="Location"><TextInput value={profile.location} onChange={(e) => setSettings({ ...settings, profile: { ...profile, location: e.target.value } })} /></Field>
             <Field label="Availability"><TextInput value={profile.availability} onChange={(e) => setSettings({ ...settings, profile: { ...profile, availability: e.target.value } })} /></Field>
@@ -50,7 +105,17 @@ export function SettingsForm({
             <Field label="Website"><TextInput value={profile.website} onChange={(e) => setSettings({ ...settings, profile: { ...profile, website: e.target.value } })} /></Field>
             <Field label="Resume URL"><TextInput value={profile.resumeUrl} onChange={(e) => setSettings({ ...settings, profile: { ...profile, resumeUrl: e.target.value } })} /></Field>
           </div>
-          <LinesEditor label="Focus" value={profile.focus} onChange={(focus) => setSettings({ ...settings, profile: { ...profile, focus } })} />
+          <LinesEditor
+            label="Focus"
+            value={profile.focus}
+            onChange={(focus) => setSettings({ ...settings, profile: { ...profile, focus } })}
+            action={gemini("about.focus", profile.focus.filter((item) => item.trim()).length === 0, profile.focus, (value) =>
+              setSettings({
+                ...settings,
+                profile: { ...profile, focus: Array.isArray(value) ? value : [String(value)] },
+              }),
+            )}
+          />
           <div className="grid gap-4 md:grid-cols-2">
             {(
               [
@@ -94,10 +159,38 @@ export function SettingsForm({
         </>
       ) : (
         <>
-          <Field label="SEO title"><TextInput value={seo.title} onChange={(e) => setSettings({ ...settings, seo: { ...seo, title: e.target.value } })} /></Field>
-          <Field label="SEO description"><TextArea value={seo.description} onChange={(e) => setSettings({ ...settings, seo: { ...seo, description: e.target.value } })} /></Field>
-          <LinesEditor label="Keywords" value={seo.keywords} onChange={(keywords) => setSettings({ ...settings, seo: { ...seo, keywords } })} />
-          <LinesEditor label="Topics" value={seo.topics} onChange={(topics) => setSettings({ ...settings, seo: { ...seo, topics } })} />
+          <Field
+            label="SEO title"
+            action={gemini("seo.title", !seo.title.trim(), seo.title, (value) =>
+              setSettings({ ...settings, seo: { ...seo, title: String(value) } }),
+            )}
+          >
+            <TextInput value={seo.title} onChange={(e) => setSettings({ ...settings, seo: { ...seo, title: e.target.value } })} />
+          </Field>
+          <Field
+            label="SEO description"
+            action={gemini("seo.description", !seo.description.trim(), seo.description, (value) =>
+              setSettings({ ...settings, seo: { ...seo, description: String(value) } }),
+            )}
+          >
+            <TextArea value={seo.description} onChange={(e) => setSettings({ ...settings, seo: { ...seo, description: e.target.value } })} />
+          </Field>
+          <LinesEditor
+            label="Keywords"
+            value={seo.keywords}
+            onChange={(keywords) => setSettings({ ...settings, seo: { ...seo, keywords } })}
+            action={gemini("seo.keywords", seo.keywords.filter((item) => item.trim()).length === 0, seo.keywords, (value) =>
+              setSettings({ ...settings, seo: { ...seo, keywords: Array.isArray(value) ? value : [String(value)] } }),
+            )}
+          />
+          <LinesEditor
+            label="Topics"
+            value={seo.topics}
+            onChange={(topics) => setSettings({ ...settings, seo: { ...seo, topics } })}
+            action={gemini("seo.topics", seo.topics.filter((item) => item.trim()).length === 0, seo.topics, (value) =>
+              setSettings({ ...settings, seo: { ...seo, topics: Array.isArray(value) ? value : [String(value)] } }),
+            )}
+          />
           <Field label="Google Search Console verification">
             <TextInput
               value={seo.googleVerification ?? ""}
@@ -132,6 +225,8 @@ export function SettingsForm({
           />
         </>
       )}
+      {error ? <p className="text-sm text-muted">{error}</p> : null}
+      {!canDraft ? <p className="text-sm text-muted">Add GEMINI_API_KEY to enable Generate.</p> : null}
       <AdminButton type="submit" variant="primary" disabled={saving}>
         {saving ? "Saving…" : "Save changes"}
       </AdminButton>
