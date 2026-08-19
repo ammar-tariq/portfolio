@@ -1,13 +1,18 @@
-import Link from "next/link";
 import { JobApplicationModel, GmailSyncModel } from "@/models";
 import { connectDb } from "@/lib/db";
-import { hasGemini } from "@/lib/env";
 import { hasGmailApi } from "@/lib/gmail";
 import { applicationFromDoc } from "@/lib/job-application";
-import { ApplicationForm } from "@/components/admin/application-form";
 import { GmailSyncButton } from "@/components/admin/gmail-sync-button";
+import { AdminBadge, AdminLink, AdminPageHeader, AdminPanel } from "@/components/admin/admin-ui";
 
 export const dynamic = "force-dynamic";
+
+function statusTone(status: string): "muted" | "accent" | "ok" | "warn" {
+  if (status === "applied" || status === "offer") return "ok";
+  if (status === "draft") return "warn";
+  if (status === "interview" || status === "replied") return "accent";
+  return "muted";
+}
 
 export default async function ApplicationsPage() {
   await connectDb();
@@ -18,51 +23,52 @@ export default async function ApplicationsPage() {
   const items = docs.map(applicationFromDoc);
 
   return (
-    <div>
-      <p className="font-mono text-[11px] tracking-[0.22em] text-accent uppercase">Applications</p>
-      <h1 className="mt-2 font-serif text-3xl">Job applications</h1>
-      <p className="mt-2 max-w-2xl text-sm text-muted">
-        History of tailored resumes, cover letters, and screening answers. Source copy stays in Mongo. On a phone, use{" "}
-        <Link href="/admin/apply" className="text-accent">
-          Apply
-        </Link>{" "}
-        — share or paste a posting, no Chrome extension.
-      </p>
-      <div className="mt-8">
-        <ApplicationForm canGenerate={hasGemini()} />
-      </div>
+    <div className="space-y-6">
+      <AdminPageHeader
+        eyebrow="Jobs"
+        title="Applications"
+        description="Inbox for tailored resumes and letters. Create a new one from a posting, then open it to send or track replies."
+        actions={<AdminLink href="/admin/apply" variant="primary">New application</AdminLink>}
+      />
+
       {hasGmailApi() ? (
         <GmailSyncButton
           lastSyncAt={sync?.lastSyncAt ? new Date(sync.lastSyncAt).toISOString() : undefined}
           lastError={sync?.lastError || undefined}
         />
       ) : null}
-      <ul className="mt-10 divide-y divide-line border-y border-line">
+
+      <AdminPanel>
         {items.length === 0 ? (
-          <li className="py-4 text-sm text-muted">No applications yet.</li>
+          <div className="flex flex-col items-center px-5 py-10 text-center">
+            <p className="text-sm text-muted">No applications yet.</p>
+            <AdminLink href="/admin/apply" variant="primary" className="mt-4">
+              Create the first one
+            </AdminLink>
+          </div>
         ) : (
-          items.map((item) => (
-            <li key={item.id} className="flex flex-wrap items-center justify-between gap-3 py-4">
-              <div>
-                <p className="text-fg">
-                  {item.role} · {item.company}
-                </p>
-                <p className="text-sm text-muted">
-                  {item.status}
-                  {item.inboxStatus ? ` · ${item.inboxStatus}` : ""}
-                  {item.sentAt ? ` · sent ${new Date(item.sentAt).toLocaleDateString()}` : ""}
-                  {item.lastReplyAt ? ` · reply ${new Date(item.lastReplyAt).toLocaleDateString()}` : ""}
-                  {item.createdAt ? ` · ${new Date(item.createdAt).toLocaleDateString()}` : ""}
-                  {item.keywords.length ? ` · ${item.keywords.length} keywords` : ""}
-                </p>
-              </div>
-              <Link href={`/admin/applications/${item.id}`} className="text-sm text-accent">
-                Open
-              </Link>
-            </li>
-          ))
+          <ul className="divide-y divide-line">
+            {items.map((item) => (
+              <li key={item.id} className="flex flex-wrap items-center justify-between gap-3 px-4 py-3.5">
+                <div className="min-w-0">
+                  <p className="truncate font-medium">
+                    {item.role} · {item.company}
+                  </p>
+                  <p className="mt-1 flex flex-wrap items-center gap-2 text-sm text-muted">
+                    <AdminBadge tone={statusTone(item.status)}>{item.status}</AdminBadge>
+                    {item.inboxStatus && item.inboxStatus !== "none" ? (
+                      <AdminBadge tone={statusTone(item.inboxStatus)}>{item.inboxStatus}</AdminBadge>
+                    ) : null}
+                    {item.createdAt ? <span>{new Date(item.createdAt).toLocaleDateString()}</span> : null}
+                    {item.sentAt ? <span>sent {new Date(item.sentAt).toLocaleDateString()}</span> : null}
+                  </p>
+                </div>
+                <AdminLink href={`/admin/applications/${item.id}`}>Open</AdminLink>
+              </li>
+            ))}
+          </ul>
         )}
-      </ul>
+      </AdminPanel>
     </div>
   );
 }

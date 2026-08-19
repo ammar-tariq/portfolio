@@ -6,6 +6,7 @@ import type { SiteSettings } from "@/types/content";
 import { saveSettings } from "@/app/admin/actions";
 import { Field, LinesEditor, TextArea, TextInput } from "@/components/admin/fields";
 import { ImageUpload } from "@/components/admin/image-upload";
+import { AdminButton } from "@/components/admin/admin-ui";
 
 export function SettingsForm({
   initial,
@@ -29,7 +30,7 @@ export function SettingsForm({
   const { profile, social, seo, navItems } = settings;
 
   return (
-    <form onSubmit={onSubmit} className="grid gap-5">
+    <form onSubmit={onSubmit} className="grid gap-5 rounded-xl border border-line bg-bg-elevated/40 p-5">
       {mode === "about" ? (
         <>
           <div className="grid gap-4 md:grid-cols-2">
@@ -131,9 +132,9 @@ export function SettingsForm({
           />
         </>
       )}
-      <button type="submit" disabled={saving} className="btn-solid h-12 rounded-full px-6 text-sm">
-        {saving ? "Saving…" : "Save"}
-      </button>
+      <AdminButton type="submit" variant="primary" disabled={saving}>
+        {saving ? "Saving…" : "Save changes"}
+      </AdminButton>
     </form>
   );
 }

@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import type { OpenSourceProject } from "@/types/content";
 import { deleteOpenSource, importOpenSourceOwner, importOpenSourceRepo, saveOpenSource, syncOpenSource } from "@/app/admin/actions";
 import { Field, LinesEditor, TextArea, TextInput } from "@/components/admin/fields";
+import { AdminButton, AdminPanel } from "@/components/admin/admin-ui";
+import { cn } from "@/lib/cn";
 
 export function OpenSourceManager({ items }: { items: OpenSourceProject[] }) {
   const router = useRouter();
@@ -84,6 +86,7 @@ export function OpenSourceManager({ items }: { items: OpenSourceProject[] }) {
 
   async function onDelete() {
     if (!activeSlug) return;
+    if (!window.confirm("Delete this open source entry?")) return;
     setBusy("delete");
     setMessage("");
     await deleteOpenSource(activeSlug);
@@ -116,10 +119,10 @@ export function OpenSourceManager({ items }: { items: OpenSourceProject[] }) {
   }
 
   return (
-    <div className="grid gap-8">
-      <div className="grid gap-4 rounded-3xl border border-line bg-bg-elevated/40 p-5 md:grid-cols-2">
+    <div className="grid gap-6">
+      <AdminPanel className="grid gap-6 p-5 md:grid-cols-2">
         <div>
-          <p className="font-mono text-[11px] tracking-[0.16em] text-subtle uppercase">Import single repo</p>
+          <p className="text-sm font-medium">Import a repo</p>
           <Field label="GitHub repo URL" className="mt-4">
             <TextInput
               value={repoUrl}
@@ -127,56 +130,67 @@ export function OpenSourceManager({ items }: { items: OpenSourceProject[] }) {
               placeholder="https://github.com/owner/repo"
             />
           </Field>
-          <button
+          <AdminButton
             type="button"
+            variant="primary"
+            className="mt-4"
             onClick={() => void onImportRepo()}
             disabled={busy !== null || !repoUrl.trim()}
-            className="btn-solid mt-4 inline-flex h-11 items-center justify-center rounded-full px-5 text-sm font-medium disabled:opacity-50"
           >
             {busy === "repo" ? "Importing…" : "Import repo"}
-          </button>
+          </AdminButton>
         </div>
         <div>
-          <p className="font-mono text-[11px] tracking-[0.16em] text-subtle uppercase">Bulk import owner</p>
+          <p className="text-sm font-medium">Import all from a user</p>
           <Field label="GitHub username or org" className="mt-4">
             <TextInput value={owner} onChange={(event) => setOwner(event.target.value)} placeholder="ammar-tariq" />
           </Field>
-          <button
+          <AdminButton
             type="button"
+            variant="secondary"
+            className="mt-4"
             onClick={() => void onImportOwner()}
             disabled={busy !== null || !owner.trim()}
-            className="btn-solid mt-4 inline-flex h-11 items-center justify-center rounded-full px-5 text-sm font-medium disabled:opacity-50"
           >
             {busy === "owner" ? "Importing…" : "Import repos"}
-          </button>
+          </AdminButton>
         </div>
         {message ? <p className="text-sm text-muted md:col-span-2">{message}</p> : null}
-      </div>
+      </AdminPanel>
 
-      <div className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr]">
-        <ul className="divide-y divide-line border-y border-line">
-          {orderedSlugs.map((slug) => {
-            const item = drafts[slug];
-            if (!item) return null;
-            const title = String(item.title ?? slug);
-            return (
-              <li key={slug} className="flex items-center justify-between gap-3 py-3">
-                <button
-                  type="button"
-                  className={`text-left ${activeSlug === slug ? "text-accent" : "text-fg"}`}
-                  onClick={() => setActiveSlug(slug)}
-                >
-                  <div>{title}</div>
-                  <div className="text-sm text-muted">{String(item.language ?? "") || "Unknown language"}</div>
-                </button>
-              </li>
-            );
-          })}
-          {!orderedSlugs.length ? <li className="py-3 text-sm text-muted">No open source entries yet.</li> : null}
-        </ul>
+      <div className="grid gap-6 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
+        <AdminPanel>
+          <div className="border-b border-line px-4 py-3">
+            <p className="text-sm font-medium">Repositories</p>
+          </div>
+          <ul className="divide-y divide-line">
+            {orderedSlugs.map((slug) => {
+              const item = drafts[slug];
+              if (!item) return null;
+              const title = String(item.title ?? slug);
+              return (
+                <li key={slug}>
+                  <button
+                    type="button"
+                    className={cn(
+                      "w-full px-4 py-3 text-left text-sm hover:bg-fg/4",
+                      activeSlug === slug && "bg-fg/6",
+                    )}
+                    onClick={() => setActiveSlug(slug)}
+                  >
+                    <div className="font-medium">{title}</div>
+                    <div className="text-muted">{String(item.language ?? "") || "Unknown language"}</div>
+                  </button>
+                </li>
+              );
+            })}
+            {!orderedSlugs.length ? <li className="px-4 py-6 text-sm text-muted">No open source entries yet.</li> : null}
+          </ul>
+        </AdminPanel>
 
         {active ? (
-          <div className="grid gap-4">
+          <AdminPanel className="grid gap-4 p-5">
+            <p className="text-sm font-medium">Edit repository</p>
             <Field label="Slug">
               <TextInput value={String(active.slug ?? "")} onChange={(e) => patch("slug", e.target.value)} />
             </Field>
@@ -205,20 +219,24 @@ export function OpenSourceManager({ items }: { items: OpenSourceProject[] }) {
               value={String(active.topicsText ?? "").split("\n")}
               onChange={(value) => patch("topicsText", value.join("\n"))}
             />
-            <div className="flex flex-wrap gap-3">
-              <button type="button" onClick={() => void onSave()} disabled={busy !== null} className="btn-solid h-12 rounded-full px-6 text-sm disabled:opacity-50">
+            <div className="flex flex-wrap gap-2">
+              <AdminButton type="button" variant="primary" onClick={() => void onSave()} disabled={busy !== null}>
                 {busy === "save" ? "Saving…" : "Save"}
-              </button>
-              <button type="button" onClick={() => void onSync()} disabled={busy !== null} className="h-12 rounded-full border border-line px-6 text-sm text-fg disabled:opacity-50">
+              </AdminButton>
+              <AdminButton type="button" variant="secondary" onClick={() => void onSync()} disabled={busy !== null}>
                 {busy === "sync" ? "Syncing…" : "Sync from GitHub"}
-              </button>
-              <button type="button" onClick={() => void onDelete()} disabled={busy !== null} className="h-12 rounded-full border border-line px-6 text-sm text-muted disabled:opacity-50">
+              </AdminButton>
+              <AdminButton type="button" variant="danger" onClick={() => void onDelete()} disabled={busy !== null}>
                 {busy === "delete" ? "Deleting…" : "Delete"}
-              </button>
+              </AdminButton>
             </div>
-          </div>
+          </AdminPanel>
         ) : (
-          <p className="text-sm text-muted">Import a repo or choose an item to edit.</p>
+          <AdminPanel className="flex items-center justify-center px-5 py-16">
+            <p className="max-w-xs text-center text-sm text-muted">
+              Import a repo above, or choose one on the left to edit.
+            </p>
+          </AdminPanel>
         )}
       </div>
     </div>

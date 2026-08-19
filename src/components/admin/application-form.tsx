@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { fetchJobPosting, generateJobApplication, saveJobApplicationDraft } from "@/app/admin/actions";
 import { Field, TextArea, TextInput } from "@/components/admin/fields";
+import { AdminButton } from "@/components/admin/admin-ui";
 import type { SharedJob } from "@/lib/job-posting";
 
 function looksLikeUrl(value: string) {
@@ -144,8 +145,8 @@ export function ApplicationForm({
   }
 
   return (
-    <form onSubmit={onSubmit} className="grid gap-4 rounded-3xl border border-line bg-bg-elevated/40 p-5">
-      <p className="font-mono text-[11px] tracking-[0.16em] text-subtle uppercase">New application</p>
+    <form onSubmit={onSubmit} className="grid gap-4 rounded-xl border border-line bg-bg-elevated/40 p-5">
+      <p className="text-sm font-medium">Job details</p>
       {!compact ? (
         <p className="text-sm text-muted">
           Paste the job description or recruiter email. Gemini will tailor an ATS resume and cover letter, and answer any
@@ -158,22 +159,17 @@ export function ApplicationForm({
         </p>
       )}
       <div className="flex flex-wrap gap-2">
-        <button
-          type="button"
-          onClick={() => void onPaste()}
-          disabled={busy !== null}
-          className="inline-flex h-11 items-center rounded-full border border-line px-4 text-sm text-fg disabled:opacity-50"
-        >
+        <AdminButton type="button" variant="secondary" onClick={() => void onPaste()} disabled={busy !== null}>
           {busy === "paste" ? "Pasting…" : "Paste clipboard"}
-        </button>
-        <button
+        </AdminButton>
+        <AdminButton
           type="button"
+          variant="secondary"
           onClick={() => void onImport()}
           disabled={busy !== null || !jobUrl.trim()}
-          className="inline-flex h-11 items-center rounded-full border border-line px-4 text-sm text-fg disabled:opacity-50"
         >
           {busy === "import" ? "Importing…" : "Import from URL"}
-        </button>
+        </AdminButton>
       </div>
       <div className="grid gap-4 md:grid-cols-2">
         <Field label="Company">
@@ -219,22 +215,13 @@ export function ApplicationForm({
           placeholder="Optional. Extra questions only — anything in the JD or recruiter email is answered automatically."
         />
       </Field>
-      <div className="sticky bottom-3 z-10 flex flex-wrap items-center gap-3 rounded-full border border-line bg-bg/90 p-2 backdrop-blur md:static md:border-0 md:bg-transparent md:p-0 md:backdrop-blur-none">
-        <button
-          type="submit"
-          disabled={busy !== null || !canGenerate}
-          className="btn-solid inline-flex h-11 flex-1 items-center justify-center rounded-full px-5 text-sm font-medium disabled:opacity-50 md:flex-none"
-        >
+      <div className="sticky bottom-3 z-10 flex flex-wrap items-center gap-2 rounded-xl border border-line bg-bg/90 p-2 backdrop-blur md:static md:border-0 md:bg-transparent md:p-0 md:backdrop-blur-none">
+        <AdminButton type="submit" variant="primary" disabled={busy !== null || !canGenerate} className="flex-1 md:flex-none">
           {busy === "generate" ? "Generating…" : "Generate resume + letter"}
-        </button>
-        <button
-          type="button"
-          onClick={() => void onDraft()}
-          disabled={busy !== null}
-          className="inline-flex h-11 items-center justify-center rounded-full border border-line px-5 text-sm text-fg disabled:opacity-50"
-        >
+        </AdminButton>
+        <AdminButton type="button" variant="secondary" onClick={() => void onDraft()} disabled={busy !== null}>
           {busy === "draft" ? "Saving…" : "Save draft"}
-        </button>
+        </AdminButton>
       </div>
       {!canGenerate ? (
         <p className="text-sm text-muted">Add GEMINI_API_KEY to .env, then restart. You can still save a draft.</p>

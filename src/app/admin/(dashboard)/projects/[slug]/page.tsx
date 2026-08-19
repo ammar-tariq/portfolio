@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { getSiteContent } from "@/lib/content";
 import { hasGemini } from "@/lib/env";
 import { ProjectForm } from "@/components/admin/project-form";
+import { AdminLink, AdminPageHeader } from "@/components/admin/admin-ui";
 
 export default async function EditProjectPage({
   params,
@@ -13,11 +14,14 @@ export default async function EditProjectPage({
   const project = content.projects.find((item) => item.slug === slug);
   if (!project) notFound();
   return (
-    <div>
-      <h1 className="font-serif text-3xl">Edit {project.title}</h1>
-      <div className="mt-8">
-        <ProjectForm initial={project} industries={content.industries} canDraft={hasGemini()} />
-      </div>
+    <div className="space-y-6">
+      <AdminPageHeader
+        eyebrow="Projects"
+        title={project.title}
+        description={`Editing /work/${project.slug}`}
+        actions={<AdminLink href="/admin/projects">All projects</AdminLink>}
+      />
+      <ProjectForm initial={project} industries={content.industries} canDraft={hasGemini()} />
     </div>
   );
 }

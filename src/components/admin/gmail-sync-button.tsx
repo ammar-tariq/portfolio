@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { syncGmailReplies } from "@/app/admin/actions";
+import { AdminButton } from "@/components/admin/admin-ui";
 
 export function GmailSyncButton({
   lastSyncAt,
@@ -33,21 +34,15 @@ export function GmailSyncButton({
   }
 
   return (
-    <div className="mt-6 rounded-3xl border border-line bg-bg-elevated/40 p-5">
-      <p className="font-mono text-[11px] tracking-[0.16em] text-subtle uppercase">Gmail inbox</p>
-      <p className="mt-2 text-sm text-muted">
-        Replies stay in Gmail. The app only pulls snippets for threads you sent from admin. Push (Pub/Sub) plus a
-        15-minute loop. Token needs gmail.readonly.
+    <div className="rounded-xl border border-line bg-bg-elevated/40 p-5">
+      <p className="text-sm font-medium">Gmail inbox</p>
+      <p className="mt-1 text-sm text-muted">
+        Replies stay in Gmail. This only pulls snippets for threads you sent from admin.
       </p>
       <div className="mt-4 flex flex-wrap items-center gap-3">
-        <button
-          type="button"
-          onClick={() => void onSync()}
-          disabled={busy}
-          className="inline-flex h-11 items-center rounded-full border border-line px-5 text-sm disabled:opacity-50"
-        >
-          {busy ? "Syncing…" : "Sync replies now"}
-        </button>
+        <AdminButton type="button" variant="secondary" onClick={() => void onSync()} disabled={busy}>
+          {busy ? "Syncing…" : "Sync replies"}
+        </AdminButton>
         {lastSyncAt ? (
           <p className="text-sm text-muted">Last sync {new Date(lastSyncAt).toLocaleString()}</p>
         ) : null}

@@ -1,7 +1,7 @@
 import { hasGemini } from "@/lib/env";
 import { parseSharedJob } from "@/lib/job-posting";
 import { ApplicationForm } from "@/components/admin/application-form";
-import Link from "next/link";
+import { AdminLink, AdminPageHeader, AdminPanel } from "@/components/admin/admin-ui";
 
 export const dynamic = "force-dynamic";
 
@@ -14,26 +14,24 @@ export default async function ApplyPage({
   const initial = parseSharedJob(params);
 
   return (
-    <div>
-      <p className="font-mono text-[11px] tracking-[0.22em] text-accent uppercase">Apply</p>
-      <h1 className="mt-2 font-serif text-3xl">Apply from your phone</h1>
-      <p className="mt-2 max-w-2xl text-sm text-muted">
-        No Chrome extension required. Stay signed in with GitHub in Safari or Chrome, add this page to your Home Screen,
-        then share or paste a job into it. Applications stay in Mongo — not in the public repo.
-      </p>
-      <ol className="mt-6 grid gap-2 text-sm text-muted">
-        <li>1. iPhone: Share the posting → Copy, open this page, tap Paste clipboard. Or add an iOS Shortcut that opens this URL with the shared link.</li>
-        <li>2. Android: Install the site, then Share a job → this app. The posting URL lands in the form.</li>
-        <li>3. Generate the resume here, then download the PDF, Copy / Share into LinkedIn Easy Apply, or Send if you have an email.</li>
-      </ol>
-      <p className="mt-4 text-sm">
-        <Link href="/admin/applications" className="text-accent">
-          Application history
-        </Link>
-      </p>
-      <div className="mt-8">
-        <ApplicationForm canGenerate={hasGemini()} initial={initial} compact />
-      </div>
+    <div className="space-y-6">
+      <AdminPageHeader
+        eyebrow="Jobs"
+        title="New application"
+        description="Paste or share a job posting. Generate a tailored resume and letter, or save a draft and finish later."
+        actions={<AdminLink href="/admin/applications">Back to inbox</AdminLink>}
+      />
+
+      <AdminPanel className="p-5">
+        <p className="text-sm font-medium">From your phone</p>
+        <ol className="mt-3 list-decimal space-y-1.5 pl-5 text-sm text-muted">
+          <li>Stay signed in, then add this page to your Home Screen.</li>
+          <li>Share or paste the posting here.</li>
+          <li>Generate, then download the PDF or send from the application page.</li>
+        </ol>
+      </AdminPanel>
+
+      <ApplicationForm canGenerate={hasGemini()} initial={initial} compact />
     </div>
   );
 }

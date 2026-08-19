@@ -163,20 +163,20 @@ export function PushEnable({ configured }: { configured: boolean }) {
   return (
     <span className="flex flex-col items-end gap-1">
       {status === "on" ? (
-        <button type="button" onClick={() => void disable()} className="text-muted hover:text-fg">
-          Disable push
+        <button type="button" onClick={() => void disable()} className="text-xs text-muted hover:text-fg">
+          On · disable
         </button>
       ) : (
         <button
           type="button"
           disabled={status === "loading"}
           onClick={() => void enable(true)}
-          className="text-muted hover:text-fg disabled:opacity-50"
+          className="text-xs text-muted hover:text-fg disabled:opacity-50"
         >
-          {status === "loading" ? "Enabling…" : "Enable push"}
+          {status === "loading" ? "Enabling…" : "Off · enable"}
         </button>
       )}
-      {error ? <span className="max-w-52 text-right text-[11px] text-muted">{error}</span> : null}
+      {error ? <span className="max-w-40 text-right text-[11px] text-muted">{error}</span> : null}
     </span>
   );
 }
