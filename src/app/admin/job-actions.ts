@@ -4,11 +4,18 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireAdmin } from "@/lib/admin";
 import { connectDb } from "@/lib/db";
-import { CompanyWatchModel, JobApplicationModel, JobListingModel } from "@/models";
+import { CompanyWatchModel, JobApplicationModel, JobListingModel, JobPollStateModel } from "@/models";
 import { pollJobSources } from "@/lib/jobs/poll";
 import { SUGGESTED_WATCHLIST } from "@/lib/jobs/seed-watchlist";
 import { parseWatchInput } from "@/lib/jobs/watch-input";
-import { WATCH_ATS, LISTING_STATUSES, type ListingStatus, type WatchAts } from "@/types/job-search";
+import {
+  BOARD_SOURCES,
+  LISTING_STATUSES,
+  WATCH_ATS,
+  type BoardSource,
+  type ListingStatus,
+  type WatchAts,
+} from "@/types/job-search";
 
 async function ready() {
   await requireAdmin();
@@ -36,6 +43,24 @@ export async function runJobPoll(): Promise<
     skippedRole: result.skippedRole,
     errors: result.adapterErrors.length,
   };
+}
+
+export async function saveJobBoardSettings(input: {
+  enabledBoards: string[];
+  includeCompanyAts: boolean;
+}): Promise<{ ok: true } | { ok: false; error: string }> {
+  await ready();
+  const enabled = input.enabledBoards.filter((id): id is BoardSource =>
+    (BOARD_SOURCES as readonly string[]).includes(id),
+  );
+  if (!enabled.length) return { ok: false, error: "Turn on at least one job board." };
+  await JobPollStateModel.findByIdAndUpdate(
+    "jobs",
+    { enabledBoards: enabled, includeCompanyAts: Boolean(input.includeCompanyAts) },
+    { upsert: true },
+  );
+  revalidateJobs();
+  return { ok: true };
 }
 
 export async function addCompanyWatch(input: {

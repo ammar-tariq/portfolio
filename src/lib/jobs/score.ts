@@ -50,6 +50,7 @@ export function scoreListing(input: {
   location: string;
   descriptionText: string;
   remote: boolean;
+  stackMatches?: string[];
 }): ScoreResult {
   const hay = `${input.title}\n${input.location}\n${input.descriptionText}`;
   const notes: string[] = [];
@@ -78,6 +79,12 @@ export function scoreListing(input: {
       notes.push(term.note);
       citizenshipRequirement = true;
     }
+  }
+
+  const stackMatches = input.stackMatches ?? [];
+  if (stackMatches.length) {
+    score += Math.min(30, stackMatches.length * 8);
+    notes.unshift(`stack: ${stackMatches.slice(0, 6).join(", ")}`);
   }
 
   return {

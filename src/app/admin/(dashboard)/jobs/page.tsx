@@ -2,10 +2,19 @@ import { connectDb } from "@/lib/db";
 import { hasMongo, hasUsajobs } from "@/lib/env";
 import { JobListingModel, JobPollStateModel } from "@/models";
 import { listingFromDoc, pollStateFromDoc } from "@/lib/jobs/from-doc";
+import { JobBoardSettings } from "@/components/admin/job-board-settings";
 import { JobPollButton } from "@/components/admin/job-poll-button";
 import { ListingActions } from "@/components/admin/listing-actions";
 import { AdminBadge, AdminLink, AdminPageHeader, AdminPanel } from "@/components/admin/admin-ui";
-import { BOARD_SOURCES, LISTING_STATUSES, WATCH_ATS, type JobListing, type ListingStatus } from "@/types/job-search";
+import {
+  BOARD_LABELS,
+  BOARD_SOURCES,
+  DEFAULT_ENABLED_BOARDS,
+  LISTING_STATUSES,
+  WATCH_ATS,
+  type JobListing,
+  type ListingStatus,
+} from "@/types/job-search";
 
 export const dynamic = "force-dynamic";
 
@@ -24,6 +33,7 @@ export default async function JobsPage({
     source?: string;
     q?: string;
     remote?: string;
+    stack?: string;
     minScore?: string;
     sort?: string;
   }>;
@@ -47,6 +57,7 @@ export default async function JobsPage({
   }
   if (params.source?.trim()) filter.source = params.source.trim();
   if (params.remote === "1") filter.remote = true;
+  if (params.stack !== "all") filter.stackMatches = { $exists: true, $ne: [] };
   const minScore = Number(params.minScore);
   if (Number.isFinite(minScore) && minScore > 0) filter.priorityScore = { $gte: minScore };
   const q = params.q?.trim();
@@ -65,21 +76,28 @@ export default async function JobsPage({
   const poll = await JobPollStateModel.findById("jobs").lean();
   const items = docs.map(listingFromDoc);
   const state = pollStateFromDoc(poll);
+  const enabledBoards = state.enabledBoards.length ? state.enabledBoards : [...DEFAULT_ENABLED_BOARDS];
 
   return (
     <div className="space-y-6">
       <AdminPageHeader
         eyebrow="Jobs"
         title="Job search"
-        description="Discover listings from public ATS feeds and remote boards. Rank for Pakistan / remote / relocation — never hide a role because it looks US-only. Prepare materials here, then apply on the company site."
+        description="Pick job boards, then poll. Listings are kept when they match skills from Admin → Skills (and technologies on experience/projects). Rank also uses remote / visa language. Apply on the real posting."
         actions={
           <>
-            <AdminLink href="/admin/jobs/watchlist">Watchlist</AdminLink>
+            <AdminLink href="/admin/jobs/watchlist">Optional company ATS</AdminLink>
             <AdminLink href="/admin/apply" variant="primary">
               Paste URL
             </AdminLink>
           </>
         }
+      />
+
+      <JobBoardSettings
+        enabledBoards={enabledBoards}
+        includeCompanyAts={state.includeCompanyAts}
+        usajobsReady={hasUsajobs()}
       />
 
       <JobPollButton
@@ -90,10 +108,6 @@ export default async function JobsPage({
         lastSkippedRole={state.lastSkippedRole}
         adapterErrors={state.adapterErrors}
       />
-
-      {!hasUsajobs() ? (
-        <p className="text-sm text-muted">USAJOBS adapter is off until USAJOBS_API_KEY and USAJOBS_USER_AGENT are set.</p>
-      ) : null}
 
       <AdminPanel className="p-5">
         <form className="grid gap-3 sm:grid-cols-2 lg:grid-cols-6" method="get">
@@ -111,10 +125,15 @@ export default async function JobsPage({
           <label className="text-sm">
             <span className="font-mono text-[10px] tracking-wide text-subtle uppercase">Source</span>
             <select name="source" defaultValue={params.source ?? ""} className="mt-1 w-full rounded-lg border border-line bg-bg-elevated px-3 py-2 text-sm">
-              <option value="">All</option>
-              {[...WATCH_ATS, ...BOARD_SOURCES].map((source) => (
+              <option value="">All boards</option>
+              {BOARD_SOURCES.map((source) => (
                 <option key={source} value={source}>
-                  {source}
+                  {BOARD_LABELS[source]}
+                </option>
+              ))}
+              {WATCH_ATS.map((source) => (
+                <option key={source} value={source}>
+                  {source} (company ATS)
                 </option>
               ))}
             </select>
@@ -144,6 +163,17 @@ export default async function JobsPage({
               <option value="date">Newest</option>
             </select>
           </label>
+          <label className="text-sm">
+            <span className="font-mono text-[10px] tracking-wide text-subtle uppercase">Stack</span>
+            <select
+              name="stack"
+              defaultValue={params.stack === "all" ? "all" : "mine"}
+              className="mt-1 w-full rounded-lg border border-line bg-bg-elevated px-3 py-2 text-sm"
+            >
+              <option value="mine">My stack only</option>
+              <option value="all">All listings</option>
+            </select>
+          </label>
           <label className="flex items-end gap-2 pb-2 text-sm">
             <input type="checkbox" name="remote" value="1" defaultChecked={params.remote === "1"} />
             Remote only
@@ -159,7 +189,7 @@ export default async function JobsPage({
       <AdminPanel>
         {items.length === 0 ? (
           <div className="px-5 py-10 text-center text-sm text-muted">
-            No listings yet. Add a watchlist, then Poll now. LinkedIn and Indeed stay on Paste URL.
+            No listings yet that match your stack. Poll now, or set Stack to “All listings”. Edit skills under Admin → Skills.
           </div>
         ) : (
           <ul className="divide-y divide-line">
@@ -183,9 +213,18 @@ function ListingRow({ item }: { item: JobListing }) {
           </p>
           <p className="mt-1 flex flex-wrap items-center gap-2 text-sm text-muted">
             <AdminBadge tone={statusTone(item.status)}>{item.status}</AdminBadge>
-            <AdminBadge>{item.source}</AdminBadge>
+            <AdminBadge>{BOARD_LABELS[item.source as keyof typeof BOARD_LABELS] ?? item.source}</AdminBadge>
             <span>score {item.priorityScore}</span>
             {item.remote ? <AdminBadge tone="accent">remote</AdminBadge> : null}
+            {item.stackMatches.length ? (
+              <span className="flex flex-wrap gap-1">
+                {item.stackMatches.slice(0, 6).map((skill) => (
+                  <AdminBadge key={skill} tone="accent">
+                    {skill}
+                  </AdminBadge>
+                ))}
+              </span>
+            ) : null}
             {item.visaLanguage ? <AdminBadge tone="ok">visa language</AdminBadge> : null}
             {item.citizenshipRequirement ? <AdminBadge tone="warn">citizenship</AdminBadge> : null}
             {item.location ? <span>{item.location}</span> : null}

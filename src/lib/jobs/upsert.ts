@@ -1,13 +1,17 @@
 import { CompanyWatchModel, JobListingModel } from "@/models";
 import { canonicalKey, clipText, normalizeApplyUrl, titleCompanyLocationHash } from "@/lib/jobs/canonical";
 import type { NormalizedJob } from "@/lib/jobs/normalize";
-import { isSoftwareRole } from "@/lib/jobs/role-filter";
 import { scoreListing } from "@/lib/jobs/score";
+import type { StackTerm } from "@/lib/jobs/stack";
+import { matchStack } from "@/lib/jobs/stack";
 import type { AdapterError } from "@/types/job-search";
 
 const LOCKED_STATUSES = new Set(["saved", "skipped", "drafted", "applied", "hidden"]);
 
-export async function upsertJobs(jobs: NormalizedJob[]): Promise<{
+export async function upsertJobs(
+  jobs: NormalizedJob[],
+  terms: StackTerm[],
+): Promise<{
   added: number;
   updated: number;
   skippedRole: number;
@@ -25,13 +29,10 @@ export async function upsertJobs(jobs: NormalizedJob[]): Promise<{
       skippedInvalid += 1;
       continue;
     }
-    if (!isSoftwareRole(title)) {
-      skippedRole += 1;
-      continue;
-    }
 
     const company = job.company.trim() || job.boardToken || job.source;
     const location = job.location.trim();
+    const stackMatches = matchStack(`${title}\n${job.descriptionText}\n${location}`, terms);
     const hash = titleCompanyLocationHash(title, company, location);
     const key = canonicalKey({
       applyUrl,
@@ -47,6 +48,7 @@ export async function upsertJobs(jobs: NormalizedJob[]): Promise<{
       location,
       descriptionText: job.descriptionText,
       remote: job.remote,
+      stackMatches,
     });
 
     const existing = await JobListingModel.findOne({
@@ -69,6 +71,7 @@ export async function upsertJobs(jobs: NormalizedJob[]): Promise<{
         postedAt: job.postedAt,
         titleCompanyLocationHash: hash,
         ...scored,
+        stackMatches,
         status: "seen",
       });
       added += 1;
@@ -85,6 +88,7 @@ export async function upsertJobs(jobs: NormalizedJob[]): Promise<{
       existing.eligibilityNotes = scored.eligibilityNotes;
       existing.visaLanguage = scored.visaLanguage;
       existing.citizenshipRequirement = scored.citizenshipRequirement;
+      existing.stackMatches = stackMatches;
       existing.remote = existing.remote || job.remote;
       if (job.postedAt) existing.postedAt = job.postedAt;
     }

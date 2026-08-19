@@ -29,7 +29,7 @@ export async function fetchRemoteOkJobs(): Promise<NormalizedJob[]> {
 }
 
 export async function fetchRemotiveJobs(): Promise<NormalizedJob[]> {
-  const data = await fetchJobJson<Record<string, unknown>>("https://remotive.com/api/remote-jobs?category=software-dev");
+  const data = await fetchJobJson<Record<string, unknown>>("https://remotive.com/api/remote-jobs");
   return asList(data.jobs).map((item) => {
     const row = asRecord(item);
     const location = text(row.candidate_required_location, 200);
@@ -114,7 +114,7 @@ function rssField(block: string, tag: string) {
 }
 
 export async function fetchWeWorkRemotelyJobs(): Promise<NormalizedJob[]> {
-  const result = await fetchJobFeed("https://weworkremotely.com/categories/remote-programming-jobs.rss");
+  const result = await fetchJobFeed("https://weworkremotely.com/remote-jobs.rss");
   if (!result.ok) throw new Error(result.error);
   return rssItems(result.text).map((block) => {
     const titleRaw = stripHtml(rssField(block, "title"));
@@ -142,7 +142,7 @@ export async function fetchUsaJobs(): Promise<NormalizedJob[]> {
   const key = process.env.USAJOBS_API_KEY!.trim();
   const agent = process.env.USAJOBS_USER_AGENT!.trim();
   const url =
-    "https://data.usajobs.gov/api/search?Keyword=software%20engineer&ResultsPerPage=50&SortField=opendate&SortDirection=desc";
+    "https://data.usajobs.gov/api/search?ResultsPerPage=50&SortField=opendate&SortDirection=desc";
   const data = await fetchJobJson<Record<string, unknown>>(url, {
     headers: {
       Host: "data.usajobs.gov",

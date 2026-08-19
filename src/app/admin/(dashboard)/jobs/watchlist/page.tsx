@@ -22,8 +22,8 @@ export default async function WatchlistPage() {
     <div className="space-y-6">
       <AdminPageHeader
         eyebrow="Jobs"
-        title="Company watchlist"
-        description="Public Greenhouse, Lever, Ashby (and other ATS) board tokens. No API keys. Tokens change — re-verify if a poll errors."
+        title="Company ATS (optional)"
+        description="Only used if you turn on “Also poll optional company ATS tokens” on Job search. Discovery is job-board-first; this is extra Greenhouse/Lever/Ashby tokens, not a required company list."
         actions={<AdminLink href="/admin/jobs">Back to listings</AdminLink>}
       />
       <WatchlistManager items={items} />

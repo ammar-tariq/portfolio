@@ -14,15 +14,30 @@ import {
 import { sleep } from "@/lib/jobs/http";
 import { pushAdapterError, upsertJobs } from "@/lib/jobs/upsert";
 import { watchFromDoc } from "@/lib/jobs/from-doc";
-import type { AdapterError, JobPollResult, WatchAts } from "@/types/job-search";
+import type { AdapterError, BoardSource, JobPollResult, WatchAts } from "@/types/job-search";
+import { BOARD_SOURCES, DEFAULT_ENABLED_BOARDS } from "@/types/job-search";
+import { getSiteContentForParams } from "@/lib/content";
+import { stackTermsFromContent, type StackTerm } from "@/lib/jobs/stack";
 import type { NormalizedJob } from "@/lib/jobs/normalize";
+
+function normalizeEnabledBoards(value: unknown): BoardSource[] {
+  const allowed = new Set<string>(BOARD_SOURCES);
+  const list = Array.isArray(value) ? value.map(String) : [];
+  const enabled = list.filter((id): id is BoardSource => allowed.has(id));
+  return enabled.length ? enabled : [...DEFAULT_ENABLED_BOARDS];
+}
 
 const DELAY_MS = 250;
 const MAX_JOBS_PER_ADAPTER = 180;
 const WATCHES_PER_RUN = 8;
 
-async function ingest(jobs: NormalizedJob[]) {
-  return upsertJobs(jobs.slice(0, MAX_JOBS_PER_ADAPTER));
+async function ingest(jobs: NormalizedJob[], terms: StackTerm[]) {
+  return upsertJobs(jobs.slice(0, MAX_JOBS_PER_ADAPTER), terms);
+}
+
+async function loadStackTerms() {
+  const content = await getSiteContentForParams();
+  return stackTermsFromContent(content);
 }
 
 export async function pollWatchById(
@@ -33,8 +48,9 @@ export async function pollWatchById(
   const watch = await CompanyWatchModel.findById(id);
   if (!watch) return { ok: false, error: "Watchlist board not found." };
   try {
+    const terms = await loadStackTerms();
     const jobs = await fetchWatchJobs(watch.ats as WatchAts, String(watch.token), String(watch.name));
-    const result = await ingest(jobs);
+    const result = await ingest(jobs, terms);
     watch.lastPolledAt = new Date();
     watch.lastError = "";
     await watch.save();
@@ -71,9 +87,12 @@ async function enrichNewListings(limit = 8) {
   for (const doc of docs) {
     try {
       const result = await generateGeminiJson(
-        `You score a job listing for a software engineer based in Pakistan who will take remote or relocate.
-Never exclude a job. Return JSON:
-{"priorityDelta": number between -15 and 15, "visaLanguage": boolean, "citizenshipRequirement": boolean, "notes": "one short sentence"}
+        `You score a job listing for an applicant based in Pakistan who will take remote work or relocate.
+Prefer roles that match this tech stack: ${
+          Array.isArray(doc.stackMatches) ? doc.stackMatches.slice(0, 12).join(", ") : "see JD"
+        }.
+Never exclude a job only for location. Return JSON:
+{"priorityDelta": number between -15 and 15, "visaLanguage": boolean, "citizenshipRequirement": boolean, "notes": "one short sentence about stack fit and eligibility"}
 Title: ${String(doc.title)}
 Company: ${String(doc.company)}
 Location: ${String(doc.location)}
@@ -100,52 +119,63 @@ export async function pollJobSources(): Promise<JobPollResult | { ok: false; err
   if (!hasMongo()) return { ok: false, error: "MongoDB is not configured." };
   await connectDb();
 
+  const terms = await loadStackTerms();
   const errors: AdapterError[] = [];
   let added = 0;
   let updated = 0;
   let skippedRole = 0;
 
-  const boards: { name: string; run: () => Promise<NormalizedJob[]> }[] = [
+  const saved = await JobPollStateModel.findById("jobs").lean();
+  const enabled = normalizeEnabledBoards((saved as { enabledBoards?: unknown } | null)?.enabledBoards);
+  const includeCompanyAts = Boolean((saved as { includeCompanyAts?: boolean } | null)?.includeCompanyAts);
+
+  const boardRuns: { name: BoardSource; run: () => Promise<NormalizedJob[]> }[] = [
     { name: "remote-ok", run: fetchRemoteOkJobs },
     { name: "remotive", run: fetchRemotiveJobs },
     { name: "himalayas", run: fetchHimalayasJobs },
     { name: "arbeitnow", run: fetchArbeitnowJobs },
     { name: "we-work-remotely", run: fetchWeWorkRemotelyJobs },
   ];
-  if (hasUsajobs()) boards.push({ name: "usajobs", run: fetchUsaJobs });
+  if (hasUsajobs()) boardRuns.push({ name: "usajobs", run: fetchUsaJobs });
 
-  for (const board of boards) {
-    const jobs = await collect(board.name, errors, board.run);
-    const result = await ingest(jobs);
+  for (const board of boardRuns) {
+    if (!enabled.includes(board.name)) continue;
+    const result = await ingest(jobs, terms);
     added += result.added;
     updated += result.updated;
     skippedRole += result.skippedRole;
     await sleep(DELAY_MS);
   }
 
-  const state = await JobPollStateModel.findById("jobs").lean();
-  const watches = (await CompanyWatchModel.find({ enabled: true }).sort({ name: 1 }).lean()).map(watchFromDoc);
-  const start = Number((state as { lastWatchIndex?: number } | null)?.lastWatchIndex) || 0;
-  const batch = watches.length <= WATCHES_PER_RUN
-    ? watches
-    : Array.from({ length: Math.min(WATCHES_PER_RUN, watches.length) }, (_, i) => watches[(start + i) % watches.length]);
-  const nextIndex = watches.length ? (start + batch.length) % watches.length : 0;
+  let nextIndex = Number((saved as { lastWatchIndex?: number } | null)?.lastWatchIndex) || 0;
+  if (includeCompanyAts) {
+    const watches = (await CompanyWatchModel.find({ enabled: true }).sort({ name: 1 }).lean()).map(watchFromDoc);
+    const start = nextIndex;
+    const batch =
+      watches.length <= WATCHES_PER_RUN
+        ? watches
+        : Array.from({ length: Math.min(WATCHES_PER_RUN, watches.length) }, (_, i) => watches[(start + i) % watches.length]);
+    nextIndex = watches.length ? (start + batch.length) % watches.length : 0;
 
-  for (const watch of batch) {
-    if (!watch) continue;
-    try {
-      const jobs = await fetchWatchJobs(watch.ats as WatchAts, watch.token, watch.name);
-      const result = await ingest(jobs);
-      added += result.added;
-      updated += result.updated;
-      skippedRole += result.skippedRole;
-      await CompanyWatchModel.findByIdAndUpdate(watch.id, { lastPolledAt: new Date(), lastError: "" });
-    } catch (error) {
-      const message = error instanceof Error ? error.message : "Poll failed.";
-      pushAdapterError(errors, `${watch.ats}:${watch.token}`, message);
-      await CompanyWatchModel.findByIdAndUpdate(watch.id, { lastPolledAt: new Date(), lastError: message.slice(0, 400) });
+    for (const watch of batch) {
+      if (!watch) continue;
+      try {
+        const jobs = await fetchWatchJobs(watch.ats as WatchAts, watch.token, watch.name);
+        const result = await ingest(jobs, terms);
+        added += result.added;
+        updated += result.updated;
+        skippedRole += result.skippedRole;
+        await CompanyWatchModel.findByIdAndUpdate(watch.id, { lastPolledAt: new Date(), lastError: "" });
+      } catch (error) {
+        const message = error instanceof Error ? error.message : "Poll failed.";
+        pushAdapterError(errors, `${watch.ats}:${watch.token}`, message);
+        await CompanyWatchModel.findByIdAndUpdate(watch.id, {
+          lastPolledAt: new Date(),
+          lastError: message.slice(0, 400),
+        });
+      }
+      await sleep(DELAY_MS);
     }
-    await sleep(DELAY_MS);
   }
 
   await enrichNewListings();

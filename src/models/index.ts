@@ -370,6 +370,7 @@ const jobListingSchema = new Schema(
     eligibilityNotes: { type: String, default: "" },
     visaLanguage: { type: Boolean, default: false },
     citizenshipRequirement: { type: Boolean, default: false },
+    stackMatches: { type: [String], default: [] },
     status: {
       type: String,
       enum: ["seen", "saved", "skipped", "drafted", "applied", "hidden"],
@@ -400,6 +401,8 @@ const jobPollStateSchema = new Schema(
     lastUpdated: { type: Number, default: 0 },
     lastSkippedRole: { type: Number, default: 0 },
     lastWatchIndex: { type: Number, default: 0 },
+    enabledBoards: { type: [String], default: ["remote-ok", "remotive", "himalayas", "arbeitnow", "we-work-remotely"] },
+    includeCompanyAts: { type: Boolean, default: false },
   },
   { timestamps: true },
 );

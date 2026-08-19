@@ -34,9 +34,9 @@ export function JobPollButton({
       return;
     }
     setMessage(
-      `Added ${result.added}, updated ${result.updated}, skipped ${result.skippedRole} non-engineering titles${
-        result.errors ? `, ${result.errors} source errors` : ""
-      }.`,
+      `Added ${result.added}, updated ${result.updated}${
+        result.skippedRole ? `, skipped ${result.skippedRole} off-stack` : ""
+      }${result.errors ? `, ${result.errors} source errors` : ""}.`,
     );
     router.refresh();
   }
@@ -45,7 +45,7 @@ export function JobPollButton({
     <div className="rounded-xl border border-line bg-bg-elevated/40 p-5">
       <p className="text-sm font-medium">Discovery poll</p>
       <p className="mt-1 text-sm text-muted">
-        Pulls public ATS boards from your watchlist plus remote feeds. Nothing is submitted. Rank only — US-only roles stay listed.
+        Pulls the job boards you enabled and keeps roles that match your site skills. Nothing is submitted.
       </p>
       <div className="mt-4 flex flex-wrap items-center gap-3">
         <AdminButton type="button" variant="secondary" onClick={() => void onPoll()} disabled={busy}>

@@ -34,7 +34,7 @@ const groups = [
     title: "Jobs",
     items: [
       { href: "/admin/jobs", label: "Job search", icon: Radar, exact: true },
-      { href: "/admin/jobs/watchlist", label: "Watchlist", icon: ListChecks },
+      { href: "/admin/jobs/watchlist", label: "Company ATS", icon: ListChecks },
       { href: "/admin/applications", label: "Applications", icon: Briefcase },
       { href: "/admin/apply", label: "New application", icon: Plus },
     ],
@@ -73,7 +73,7 @@ function currentLabel(pathname: string) {
   }
   if (pathname.startsWith("/admin/projects")) return "Projects";
   if (pathname.startsWith("/admin/applications")) return "Applications";
-  if (pathname.startsWith("/admin/jobs/watchlist")) return "Watchlist";
+  if (pathname.startsWith("/admin/jobs/watchlist")) return "Company ATS";
   if (pathname.startsWith("/admin/jobs")) return "Job search";
   return "Admin";
 }

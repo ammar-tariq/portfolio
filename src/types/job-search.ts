@@ -23,6 +23,23 @@ export const BOARD_SOURCES = [
 
 export type BoardSource = (typeof BOARD_SOURCES)[number];
 
+export const BOARD_LABELS: Record<BoardSource, string> = {
+  "remote-ok": "Remote OK",
+  remotive: "Remotive",
+  himalayas: "Himalayas",
+  arbeitnow: "Arbeitnow",
+  "we-work-remotely": "We Work Remotely",
+  usajobs: "USAJOBS",
+};
+
+export const DEFAULT_ENABLED_BOARDS: BoardSource[] = [
+  "remote-ok",
+  "remotive",
+  "himalayas",
+  "arbeitnow",
+  "we-work-remotely",
+];
+
 export type JobSource = WatchAts | BoardSource;
 
 export const LISTING_STATUSES = ["seen", "saved", "skipped", "drafted", "applied", "hidden"] as const;
@@ -60,6 +77,7 @@ export type JobListing = {
   eligibilityNotes: string;
   visaLanguage: boolean;
   citizenshipRequirement: boolean;
+  stackMatches: string[];
   status: ListingStatus;
   applicationId?: string;
   updatedAt?: string;
@@ -77,6 +95,8 @@ export type JobPollState = {
   lastAdded: number;
   lastUpdated: number;
   lastSkippedRole: number;
+  enabledBoards: BoardSource[];
+  includeCompanyAts: boolean;
 };
 
 export type JobPollResult = {
