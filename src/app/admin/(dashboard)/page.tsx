@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { getAnalytics } from "@/lib/analytics";
 import { VisitorMap } from "@/components/admin/visitor-map";
-import { googleAnalyticsId } from "@/lib/env";
+import { googleMapsApiKey } from "@/lib/env";
 import { AdminPageHeader, AdminPanel } from "@/components/admin/admin-ui";
 
 export const dynamic = "force-dynamic";
@@ -34,13 +34,8 @@ export default async function AdminHomePage() {
           {stats.geoUnavailable
             ? " Localhost and private IPs cannot be geolocated — this fills in on the live site."
             : null}
-          {googleAnalyticsId()
-            ? " Google Analytics is also enabled via GA_MEASUREMENT_ID."
-            : " First-party only unless GA_MEASUREMENT_ID is set."}
         </p>
-        <div className="mt-4">
-          <VisitorMap points={stats.cities} />
-        </div>
+        <VisitorMap points={stats.cities} apiKey={googleMapsApiKey()} />
       </AdminPanel>
 
       <div className="grid gap-6 md:grid-cols-2">

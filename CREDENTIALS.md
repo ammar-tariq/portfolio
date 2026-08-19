@@ -23,6 +23,7 @@ After changing `.env`, restart `npm run dev` or the production container.
 | `GEMINI_MODEL` | no | Default `gemini-2.5-flash` |
 | `GTM_CONTAINER_ID` | no | Tag Manager (skipped if GA4 is set) |
 | `GA_MEASUREMENT_ID` | no | GA4 gtag; if set, GTM is not injected |
+| `GOOGLE_MAPS_API_KEY` | no | Admin dashboard visitor map |
 | `SMTP_*` / `NOTIFY_*` | no | Visit emails; SMTP send fallback |
 | `FIREBASE_*` | no | Admin push (visits, digest, application replies) |
 | `GMAIL_CLIENT_*` / `GMAIL_REFRESH_TOKEN` / `GMAIL_USER` | no | Send applications + sync replies |
@@ -493,7 +494,25 @@ Do **not** create LinkedIn, Indeed, Greenhouse Job Board (apply) keys, or spray-
 
 ---
 
-## 13. Search Console / Bing (not env)
+## 13. Google Maps (optional admin visitor map)
+
+Used only on **Admin → Dashboard**. City dots still come from first-party IP lookup. This key is **not** `GA_MEASUREMENT_ID`.
+
+1. Open [Google Cloud Console](https://console.cloud.google.com/)
+2. Enable billing on the project
+3. Enable **Maps JavaScript API**
+4. **Credentials** → **Create credentials** → **API key**
+5. Restrict the key: HTTP referrers (`http://localhost:3000/*` and `https://YOUR-DOMAIN/*`) and only **Maps JavaScript API**
+
+```env
+GOOGLE_MAPS_API_KEY=AIza...
+```
+
+Restart `npm run dev` after adding it. The key is passed only into the signed-in admin page (no `NEXT_PUBLIC_*`).
+
+---
+
+## 14. Search Console / Bing (not env)
 
 Paste verification tokens in **Admin → SEO**. They live in Mongo, not `.env`. Then submit `https://your-domain.com/sitemap.xml`.
 

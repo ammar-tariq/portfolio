@@ -76,3 +76,7 @@ export function notifyDigestHour() {
 export function hasUsajobs() {
   return Boolean(process.env.USAJOBS_API_KEY?.trim() && process.env.USAJOBS_USER_AGENT?.trim());
 }
+
+export function googleMapsApiKey() {
+  return process.env.GOOGLE_MAPS_API_KEY?.trim() ?? "";
+}

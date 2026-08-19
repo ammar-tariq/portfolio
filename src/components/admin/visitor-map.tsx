@@ -1,166 +1,119 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+
 type Point = { city: string; country?: string; lat?: number; lng?: number; count: number };
 
-const RINGS: [number, number][][] = [
-  [
-    [-168, 71],
-    [-141, 70],
-    [-141, 60],
-    [-130, 55],
-    [-125, 49],
-    [-95, 49],
-    [-84, 46],
-    [-67, 47],
-    [-66, 44],
-    [-80, 31],
-    [-97, 26],
-    [-97, 18],
-    [-110, 23],
-    [-117, 32],
-    [-125, 38],
-    [-124, 48],
-    [-153, 59],
-    [-166, 64],
-    [-168, 71],
-  ],
-  [
-    [-73, 77],
-    [-20, 81],
-    [-22, 70],
-    [-44, 60],
-    [-73, 77],
-  ],
-  [
-    [-81, 12],
-    [-60, 8],
-    [-50, 0],
-    [-35, -7],
-    [-35, -23],
-    [-55, -35],
-    [-68, -55],
-    [-75, -45],
-    [-81, -5],
-    [-81, 12],
-  ],
-  [
-    [-10, 36],
-    [-9, 43],
-    [-5, 48],
-    [-5, 58],
-    [5, 59],
-    [12, 55],
-    [24, 60],
-    [30, 70],
-    [32, 60],
-    [29, 45],
-    [18, 40],
-    [12, 36],
-    [-10, 36],
-  ],
-  [
-    [-10, 51],
-    [-1, 51],
-    [-2, 58],
-    [-6, 58],
-    [-10, 51],
-  ],
-  [
-    [-17, 32],
-    [-5, 36],
-    [10, 37],
-    [32, 31],
-    [43, 11],
-    [51, 11],
-    [40, -15],
-    [32, -25],
-    [20, -35],
-    [18, -34],
-    [12, -17],
-    [8, 5],
-    [-15, 10],
-    [-17, 32],
-  ],
-  [
-    [43, -12],
-    [50, -13],
-    [47, -25],
-    [43, -25],
-    [43, -12],
-  ],
-  [
-    [32, 60],
-    [40, 70],
-    [90, 75],
-    [140, 71],
-    [160, 65],
-    [180, 62],
-    [180, 10],
-    [145, 12],
-    [100, 6],
-    [77, 8],
-    [68, 24],
-    [60, 25],
-    [45, 40],
-    [32, 45],
-    [32, 60],
-  ],
-  [
-    [114, -22],
-    [114, -35],
-    [135, -38],
-    [153, -28],
-    [153, -12],
-    [142, -11],
-    [126, -14],
-    [114, -22],
-  ],
-  [
-    [167, -34],
-    [178, -37],
-    [177, -47],
-    [166, -46],
-    [167, -34],
-  ],
-  [
-    [-180, -72],
-    [0, -70],
-    [180, -72],
-    [180, -85],
-    [-180, -85],
-    [-180, -72],
-  ],
+const DARK_STYLES = [
+  { elementType: "geometry", stylers: [{ color: "#1c1f24" }] },
+  { elementType: "labels.text.stroke", stylers: [{ color: "#1c1f24" }] },
+  { elementType: "labels.text.fill", stylers: [{ color: "#8b919a" }] },
+  { featureType: "administrative", elementType: "geometry.stroke", stylers: [{ color: "#3a4048" }] },
+  { featureType: "administrative.country", elementType: "labels.text.fill", stylers: [{ color: "#9aa3ad" }] },
+  { featureType: "landscape.natural", elementType: "geometry", stylers: [{ color: "#22262c" }] },
+  { featureType: "poi", stylers: [{ visibility: "off" }] },
+  { featureType: "road", stylers: [{ visibility: "off" }] },
+  { featureType: "transit", stylers: [{ visibility: "off" }] },
+  { featureType: "water", elementType: "geometry", stylers: [{ color: "#0e1218" }] },
+  { featureType: "water", elementType: "labels.text.fill", stylers: [{ color: "#4b5560" }] },
 ];
 
-function ringPath(ring: [number, number][]) {
-  return `${ring.map(([lng, lat], index) => `${index ? "L" : "M"}${lng + 180} ${90 - lat}`).join(" ")} Z`;
+let mapsPromise: Promise<void> | null = null;
+
+function loadGoogleMaps(apiKey: string) {
+  if (typeof window === "undefined") return Promise.reject(new Error("Maps needs a browser."));
+  if (window.google?.maps?.Map) return Promise.resolve();
+  if (mapsPromise) return mapsPromise;
+  mapsPromise = new Promise((resolve, reject) => {
+    const existing = document.querySelector<HTMLScriptElement>("script[data-google-maps]");
+    if (existing) {
+      existing.addEventListener("load", () => resolve(), { once: true });
+      existing.addEventListener(
+        "error",
+        () => {
+          mapsPromise = null;
+          reject(new Error("Maps script failed to load."));
+        },
+        { once: true },
+      );
+      return;
+    }
+    const script = document.createElement("script");
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(apiKey)}`;
+    script.async = true;
+    script.defer = true;
+    script.dataset.googleMaps = "1";
+    script.onload = () => resolve();
+    script.onerror = () => {
+      mapsPromise = null;
+      reject(new Error("Maps script failed to load. Check the key, Maps JavaScript API, billing, and HTTP referrers."));
+    };
+    document.head.appendChild(script);
+  });
+  return mapsPromise;
 }
 
-export function VisitorMap({ points }: { points: Point[] }) {
+export function VisitorMap({ points, apiKey }: { points: Point[]; apiKey: string }) {
+  const el = useRef<HTMLDivElement>(null);
+  const [error, setError] = useState("");
   const dots = points.filter((point) => typeof point.lat === "number" && typeof point.lng === "number");
-  const max = Math.max(1, ...dots.map((point) => point.count));
+  const dotsKey = dots.map((point) => `${point.city}:${point.lat}:${point.lng}:${point.count}`).join("|");
+
+  useEffect(() => {
+    if (!apiKey) {
+      setError("Add GOOGLE_MAPS_API_KEY to .env and restart npm run dev.");
+      return;
+    }
+    const mapped = points.filter((point) => typeof point.lat === "number" && typeof point.lng === "number");
+    let cancelled = false;
+    void loadGoogleMaps(apiKey)
+      .then(() => {
+        if (cancelled || !el.current || !window.google?.maps?.Map) return;
+        const map = new window.google.maps.Map(el.current, {
+          center: { lat: 20, lng: 12 },
+          zoom: 2,
+          minZoom: 2,
+          disableDefaultUI: true,
+          zoomControl: true,
+          gestureHandling: "greedy",
+          backgroundColor: "#0e1218",
+          styles: DARK_STYLES,
+        });
+        const bounds = new window.google.maps.LatLngBounds();
+        for (const point of mapped) {
+          const position = { lat: point.lat as number, lng: point.lng as number };
+          new window.google.maps.Marker({
+            map,
+            position,
+            title: `${point.city || point.country || "Unknown"} (${point.count})`,
+          });
+          bounds.extend(position);
+        }
+        if (mapped.length === 1) {
+          map.setCenter({ lat: mapped[0]?.lat as number, lng: mapped[0]?.lng as number });
+          map.setZoom(6);
+        } else if (mapped.length > 1) {
+          map.fitBounds(bounds, 64);
+        }
+      })
+      .catch((cause) => {
+        if (!cancelled) setError(cause instanceof Error ? cause.message : "Maps failed to load.");
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [apiKey, dotsKey, points]);
+
   return (
-    <div className="relative mt-4 aspect-[2/1] overflow-hidden rounded-3xl border border-line bg-bg-soft">
-      <svg viewBox="0 0 360 180" className="h-full w-full" role="img" aria-label="Visitor map">
-        <rect width="360" height="180" className="fill-bg" />
-        {RINGS.map((ring, index) => (
-          <path key={index} d={ringPath(ring)} className="fill-accent/20 stroke-accent/35" strokeWidth="0.4" />
-        ))}
-        {dots.map((point) => {
-          const radius = 1.4 + (point.count / max) * 2.2;
-          return (
-            <circle
-              key={`${point.city}-${point.lat}-${point.lng}`}
-              cx={(point.lng ?? 0) + 180}
-              cy={90 - (point.lat ?? 0)}
-              r={radius}
-              className="fill-accent"
-            >
-              <title>{`${point.city || point.country || "Unknown"} (${point.count})`}</title>
-            </circle>
-          );
-        })}
-      </svg>
-      {dots.length === 0 ? (
+    <div className="relative mt-4 aspect-[2/1] overflow-hidden rounded-xl border border-line bg-bg">
+      <div ref={el} className="h-full min-h-72 w-full" />
+      {error ? (
         <p className="pointer-events-none absolute inset-0 flex items-center justify-center px-6 text-center text-sm text-muted">
+          {error}
+        </p>
+      ) : null}
+      {!error && dots.length === 0 ? (
+        <p className="pointer-events-none absolute inset-x-0 bottom-3 px-6 text-center text-sm text-muted">
           No public-IP city dots yet. Localhost and Docker IPs cannot be placed on the map.
         </p>
       ) : null}

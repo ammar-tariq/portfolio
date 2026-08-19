@@ -62,6 +62,8 @@ Server-only (never `NEXT_PUBLIC_`):
 | `GEMINI_MODEL` | no | Defaults to `gemini-2.5-flash` |
 | `NOTIFY_EMAIL` / `NOTIFY_FROM` / `SMTP_*` | no | Visit summary email |
 | `USAJOBS_API_KEY` / `USAJOBS_USER_AGENT` | no | Optional USAJOBS search in `/admin/jobs` |
+| `GA_MEASUREMENT_ID` | no | GA4 |
+| `GOOGLE_MAPS_API_KEY` | no | Admin visitor map (Maps JavaScript API) |
 | `JOB_POLL_LOOP` | no | `1` in `next dev`; production polls unless `0` |
 
 There are no `NEXT_PUBLIC_` variables. Site URL in HTML/SEO comes from content (`profile.website` in Mongo or `src/data/profile.ts`).
