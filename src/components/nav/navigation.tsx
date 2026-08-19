@@ -11,7 +11,7 @@ import Link from "next/link";
 import { cn } from "@/lib/cn";
 import { easeOutExpo } from "@/lib/motion";
 import { HOME_SECTIONS } from "@/lib/home-sections";
-import { handleHomeSectionClick } from "@/lib/section-nav";
+import { handleHomeSectionClick, syncHomeSectionUrl } from "@/lib/section-nav";
 
 export function Navigation() {
   const { setCommandOpen } = useSite();
@@ -32,14 +32,26 @@ export function Navigation() {
 
   useEffect(() => {
     const ids = HOME_SECTIONS.map((section) => section.id);
+    const ratios = new Map<string, number>();
     const observer = new IntersectionObserver(
       (entries) => {
-        const visible = entries
-          .filter((entry) => entry.isIntersecting)
-          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
-        if (visible?.target.id) setActive(visible.target.id);
+        for (const entry of entries) {
+          if (entry.isIntersecting) ratios.set(entry.target.id, entry.intersectionRatio);
+          else ratios.delete(entry.target.id);
+        }
+        let bestId = "";
+        let bestRatio = -1;
+        for (const [id, ratio] of ratios) {
+          if (ratio > bestRatio) {
+            bestRatio = ratio;
+            bestId = id;
+          }
+        }
+        if (!bestId) return;
+        setActive(bestId);
+        syncHomeSectionUrl(bestId);
       },
-      { rootMargin: "-35% 0px -50% 0px", threshold: [0.1, 0.25, 0.5] },
+      { rootMargin: "-28% 0px -52% 0px", threshold: [0.08, 0.18, 0.32, 0.5, 0.72] },
     );
     ids.forEach((id) => {
       const el = document.getElementById(id);
