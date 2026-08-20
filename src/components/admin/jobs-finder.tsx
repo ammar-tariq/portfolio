@@ -2,10 +2,15 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { Loader2 } from "lucide-react";
 import { enrichJobListings, runJobPoll, saveJobBoardSettings } from "@/app/admin/job-actions";
 import { AdminButton } from "@/components/admin/admin-ui";
 import { BOARD_LABELS, BOARD_SOURCES, type BoardSource } from "@/types/job-search";
 import { cn } from "@/lib/cn";
+
+function Spinner() {
+  return <Loader2 className="h-4 w-4 animate-spin" />;
+}
 
 export function JobsFinder({
   enabledBoards,
@@ -80,6 +85,12 @@ export function JobsFinder({
     router.refresh();
   }
 
+  function confirmScore() {
+    if (busy !== "" || cooldown > 0 || !canEnrich) return;
+    const ok = window.confirm("Score new listings with AI?\n\nThis uses your Gemini request budget (a few requests).");
+    if (ok) void onScore();
+  }
+
   return (
     <div className="rounded-xl border border-line bg-bg-elevated/40 p-5">
       <p className="text-sm text-muted">
@@ -108,15 +119,17 @@ export function JobsFinder({
       </div>
       <div className="mt-5 flex flex-wrap items-center gap-4">
         <AdminButton type="button" variant="primary" disabled={busy !== ""} onClick={() => void onFind()}>
+          {busy === "find" ? <Spinner /> : null}
           {busy === "find" ? "Searching…" : "Find jobs"}
         </AdminButton>
         <AdminButton
           type="button"
           variant="secondary"
           disabled={busy !== "" || !canEnrich || cooldown > 0}
-          onClick={() => void onScore()}
+          onClick={confirmScore}
           title={canEnrich ? undefined : "Add GEMINI_API_KEY to enable AI scoring"}
         >
+          {busy === "score" ? <Spinner /> : null}
           {busy === "score" ? "Scoring…" : cooldown > 0 ? `Score with AI (${cooldown}s)` : "Score with AI"}
         </AdminButton>
         <label className="flex items-center gap-2 text-sm text-muted">

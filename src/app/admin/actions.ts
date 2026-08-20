@@ -31,6 +31,7 @@ import { hasApplicationMail, sendApplicationMail } from "@/lib/gmail-send";
 import { slugify } from "@/lib/project-helpers";
 import { destroyImage } from "@/lib/cloudinary";
 import { fetchPublicJobPage, type SharedJob } from "@/lib/job-posting";
+import { formatGeminiError, parseRetrySeconds } from "@/lib/gemini-error";
 import type { ArchitectureContent, Industry, Project, SiteSettings } from "@/types/content";
 import { draftProjectWithGemini, rewriteProjectFieldWithGemini, type ProjectCopyField } from "@/lib/draft-project";
 import { rewriteArchitectureSectionWithGemini, type ArchitectureSection } from "@/lib/draft-architecture";
@@ -46,6 +47,12 @@ import type { ApplicationStatus } from "@/types/application";
 async function ready() {
   await requireAdmin();
   await connectDb();
+}
+
+function geminiErrorResult(error: unknown, fallback: string): { ok: false; error: string; retrySeconds?: number } {
+  const message = error instanceof Error ? error.message : fallback;
+  const retrySeconds = parseRetrySeconds(message) ?? undefined;
+  return { ok: false, error: formatGeminiError(message), retrySeconds };
 }
 
 export async function draftProject(
@@ -360,7 +367,7 @@ export async function generateJobApplication(input: {
   jd: string;
   aboutCompany?: string;
   extraQuestions?: string;
-}): Promise<{ ok: true; id: string } | { ok: false; error: string }> {
+}): Promise<{ ok: true; id: string } | { ok: false; error: string; retrySeconds?: number }> {
   await ready();
   try {
     const content = await getSiteContentForParams();
@@ -397,8 +404,7 @@ export async function generateJobApplication(input: {
     revalidateApplications(id);
     return { ok: true, id };
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Could not generate the application.";
-    return { ok: false, error: message };
+    return geminiErrorResult(error, "Could not generate the application.");
   }
 }
 
@@ -445,7 +451,7 @@ export async function fetchJobPosting(
 
 export async function generateExistingJobApplication(
   id: string,
-): Promise<{ ok: true } | { ok: false; error: string }> {
+): Promise<{ ok: true } | { ok: false; error: string; retrySeconds?: number }> {
   await ready();
   try {
     const doc = await JobApplicationModel.findById(id);
@@ -474,15 +480,14 @@ export async function generateExistingJobApplication(
     revalidateApplications(id);
     return { ok: true };
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Could not generate the application.";
-    return { ok: false, error: message };
+    return geminiErrorResult(error, "Could not generate the application.");
   }
 }
 
 export async function answerApplicationQuestions(
   id: string,
   questions: string,
-): Promise<{ ok: true } | { ok: false; error: string }> {
+): Promise<{ ok: true } | { ok: false; error: string; retrySeconds?: number }> {
   await ready();
   try {
     const doc = await JobApplicationModel.findById(id);
@@ -501,8 +506,7 @@ export async function answerApplicationQuestions(
     revalidateApplications(id);
     return { ok: true };
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Could not answer those questions.";
-    return { ok: false, error: message };
+    return geminiErrorResult(error, "Could not answer those questions.");
   }
 }
 

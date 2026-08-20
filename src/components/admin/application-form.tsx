@@ -2,10 +2,15 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { Loader2 } from "lucide-react";
 import { fetchJobPosting, generateJobApplication, saveJobApplicationDraft } from "@/app/admin/actions";
 import { Field, TextArea, TextInput } from "@/components/admin/fields";
 import { AdminButton } from "@/components/admin/admin-ui";
 import type { SharedJob } from "@/lib/job-posting";
+
+function Spinner() {
+  return <Loader2 className="h-4 w-4 animate-spin" />;
+}
 
 function looksLikeUrl(value: string) {
   return /^https?:\/\/\S+$/i.test(value.trim());
@@ -33,6 +38,13 @@ export function ApplicationForm({
     initial?.jobUrl?.trim() && !initial?.jd ? "import" : null,
   );
   const [error, setError] = useState("");
+  const [cooldown, setCooldown] = useState(0);
+
+  useEffect(() => {
+    if (cooldown <= 0) return;
+    const timer = setInterval(() => setCooldown((value) => Math.max(0, value - 1)), 1000);
+    return () => clearInterval(timer);
+  }, [cooldown]);
 
   function applyShared(next: Partial<SharedJob>) {
     if (next.company) setCompany(next.company);
@@ -138,6 +150,7 @@ export function ApplicationForm({
     setBusy(null);
     if (!result.ok) {
       setError(result.error);
+      if (result.retrySeconds) setCooldown(result.retrySeconds);
       return;
     }
     router.push(`/admin/applications/${result.id}`);
@@ -216,10 +229,12 @@ export function ApplicationForm({
         />
       </Field>
       <div className="sticky bottom-3 z-10 flex flex-wrap items-center gap-2 rounded-xl border border-line bg-bg/90 p-2 backdrop-blur md:static md:border-0 md:bg-transparent md:p-0 md:backdrop-blur-none">
-        <AdminButton type="submit" variant="primary" disabled={busy !== null || !canGenerate} className="flex-1 md:flex-none">
-          {busy === "generate" ? "Generating…" : "Generate resume + letter"}
+        <AdminButton type="submit" variant="primary" disabled={busy !== null || !canGenerate || cooldown > 0} className="flex-1 md:flex-none">
+          {busy === "generate" ? <Spinner /> : null}
+          {busy === "generate" ? "Generating…" : cooldown > 0 ? `Generate resume + letter (wait ${cooldown}s)` : "Generate resume + letter"}
         </AdminButton>
         <AdminButton type="button" variant="secondary" onClick={() => void onDraft()} disabled={busy !== null}>
+          {busy === "draft" ? <Spinner /> : null}
           {busy === "draft" ? "Saving…" : "Save draft"}
         </AdminButton>
       </div>

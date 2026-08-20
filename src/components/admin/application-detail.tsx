@@ -1,11 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { Loader2 } from "lucide-react";
 import type { JobApplication } from "@/types/application";
 import { answerApplicationQuestions, deleteJobApplication, generateExistingJobApplication, sendJobApplication, setApplicationStatus } from "@/app/admin/actions";
 import { Field, TextArea, TextInput } from "@/components/admin/fields";
 import { emailBodyWithAnswers } from "@/lib/application-email";
+
+function Spinner({ className }: { className?: string }) {
+  return <Loader2 className={`h-4 w-4 animate-spin ${className ?? ""}`} />;
+}
 
 export function ApplicationDetail({
   application,
@@ -35,6 +40,13 @@ export function ApplicationDetail({
   const [busy, setBusy] = useState<"answers" | "delete" | "send" | "generate" | null>(null);
   const [error, setError] = useState("");
   const [copied, setCopied] = useState("");
+  const [cooldown, setCooldown] = useState(0);
+
+  useEffect(() => {
+    if (cooldown <= 0) return;
+    const timer = setInterval(() => setCooldown((value) => Math.max(0, value - 1)), 1000);
+    return () => clearInterval(timer);
+  }, [cooldown]);
 
   if (autoBody !== autoBodySnapshot) {
     setAutoBodySnapshot(autoBody);
@@ -66,6 +78,7 @@ export function ApplicationDetail({
     setBusy(null);
     if (!result.ok) {
       setError(result.error);
+      if (result.retrySeconds) setCooldown(result.retrySeconds);
       return;
     }
     setQuestions("");
@@ -79,9 +92,18 @@ export function ApplicationDetail({
     setBusy(null);
     if (!result.ok) {
       setError(result.error);
+      if (result.retrySeconds) setCooldown(result.retrySeconds);
       return;
     }
     router.refresh();
+  }
+
+  function confirmRegenerate() {
+    if (cooldown > 0) return;
+    const ok = window.confirm(
+      "Regenerate the resume and cover letter?\n\nThis overwrites the current resume, cover letter, and answers, and uses one AI request.",
+    );
+    if (ok) void onGenerate();
   }
 
   async function onSend(options?: { resend?: boolean; from?: (typeof application.sends)[number] }) {
@@ -184,15 +206,20 @@ export function ApplicationDetail({
           </p>
           <button
             type="button"
-            disabled={busy !== null || !canGenerate}
+            disabled={busy !== null || !canGenerate || cooldown > 0}
             onClick={() => void onGenerate()}
-            className="btn-solid mt-4 inline-flex h-11 items-center rounded-full px-5 text-sm font-medium disabled:opacity-50"
+            className="btn-solid mt-4 inline-flex h-11 items-center gap-2 rounded-full px-5 text-sm font-medium disabled:opacity-50"
           >
-            {busy === "generate" ? "Generating…" : "Generate resume + letter"}
+            {busy === "generate" ? <Spinner /> : null}
+            {busy === "generate"
+              ? "Generating…"
+              : cooldown > 0
+                ? `Generate resume + letter (wait ${cooldown}s)`
+                : "Generate resume + letter"}
           </button>
         </div>
       ) : (
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <button
             type="button"
             className="inline-flex h-11 items-center rounded-full border border-line px-4 text-sm"
@@ -206,6 +233,16 @@ export function ApplicationDetail({
             onClick={() => void shareOrCopy("resume", resumeText)}
           >
             {copied === "resume" ? "Copied resume" : "Share / copy resume"}
+          </button>
+          <button
+            type="button"
+            disabled={busy !== null || !canGenerate || cooldown > 0}
+            onClick={confirmRegenerate}
+            title="Overwrite the current resume and cover letter with a fresh AI draft"
+            className="inline-flex h-11 items-center gap-2 rounded-full border border-line px-4 text-sm text-fg disabled:opacity-50"
+          >
+            {busy === "generate" ? <Spinner /> : null}
+            {busy === "generate" ? "Regenerating…" : cooldown > 0 ? `Regenerate (wait ${cooldown}s)` : "Regenerate"}
           </button>
         </div>
       )}
@@ -264,8 +301,9 @@ export function ApplicationDetail({
             type="button"
             disabled={busy !== null || !canSend || !to.trim()}
             onClick={() => void onSend()}
-            className="btn-solid inline-flex h-11 w-fit items-center justify-center rounded-full px-5 text-sm font-medium disabled:opacity-50"
+            className="btn-solid inline-flex h-11 w-fit items-center justify-center gap-2 rounded-full px-5 text-sm font-medium disabled:opacity-50"
           >
+            {busy === "send" ? <Spinner /> : null}
             {busy === "send" ? "Sending…" : "Send"}
           </button>
           {lastSend ? (
@@ -414,11 +452,12 @@ export function ApplicationDetail({
         </Field>
         <button
           type="button"
-          disabled={busy !== null || !questions.trim()}
+          disabled={busy !== null || !questions.trim() || cooldown > 0}
           onClick={() => void onAnswers()}
-          className="btn-solid inline-flex h-11 w-fit items-center justify-center rounded-full px-5 text-sm font-medium disabled:opacity-50"
+          className="btn-solid inline-flex h-11 w-fit items-center justify-center gap-2 rounded-full px-5 text-sm font-medium disabled:opacity-50"
         >
-          {busy === "answers" ? "Answering…" : "Generate answers"}
+          {busy === "answers" ? <Spinner /> : null}
+          {busy === "answers" ? "Answering…" : cooldown > 0 ? `Generate answers (wait ${cooldown}s)` : "Generate answers"}
         </button>
         {error ? <p className="text-sm text-muted">{error}</p> : null}
         {application.answers.length ? (
