@@ -30,8 +30,8 @@ export default async function ApplicationsPage() {
         title="Applications"
         description="Tailored resumes and letters. Start from Jobs, or paste a posting URL."
         actions={
-          <Link href="/admin/apply" className="text-sm text-muted hover:text-fg">
-            Paste a job URL
+          <Link href="/admin/jobs" className="text-sm text-muted hover:text-fg">
+            Add a job
           </Link>
         }
       />
@@ -47,7 +47,7 @@ export default async function ApplicationsPage() {
         {items.length === 0 ? (
           <div className="flex flex-col items-center px-5 py-10 text-center">
             <p className="text-sm text-muted">No applications yet.</p>
-            <AdminLink href="/admin/apply" variant="primary" className="mt-4">
+            <AdminLink href="/admin/jobs" variant="primary" className="mt-4">
               Create the first one
             </AdminLink>
           </div>

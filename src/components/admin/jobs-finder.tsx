@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { runJobPoll, saveJobBoardSettings } from "@/app/admin/job-actions";
+import { enrichJobListings, runJobPoll, saveJobBoardSettings } from "@/app/admin/job-actions";
 import { AdminButton } from "@/components/admin/admin-ui";
 import { BOARD_LABELS, BOARD_SOURCES, type BoardSource } from "@/types/job-search";
 import { cn } from "@/lib/cn";
@@ -12,16 +12,18 @@ export function JobsFinder({
   includeCompanyAts,
   usajobsReady,
   lastRunAt,
+  canEnrich,
 }: {
   enabledBoards: BoardSource[];
   includeCompanyAts: boolean;
   usajobsReady: boolean;
   lastRunAt?: string;
+  canEnrich: boolean;
 }) {
   const router = useRouter();
   const [boards, setBoards] = useState<BoardSource[]>(enabledBoards);
   const [companyAts, setCompanyAts] = useState(includeCompanyAts);
-  const [busy, setBusy] = useState(false);
+  const [busy, setBusy] = useState<"" | "find" | "score">("");
   const [message, setMessage] = useState("");
 
   async function toggle(id: BoardSource) {
@@ -37,10 +39,10 @@ export function JobsFinder({
   }
 
   async function onFind() {
-    setBusy(true);
+    setBusy("find");
     setMessage("");
     const result = await runJobPoll();
-    setBusy(false);
+    setBusy("");
     if (!result.ok) {
       setMessage(result.error);
       return;
@@ -53,10 +55,28 @@ export function JobsFinder({
     router.refresh();
   }
 
+  async function onScore() {
+    setBusy("score");
+    setMessage("");
+    const result = await enrichJobListings();
+    setBusy("");
+    if (!result.ok) {
+      setMessage(result.error);
+      return;
+    }
+    setMessage(
+      result.enriched
+        ? `Scored ${result.enriched} listing${result.enriched === 1 ? "" : "s"} with AI.`
+        : "Nothing left to score. Run Find jobs first.",
+    );
+    router.refresh();
+  }
+
   return (
     <div className="rounded-xl border border-line bg-bg-elevated/40 p-5">
       <p className="text-sm text-muted">
-        Turn on boards, then find jobs. Matches your Skills page. LinkedIn and Indeed still need Paste a job URL.
+        Turn on boards, then find jobs. Listings are matched against your Skills page. For LinkedIn or Indeed, use
+        “Add a job” below.
       </p>
       <div className="mt-4 flex flex-wrap gap-2">
         {BOARD_SOURCES.map((id) => {
@@ -66,7 +86,7 @@ export function JobsFinder({
             <button
               key={id}
               type="button"
-              disabled={disabled || busy}
+              disabled={disabled || busy !== ""}
               onClick={() => void toggle(id)}
               className={cn(
                 "rounded-full border px-3 py-1.5 text-sm transition-colors disabled:opacity-40",
@@ -79,14 +99,23 @@ export function JobsFinder({
         })}
       </div>
       <div className="mt-5 flex flex-wrap items-center gap-4">
-        <AdminButton type="button" variant="primary" disabled={busy} onClick={() => void onFind()}>
-          {busy ? "Searching…" : "Find jobs"}
+        <AdminButton type="button" variant="primary" disabled={busy !== ""} onClick={() => void onFind()}>
+          {busy === "find" ? "Searching…" : "Find jobs"}
+        </AdminButton>
+        <AdminButton
+          type="button"
+          variant="secondary"
+          disabled={busy !== "" || !canEnrich}
+          onClick={() => void onScore()}
+          title={canEnrich ? undefined : "Add GEMINI_API_KEY to enable AI scoring"}
+        >
+          {busy === "score" ? "Scoring…" : "Score with AI"}
         </AdminButton>
         <label className="flex items-center gap-2 text-sm text-muted">
           <input
             type="checkbox"
             checked={companyAts}
-            disabled={busy}
+            disabled={busy !== ""}
             onChange={(event) => {
               const next = event.target.checked;
               setCompanyAts(next);
@@ -95,9 +124,7 @@ export function JobsFinder({
           />
           Also search extra company boards
         </label>
-        {lastRunAt ? (
-          <p className="text-sm text-muted">Updated {new Date(lastRunAt).toLocaleString()}</p>
-        ) : null}
+        {lastRunAt ? <p className="text-sm text-muted">Updated {new Date(lastRunAt).toLocaleString()}</p> : null}
       </div>
       {message ? <p className="mt-3 text-sm text-muted">{message}</p> : null}
     </div>

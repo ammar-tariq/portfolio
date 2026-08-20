@@ -34,7 +34,7 @@ export async function runJobPoll(): Promise<
   | { ok: false; error: string }
 > {
   await ready();
-  const result = await pollJobSources();
+  const result = await pollJobSources({ enrich: false });
   revalidateJobs();
   if (!result.ok) return result;
   return {
@@ -44,6 +44,17 @@ export async function runJobPoll(): Promise<
     skippedRole: result.skippedRole,
     errors: result.adapterErrors.length,
   };
+}
+
+export async function enrichJobListings(): Promise<
+  | { ok: true; enriched: number }
+  | { ok: false; error: string }
+> {
+  await ready();
+  const { enrichJobListings: run } = await import("@/lib/jobs/poll");
+  const enriched = await run();
+  revalidateJobs();
+  return { ok: true, enriched };
 }
 
 export async function saveJobBoardSettings(input: {
@@ -130,6 +141,18 @@ export async function setListingStatus(id: string, status: ListingStatus) {
   if (!LISTING_STATUSES.includes(status)) return;
   await JobListingModel.findByIdAndUpdate(id, { status });
   revalidateJobs(id);
+}
+
+export async function deleteListing(id: string): Promise<{ ok: true } | { ok: false; error: string }> {
+  await ready();
+  const listing = await JobListingModel.findById(id).lean();
+  if (!listing) return { ok: false, error: "Listing not found." };
+  if (listing.applicationId) {
+    return { ok: false, error: "This listing has an application. Delete the application first." };
+  }
+  await JobListingModel.findByIdAndDelete(id);
+  revalidateJobs(id);
+  return { ok: true };
 }
 
 export async function prepareListingApplication(id: string): Promise<{ ok: false; error: string } | void> {

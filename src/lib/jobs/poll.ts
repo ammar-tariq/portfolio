@@ -75,8 +75,8 @@ async function collect(adapter: string, errors: AdapterError[], run: () => Promi
   }
 }
 
-async function enrichNewListings(limit = 8) {
-  if (!hasGemini()) return;
+async function enrichNewListings(limit = 8): Promise<number> {
+  if (!hasGemini()) return 0;
   const docs = await JobListingModel.find({
     status: "seen",
     eligibilityNotes: { $not: /gemini/i },
@@ -86,6 +86,7 @@ async function enrichNewListings(limit = 8) {
     .limit(limit)
     .exec();
 
+  let enriched = 0;
   for (const doc of docs) {
     try {
       const result = await generateGeminiJson(
@@ -110,14 +111,24 @@ JD: ${String(doc.descriptionText).slice(0, 6000)}`,
       const existing = String(doc.eligibilityNotes ?? "");
       doc.eligibilityNotes = [existing, notes ? `gemini: ${notes}` : "gemini: scored"].filter(Boolean).join("; ").slice(0, 400);
       await doc.save();
+      enriched += 1;
     } catch {
       /* keep keyword score */
     }
     await sleep(200);
   }
+  return enriched;
 }
 
-export async function pollJobSources(): Promise<JobPollResult | { ok: false; error: string }> {
+/** Run only the Gemini scoring pass on unseen listings. Used by the "Score with AI" button. */
+export async function enrichJobListings(limit = 8): Promise<number> {
+  if (!hasMongo()) return 0;
+  await connectDb();
+  return enrichNewListings(limit);
+}
+
+export async function pollJobSources(options: { enrich?: boolean } = {}): Promise<JobPollResult | { ok: false; error: string }> {
+  const { enrich = true } = options;
   if (!hasMongo()) return { ok: false, error: "MongoDB is not configured." };
   await connectDb();
 
@@ -189,7 +200,7 @@ export async function pollJobSources(): Promise<JobPollResult | { ok: false; err
     }
   }
 
-  await enrichNewListings();
+  if (enrich) await enrichNewListings();
 
   await JobPollStateModel.findByIdAndUpdate(
     "jobs",

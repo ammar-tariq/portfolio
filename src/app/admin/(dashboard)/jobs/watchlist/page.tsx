@@ -23,8 +23,8 @@ export default async function WatchlistPage() {
     <div className="space-y-6">
       <AdminPageHeader
         eyebrow="Jobs"
-        title="Extra company boards"
-        description="Optional. Most people can ignore this — Job search already uses public boards."
+        title="Watchlist"
+        description="Company career pages the public boards don’t cover (Greenhouse, Lever, Ashby, and more). Add one, then poll it with Poll now — or turn on “Also search extra company boards” in Jobs to include them in every Find jobs run."
         actions={
           <Link href="/admin/jobs" className="text-sm text-muted hover:text-fg">
             Back to jobs

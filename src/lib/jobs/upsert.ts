@@ -1,4 +1,4 @@
-import { CompanyWatchModel, JobListingModel } from "@/models";
+import { JobListingModel } from "@/models";
 import { canonicalKey, clipText, normalizeApplyUrl, titleCompanyLocationHash } from "@/lib/jobs/canonical";
 import type { NormalizedJob } from "@/lib/jobs/normalize";
 import { scoreListing } from "@/lib/jobs/score";
@@ -101,13 +101,6 @@ export async function upsertJobs(
   }
 
   return { added, updated, skippedRole, skippedInvalid };
-}
-
-export async function markWatchResult(id: string, error?: string) {
-  await CompanyWatchModel.findByIdAndUpdate(id, {
-    lastPolledAt: new Date(),
-    lastError: error || "",
-  });
 }
 
 export function pushAdapterError(errors: AdapterError[], adapter: string, error: unknown) {

@@ -2,7 +2,13 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { addCompanyWatch, deleteCompanyWatch, seedSuggestedWatchlist, setCompanyWatchEnabled } from "@/app/admin/job-actions";
+import {
+  addCompanyWatch,
+  deleteCompanyWatch,
+  pollCompanyWatch,
+  seedSuggestedWatchlist,
+  setCompanyWatchEnabled,
+} from "@/app/admin/job-actions";
 import { AdminButton, AdminBadge } from "@/components/admin/admin-ui";
 import { Field, TextInput } from "@/components/admin/fields";
 import { parseWatchInput } from "@/lib/jobs/watch-input";
@@ -15,6 +21,7 @@ export function WatchlistManager({ items }: { items: CompanyWatch[] }) {
   const [token, setToken] = useState("");
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
+  const [pollingId, setPollingId] = useState<string | null>(null);
 
   async function onAdd() {
     setBusy(true);
@@ -40,6 +47,23 @@ export function WatchlistManager({ items }: { items: CompanyWatch[] }) {
       return;
     }
     setMessage(result.added ? `Added ${result.added} suggested boards.` : "Suggested boards were already present.");
+    router.refresh();
+  }
+
+  async function onPoll(item: CompanyWatch) {
+    setPollingId(item.id);
+    setMessage("");
+    const result = await pollCompanyWatch(item.id);
+    setPollingId(null);
+    if (!result.ok) {
+      setMessage(`${item.name}: ${result.error}`);
+      return;
+    }
+    setMessage(
+      result.added
+        ? `${item.name}: ${result.added} new role${result.added === 1 ? "" : "s"}.`
+        : `${item.name}: caught up, no new roles.`,
+    );
     router.refresh();
   }
 
@@ -85,7 +109,8 @@ export function WatchlistManager({ items }: { items: CompanyWatch[] }) {
       </div>
       {items.length === 0 ? (
         <p className="text-sm text-muted">
-          Paste a Greenhouse / Lever / Ashby careers URL, or seed the suggested list, then poll from Job search.
+          Paste a Greenhouse / Lever / Ashby careers URL, or seed the suggested list, then poll each board with Poll
+          now.
         </p>
       ) : null}
       {message ? <p className="text-sm text-muted">{message}</p> : null}
@@ -110,12 +135,18 @@ export function WatchlistManager({ items }: { items: CompanyWatch[] }) {
                 </p>
               </div>
               <div className="flex items-center gap-3 text-sm">
+                <AdminButton
+                  type="button"
+                  variant="secondary"
+                  disabled={pollingId === item.id}
+                  onClick={() => void onPoll(item)}
+                >
+                  {pollingId === item.id ? "Polling…" : "Poll now"}
+                </AdminButton>
                 <button
                   type="button"
                   className="text-muted hover:text-fg"
-                  onClick={() =>
-                    void setCompanyWatchEnabled(item.id, !item.enabled).then(() => router.refresh())
-                  }
+                  onClick={() => void setCompanyWatchEnabled(item.id, !item.enabled).then(() => router.refresh())}
                 >
                   {item.enabled ? "Turn off" : "Turn on"}
                 </button>

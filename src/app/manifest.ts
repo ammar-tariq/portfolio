@@ -16,7 +16,7 @@ export default async function manifest(): Promise<MetadataRoute.Manifest> {
     theme_color: "#05070c",
     icons: [{ src: "/logo-at.png", sizes: "150x150", type: "image/png" }],
     share_target: {
-      action: "/admin/apply",
+      action: "/admin/jobs",
       method: "GET",
       enctype: "application/x-www-form-urlencoded",
       params: {
