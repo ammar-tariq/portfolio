@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { connectDb } from "@/lib/db";
 import { hasMongo, hasUsajobs } from "@/lib/env";
 import { JobListingModel, JobPollStateModel } from "@/models";
@@ -70,9 +71,9 @@ export default async function JobsPage({
         title="Jobs"
         description="Find roles on public boards that match your skills, then prepare a resume. You apply on the company site."
         actions={
-          <a href="/admin/apply" className="text-sm text-muted hover:text-fg">
+          <Link href="/admin/apply" className="text-sm text-muted hover:text-fg">
             Paste a job URL
-          </a>
+          </Link>
         }
       />
 
@@ -88,13 +89,13 @@ export default async function JobsPage({
           {tabs.map((tab) => {
             const active = statusParam === tab.status;
             return (
-              <a
+              <Link
                 key={tab.id}
                 href={`/admin/jobs?status=${tab.status}${query}`}
                 className={cn(active ? "text-fg" : "text-muted hover:text-fg")}
               >
                 {tab.label}
-              </a>
+              </Link>
             );
           })}
         </div>
@@ -124,9 +125,9 @@ export default async function JobsPage({
       </AdminPanel>
       <p className="text-sm text-muted">
         Need a specific company careers page?{" "}
-        <a href="/admin/jobs/watchlist" className="text-fg underline-offset-2 hover:underline">
+        <Link href="/admin/jobs/watchlist" className="text-fg underline-offset-2 hover:underline">
           Add it here
-        </a>
+        </Link>
         .
       </p>
     </div>
@@ -137,9 +138,9 @@ function ListingRow({ item }: { item: JobListing }) {
   return (
     <li className="flex flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:justify-between">
       <div className="min-w-0">
-        <a href={`/admin/jobs/${item.id}`} className="font-medium hover:text-accent">
+        <Link href={`/admin/jobs/${item.id}`} className="font-medium hover:text-accent">
           {item.title}
-        </a>
+        </Link>
         <p className="mt-1 text-sm text-muted">
           {item.company}
           {item.location ? ` · ${item.location}` : ""}

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { connectDb } from "@/lib/db";
 import { hasMongo } from "@/lib/env";
 import { CompanyWatchModel } from "@/models";
@@ -25,9 +26,9 @@ export default async function WatchlistPage() {
         title="Extra company boards"
         description="Optional. Most people can ignore this — Job search already uses public boards."
         actions={
-          <a href="/admin/jobs" className="text-sm text-muted hover:text-fg">
+          <Link href="/admin/jobs" className="text-sm text-muted hover:text-fg">
             Back to jobs
-          </a>
+          </Link>
         }
       />
       <WatchlistManager items={items} />

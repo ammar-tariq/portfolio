@@ -23,7 +23,6 @@ import {
   destroyApplicationFiles,
   generateApplicationMaterials,
   generateScreeningAnswers,
-  resumePlainText,
   uploadApplicationFiles,
 } from "@/lib/job-application";
 import { emailBodyWithAnswers } from "@/lib/application-email";

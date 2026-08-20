@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { JobApplicationModel, GmailSyncModel } from "@/models";
 import { connectDb } from "@/lib/db";
 import { hasGmailApi } from "@/lib/gmail";
@@ -29,9 +30,9 @@ export default async function ApplicationsPage() {
         title="Applications"
         description="Tailored resumes and letters. Start from Jobs, or paste a posting URL."
         actions={
-          <a href="/admin/apply" className="text-sm text-muted hover:text-fg">
+          <Link href="/admin/apply" className="text-sm text-muted hover:text-fg">
             Paste a job URL
-          </a>
+          </Link>
         }
       />
 

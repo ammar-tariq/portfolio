@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { connectDb } from "@/lib/db";
 import { JobListingModel } from "@/models";
@@ -21,9 +22,9 @@ export default async function JobListingPage({ params }: { params: Promise<{ id:
         title={item.title}
         description={`${item.company}${item.location ? ` · ${item.location}` : ""}`}
         actions={
-          <a href="/admin/jobs" className="text-sm text-muted hover:text-fg">
+          <Link href="/admin/jobs" className="text-sm text-muted hover:text-fg">
             Back to jobs
-          </a>
+          </Link>
         }
       />
       <div className="flex flex-wrap gap-2">

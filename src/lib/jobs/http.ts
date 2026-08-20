@@ -13,9 +13,7 @@ export async function fetchJobFeed(
   url: string,
   init?: RequestInit & { timeoutMs?: number; retries?: number },
 ): Promise<{ ok: true; status: number; text: string } | { ok: false; status: number; error: string }> {
-  const retries = init?.retries ?? 1;
-  const timeoutMs = init?.timeoutMs ?? TIMEOUT_MS;
-  const { timeoutMs: _timeout, retries: _retries, ...fetchInit } = init ?? {};
+  const { timeoutMs = TIMEOUT_MS, retries = 1, ...fetchInit } = init ?? {};
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
   try {

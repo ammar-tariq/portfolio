@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { hasGemini } from "@/lib/env";
 import { parseSharedJob } from "@/lib/job-posting";
 import { ApplicationForm } from "@/components/admin/application-form";
@@ -20,9 +21,9 @@ export default async function ApplyPage({
         title="Paste a job URL"
         description="For LinkedIn, Indeed, or any posting the boards miss. Then generate a resume and letter."
         actions={
-          <a href="/admin/applications" className="text-sm text-muted hover:text-fg">
+          <Link href="/admin/applications" className="text-sm text-muted hover:text-fg">
             Back to applications
-          </a>
+          </Link>
         }
       />
 
