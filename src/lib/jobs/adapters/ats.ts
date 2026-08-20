@@ -194,40 +194,51 @@ export async function fetchBreezyJobs(token: string, company: string): Promise<N
 }
 
 export async function fetchSmartRecruitersJobs(token: string, company: string): Promise<NormalizedJob[]> {
-  const data = await fetchJobJson<Record<string, unknown>>(
-    `https://api.smartrecruiters.com/v1/companies/${encodeURIComponent(token)}/postings?limit=100`,
-  );
-  return asList(data.content).map((item) => {
-    const row = asRecord(item);
-    const loc = asRecord(row.location);
-    const location = [loc.city, loc.region, loc.country].filter(Boolean).map(String).join(", ");
-    const applyUrl = text(
-      asRecord(row.ref).jobAd || `https://jobs.smartrecruiters.com/${token}/${row.id}`,
-      500,
+  const PAGE = 100;
+  const MAX = 500;
+  const out: NormalizedJob[] = [];
+  let offset = 0;
+  // SmartRecruiters paginates with limit/offset. Loop until a page is short or we hit the safety cap.
+  while (offset < MAX) {
+    const data = await fetchJobJson<Record<string, unknown>>(
+      `https://api.smartrecruiters.com/v1/companies/${encodeURIComponent(token)}/postings?limit=${PAGE}&offset=${offset}`,
     );
-    const ad = asRecord(row.jobAd);
-    const sections = asRecord(ad.sections);
-    const description = clipText(
-      stripHtml(
-        text(asRecord(sections.jobDescription).text, 20000) +
-          " " +
-          text(asRecord(sections.qualifications).text, 20000),
-      ),
-    );
-    return {
-      source: "smartrecruiters",
-      applyUrl,
-      sourceUrls: applyUrl ? [applyUrl] : [],
-      atsJobId: text(row.id, 80),
-      boardToken: token,
-      title: text(row.name, 200),
-      company: company || token,
-      location,
-      remote: looksRemote(location, text(row.name), description) || /remote/i.test(text(asRecord(row.location).remote)),
-      descriptionText: description,
-      postedAt: postedDate(row.releasedDate),
-    };
-  });
+    const page = asList(data.content);
+    for (const item of page) {
+      const row = asRecord(item);
+      const loc = asRecord(row.location);
+      const location = [loc.city, loc.region, loc.country].filter(Boolean).map(String).join(", ");
+      const applyUrl = text(
+        asRecord(row.ref).jobAd || `https://jobs.smartrecruiters.com/${token}/${row.id}`,
+        500,
+      );
+      const ad = asRecord(row.jobAd);
+      const sections = asRecord(ad.sections);
+      const description = clipText(
+        stripHtml(
+          text(asRecord(sections.jobDescription).text, 20000) +
+            " " +
+            text(asRecord(sections.qualifications).text, 20000),
+        ),
+      );
+      out.push({
+        source: "smartrecruiters",
+        applyUrl,
+        sourceUrls: applyUrl ? [applyUrl] : [],
+        atsJobId: text(row.id, 80),
+        boardToken: token,
+        title: text(row.name, 200),
+        company: company || token,
+        location,
+        remote: looksRemote(location, text(row.name), description) || /remote/i.test(text(asRecord(row.location).remote)),
+        descriptionText: description,
+        postedAt: postedDate(row.releasedDate),
+      });
+    }
+    if (page.length < PAGE) break;
+    offset += PAGE;
+  }
+  return out;
 }
 
 export async function fetchBambooHrJobs(token: string, company: string): Promise<NormalizedJob[]> {

@@ -32,10 +32,11 @@ function normalizeEnabledBoards(value: unknown, version = 0): BoardSource[] {
 
 const DELAY_MS = 250;
 const MAX_JOBS_PER_ADAPTER = 180;
+const MAX_WATCH_JOBS = 1000;
 const WATCHES_PER_RUN = 8;
 
-async function ingest(jobs: NormalizedJob[], terms: StackTerm[]) {
-  return upsertJobs(jobs.slice(0, MAX_JOBS_PER_ADAPTER), terms);
+async function ingest(jobs: NormalizedJob[], terms: StackTerm[], max = MAX_JOBS_PER_ADAPTER) {
+  return upsertJobs(jobs.slice(0, max), terms);
 }
 
 async function loadStackTerms() {
@@ -53,7 +54,7 @@ export async function pollWatchById(
   try {
     const terms = await loadStackTerms();
     const jobs = await fetchWatchJobs(watch.ats as WatchAts, String(watch.token), String(watch.name));
-    const result = await ingest(jobs, terms);
+    const result = await ingest(jobs, terms, MAX_WATCH_JOBS);
     watch.lastPolledAt = new Date();
     watch.lastError = "";
     await watch.save();
@@ -187,7 +188,7 @@ export async function pollJobSources(options: { enrich?: boolean } = {}): Promis
       if (!watch) continue;
       try {
         const jobs = await fetchWatchJobs(watch.ats as WatchAts, watch.token, watch.name);
-        const result = await ingest(jobs, terms);
+        const result = await ingest(jobs, terms, MAX_WATCH_JOBS);
         added += result.added;
         updated += result.updated;
         skippedRole += result.skippedRole;
