@@ -1,6 +1,6 @@
 "use client";
 
-import { Component, useEffect, useMemo, useRef, useState, type ErrorInfo, type ReactNode } from "react";
+import { Component, useEffect, useMemo, useRef, useSyncExternalStore, type ErrorInfo, type ReactNode } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { Stars } from "@react-three/drei";
 import * as THREE from "three";
@@ -146,15 +146,19 @@ class WebGLGuard extends Component<{ children: ReactNode }, { failed: boolean }>
   }
 }
 
+function subscribeWebGL() {
+  return () => {};
+}
+
+function getServerWebGL() {
+  return false;
+}
+
 export default function SpatialScene() {
   const { theme, commandOpen } = useSite();
   const compact = !useIsDesktop();
   const playing = !commandOpen;
-  const [ok, setOk] = useState(false);
-
-  useEffect(() => {
-    setOk(hasWebGL());
-  }, []);
+  const ok = useSyncExternalStore(subscribeWebGL, hasWebGL, getServerWebGL);
 
   if (!ok) return null;
 

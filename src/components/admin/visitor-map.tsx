@@ -55,15 +55,13 @@ function loadGoogleMaps(apiKey: string) {
 
 export function VisitorMap({ points, apiKey }: { points: Point[]; apiKey: string }) {
   const el = useRef<HTMLDivElement>(null);
-  const [error, setError] = useState("");
+  const [loadError, setLoadError] = useState("");
   const dots = points.filter((point) => typeof point.lat === "number" && typeof point.lng === "number");
   const dotsKey = dots.map((point) => `${point.city}:${point.lat}:${point.lng}:${point.count}`).join("|");
+  const error = apiKey ? loadError : "Add GOOGLE_MAPS_API_KEY to .env and restart npm run dev.";
 
   useEffect(() => {
-    if (!apiKey) {
-      setError("Add GOOGLE_MAPS_API_KEY to .env and restart npm run dev.");
-      return;
-    }
+    if (!apiKey) return;
     const mapped = points.filter((point) => typeof point.lat === "number" && typeof point.lng === "number");
     let cancelled = false;
     void loadGoogleMaps(apiKey)
@@ -97,7 +95,7 @@ export function VisitorMap({ points, apiKey }: { points: Point[]; apiKey: string
         }
       })
       .catch((cause) => {
-        if (!cancelled) setError(cause instanceof Error ? cause.message : "Maps failed to load.");
+        if (!cancelled) setLoadError(cause instanceof Error ? cause.message : "Maps failed to load.");
       });
     return () => {
       cancelled = true;
