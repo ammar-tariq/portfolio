@@ -9,7 +9,5 @@ export function revalidateSite(slug?: string) {
   revalidatePath("/terms");
   revalidatePath("/llms.txt");
   revalidatePath("/sitemap.xml");
-  revalidatePath("/opengraph-image");
-  revalidatePath("/twitter-image");
   if (slug) revalidatePath(`/work/${slug}`);
 }
