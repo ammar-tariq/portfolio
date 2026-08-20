@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { enrichJobListings, runJobPoll, saveJobBoardSettings } from "@/app/admin/job-actions";
 import { AdminButton } from "@/components/admin/admin-ui";
@@ -25,6 +25,13 @@ export function JobsFinder({
   const [companyAts, setCompanyAts] = useState(includeCompanyAts);
   const [busy, setBusy] = useState<"" | "find" | "score">("");
   const [message, setMessage] = useState("");
+  const [cooldown, setCooldown] = useState(0);
+
+  useEffect(() => {
+    if (cooldown <= 0) return;
+    const timer = setInterval(() => setCooldown((value) => Math.max(0, value - 1)), 1000);
+    return () => clearInterval(timer);
+  }, [cooldown]);
 
   async function toggle(id: BoardSource) {
     const next = boards.includes(id) ? boards.filter((item) => item !== id) : [...boards, id];
@@ -62,6 +69,7 @@ export function JobsFinder({
     setBusy("");
     if (!result.ok) {
       setMessage(result.error);
+      if (result.retrySeconds) setCooldown(result.retrySeconds);
       return;
     }
     setMessage(
@@ -105,11 +113,11 @@ export function JobsFinder({
         <AdminButton
           type="button"
           variant="secondary"
-          disabled={busy !== "" || !canEnrich}
+          disabled={busy !== "" || !canEnrich || cooldown > 0}
           onClick={() => void onScore()}
           title={canEnrich ? undefined : "Add GEMINI_API_KEY to enable AI scoring"}
         >
-          {busy === "score" ? "Scoring…" : "Score with AI"}
+          {busy === "score" ? "Scoring…" : cooldown > 0 ? `Score with AI (${cooldown}s)` : "Score with AI"}
         </AdminButton>
         <label className="flex items-center gap-2 text-sm text-muted">
           <input

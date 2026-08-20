@@ -1,5 +1,6 @@
 import { slugify } from "@/lib/project-helpers";
 import { siteHost } from "@/lib/env";
+import { formatGeminiError } from "@/lib/gemini-error";
 import type { Industry, OpenSourceProject, Project } from "@/types/content";
 
 type RepoSummary = {
@@ -210,7 +211,7 @@ ${repo.readme?.slice(0, 6000) || "(none)"}`;
     error?: { message?: string };
     candidates?: { content?: { parts?: { text?: string }[] } }[];
   };
-  if (!response.ok) throw new Error(body.error?.message || `Gemini request failed (${response.status})`);
+  if (!response.ok) throw new Error(formatGeminiError(body.error?.message || `Gemini request failed (${response.status})`));
   const text = body.candidates?.[0]?.content?.parts?.map((part) => part.text ?? "").join("") ?? "";
   if (!text) return repo.description || `${repo.name} is an open source project on GitHub.`;
   const parsed = parseJsonObject(text);
@@ -286,7 +287,7 @@ ${repo.readme?.slice(0, 10000) || "(none)"}`;
     error?: { message?: string };
     candidates?: { content?: { parts?: { text?: string }[] } }[];
   };
-  if (!response.ok) throw new Error(body.error?.message || `Gemini request failed (${response.status})`);
+  if (!response.ok) throw new Error(formatGeminiError(body.error?.message || `Gemini request failed (${response.status})`));
   const text = body.candidates?.[0]?.content?.parts?.map((part) => part.text ?? "").join("") ?? "";
   if (!text) throw new Error("Gemini returned an empty project draft.");
   const raw = parseJsonObject(text);

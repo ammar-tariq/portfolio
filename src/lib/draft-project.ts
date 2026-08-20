@@ -1,5 +1,6 @@
 import type { Industry, Project, ProjectStatus, ProjectVisual } from "@/types/content";
 import { slugify } from "@/lib/project-helpers";
+import { formatGeminiError } from "@/lib/gemini-error";
 
 const visuals: ProjectVisual[] = [
   "dojo",
@@ -172,7 +173,7 @@ export async function generateGeminiJson(prompt: string) {
     candidates?: { content?: { parts?: { text?: string }[] } }[];
   };
   if (!response.ok) {
-    throw new Error(body.error?.message || `Gemini request failed (${response.status})`);
+    throw new Error(formatGeminiError(body.error?.message || `Gemini request failed (${response.status})`));
   }
   const text = body.candidates?.[0]?.content?.parts?.map((part) => part.text ?? "").join("") ?? "";
   if (!text) throw new Error("Gemini returned an empty draft.");

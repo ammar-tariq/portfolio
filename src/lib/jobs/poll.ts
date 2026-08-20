@@ -18,6 +18,7 @@ import {
 } from "@/lib/jobs/adapters/boards";
 import { sleep } from "@/lib/jobs/http";
 import { pushAdapterError, upsertJobs } from "@/lib/jobs/upsert";
+import { isQuotaError } from "@/lib/gemini-error";
 import { watchFromDoc } from "@/lib/jobs/from-doc";
 import type { AdapterError, BoardSource, JobPollResult, WatchAts } from "@/types/job-search";
 import { ENABLED_BOARDS_VERSION, resolveEnabledBoards } from "@/types/job-search";
@@ -75,7 +76,7 @@ async function collect(adapter: string, errors: AdapterError[], run: () => Promi
   }
 }
 
-async function enrichNewListings(limit = 8): Promise<number> {
+async function enrichNewListings(limit = 3): Promise<number> {
   if (!hasGemini()) return 0;
   const docs = await JobListingModel.find({
     status: "seen",
@@ -112,16 +113,19 @@ JD: ${String(doc.descriptionText).slice(0, 6000)}`,
       doc.eligibilityNotes = [existing, notes ? `gemini: ${notes}` : "gemini: scored"].filter(Boolean).join("; ").slice(0, 400);
       await doc.save();
       enriched += 1;
-    } catch {
-      /* keep keyword score */
+    } catch (error) {
+      // Stop immediately on a quota/rate-limit error so we don't burn more of the window.
+      if (error instanceof Error && isQuotaError(error.message)) throw error;
+      /* otherwise keep the keyword score for this listing */
     }
-    await sleep(200);
+    // ~3.5s between calls keeps a batch under the 20-requests/minute free-tier limit.
+    await sleep(3500);
   }
   return enriched;
 }
 
 /** Run only the Gemini scoring pass on unseen listings. Used by the "Score with AI" button. */
-export async function enrichJobListings(limit = 8): Promise<number> {
+export async function enrichJobListings(limit = 3): Promise<number> {
   if (!hasMongo()) return 0;
   await connectDb();
   return enrichNewListings(limit);
@@ -200,7 +204,7 @@ export async function pollJobSources(options: { enrich?: boolean } = {}): Promis
     }
   }
 
-  if (enrich) await enrichNewListings();
+  if (enrich) await enrichNewListings(2);
 
   await JobPollStateModel.findByIdAndUpdate(
     "jobs",

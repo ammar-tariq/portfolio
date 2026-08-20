@@ -8,6 +8,7 @@ import { CompanyWatchModel, JobApplicationModel, JobListingModel, JobPollStateMo
 import { pollJobSources } from "@/lib/jobs/poll";
 import { SUGGESTED_WATCHLIST } from "@/lib/jobs/seed-watchlist";
 import { parseWatchInput } from "@/lib/jobs/watch-input";
+import { formatGeminiError, parseRetrySeconds } from "@/lib/gemini-error";
 import {
   BOARD_SOURCES,
   ENABLED_BOARDS_VERSION,
@@ -48,13 +49,19 @@ export async function runJobPoll(): Promise<
 
 export async function enrichJobListings(): Promise<
   | { ok: true; enriched: number }
-  | { ok: false; error: string }
+  | { ok: false; error: string; retrySeconds?: number }
 > {
   await ready();
   const { enrichJobListings: run } = await import("@/lib/jobs/poll");
-  const enriched = await run();
-  revalidateJobs();
-  return { ok: true, enriched };
+  try {
+    const enriched = await run();
+    revalidateJobs();
+    return { ok: true, enriched };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Scoring failed.";
+    const retrySeconds = parseRetrySeconds(message) ?? undefined;
+    return { ok: false, error: formatGeminiError(message), retrySeconds };
+  }
 }
 
 export async function saveJobBoardSettings(input: {
