@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef } from "react";
+import { Component, useEffect, useMemo, useRef, useState, type ErrorInfo, type ReactNode } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { Stars } from "@react-three/drei";
 import * as THREE from "three";
@@ -124,31 +124,62 @@ function Scene({ theme, compact }: { theme: "light" | "dark"; compact: boolean }
   );
 }
 
+function hasWebGL() {
+  try {
+    const canvas = document.createElement("canvas");
+    return Boolean(canvas.getContext("webgl2") || canvas.getContext("webgl"));
+  } catch {
+    return false;
+  }
+}
+
+class WebGLGuard extends Component<{ children: ReactNode }, { failed: boolean }> {
+  state = { failed: false };
+  static getDerivedStateFromError() {
+    return { failed: true };
+  }
+  componentDidCatch(error: Error, info: ErrorInfo) {
+    console.warn("Spatial scene disabled", error.message, info.componentStack);
+  }
+  render() {
+    return this.state.failed ? null : this.props.children;
+  }
+}
+
 export default function SpatialScene() {
   const { theme, commandOpen } = useSite();
   const compact = !useIsDesktop();
   const playing = !commandOpen;
+  const [ok, setOk] = useState(false);
+
+  useEffect(() => {
+    setOk(hasWebGL());
+  }, []);
+
+  if (!ok) return null;
 
   return (
     <div className="h-full w-full bg-transparent" data-cursor="hidden">
-      <Canvas
-        dpr={compact ? [1, 1.15] : [1, 1.5]}
-        frameloop={playing ? "always" : "demand"}
-        style={{ background: "transparent" }}
-        gl={{
-          antialias: true,
-          alpha: true,
-          premultipliedAlpha: false,
-          powerPreference: "high-performance",
-        }}
-        onCreated={({ gl, scene }) => {
-          scene.background = null;
-          gl.setClearColor(0x000000, 0);
-        }}
-        camera={{ position: [0, 0.12, 6.2], fov: 34 }}
-      >
-        <Scene theme={theme} compact={compact} />
-      </Canvas>
+      <WebGLGuard>
+        <Canvas
+          dpr={compact ? [1, 1.15] : [1, 1.5]}
+          frameloop={playing ? "always" : "demand"}
+          style={{ background: "transparent" }}
+          gl={{
+            antialias: !compact,
+            alpha: true,
+            premultipliedAlpha: false,
+            powerPreference: "high-performance",
+          }}
+          onCreated={({ gl, scene }) => {
+            scene.background = null;
+            gl.setClearColor(0x000000, 0);
+          }}
+          camera={{ position: [0, 0.12, 6.2], fov: 34 }}
+        >
+          <Scene theme={theme} compact={compact} />
+        </Canvas>
+      </WebGLGuard>
     </div>
   );
 }

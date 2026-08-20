@@ -6,7 +6,9 @@ import { rootMetadata, siteGraphJsonLd } from "@/lib/seo";
 import { JsonLd } from "@/components/seo/json-ld";
 import { AnalyticsTracker } from "@/components/analytics/tracker";
 import { ProjectOpenProvider } from "@/components/work/project-open";
+import { AdminViewerProvider } from "@/components/providers/admin-viewer";
 import { googleAnalyticsId, googleTagManagerId } from "@/lib/env";
+import { GoogleAnalytics } from "@/components/analytics/google-analytics";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -16,6 +18,7 @@ const geistSans = Geist({
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+  preload: false,
 });
 
 const serif = Instrument_Serif({
@@ -42,14 +45,6 @@ export const viewport: Viewport = {
 
 const themeScript = `(function(){try{var s=localStorage.getItem("theme");var light=s==="light"||(s!=="dark"&&window.matchMedia("(prefers-color-scheme: light)").matches);if(light)document.documentElement.classList.add("light");document.documentElement.style.colorScheme=light?"light":"dark";}catch(e){}})();`;
 
-function gtagScript(id: string) {
-  return `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config',${JSON.stringify(id)});`;
-}
-
-function gtmScript(id: string) {
-  return `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer',${JSON.stringify(id)});`;
-}
-
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const content = await getSiteContent();
   const gaId = googleAnalyticsId();
@@ -62,13 +57,6 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       className={`${geistSans.variable} ${geistMono.variable} ${serif.variable} h-full antialiased`}
     >
       <head>
-        {gaId ? (
-          <>
-            <script async src={`https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(gaId)}`} />
-            <script dangerouslySetInnerHTML={{ __html: gtagScript(gaId) }} />
-          </>
-        ) : null}
-        {gtmId ? <script dangerouslySetInnerHTML={{ __html: gtmScript(gtmId) }} /> : null}
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
       <body className="min-h-full bg-bg text-fg" suppressHydrationWarning>
@@ -84,8 +72,11 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           </noscript>
         ) : null}
         <JsonLd data={siteGraphJsonLd(content)} />
+        <GoogleAnalytics gaId={gaId} gtmId={gtmId} />
         <AnalyticsTracker />
-        <ProjectOpenProvider>{children}</ProjectOpenProvider>
+        <AdminViewerProvider>
+          <ProjectOpenProvider>{children}</ProjectOpenProvider>
+        </AdminViewerProvider>
       </body>
     </html>
   );

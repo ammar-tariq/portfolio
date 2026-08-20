@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { cn } from "@/lib/cn";
+import { imageSrcSet, optimizeImageUrl } from "@/lib/media-url";
 
 function canOptimize(src: string) {
   if (src.startsWith("/projects/")) return false;
@@ -18,6 +19,22 @@ function canOptimize(src: string) {
   }
 }
 
+function canResize(src: string) {
+  try {
+    const host = new URL(src).hostname;
+    return (
+      host === "res.cloudinary.com" ||
+      host === "avatars.githubusercontent.com" ||
+      host === "github.com" ||
+      host === "play-lh.googleusercontent.com" ||
+      host.endsWith(".googleusercontent.com") ||
+      host.endsWith(".mzstatic.com")
+    );
+  } catch {
+    return false;
+  }
+}
+
 export function RemoteImage({
   src,
   alt,
@@ -26,6 +43,7 @@ export function RemoteImage({
   className,
   width,
   height,
+  priority = false,
 }: {
   src: string;
   alt: string;
@@ -34,9 +52,12 @@ export function RemoteImage({
   className?: string;
   width?: number;
   height?: number;
+  priority?: boolean;
 }) {
   if (!src) return null;
   if (src.startsWith("/projects/")) return null;
+  const loading = priority ? "eager" : "lazy";
+  const fetchPriority = priority ? "high" : "low";
   // Remote URLs load from the CDN directly. `/_next/image` needs outbound
   // fetches from the VPS and fails when TLS/proxy is misconfigured.
   if (canOptimize(src) && !src.startsWith("http://") && !src.startsWith("https://")) {
@@ -49,14 +70,24 @@ export function RemoteImage({
         width={fill ? undefined : width}
         height={fill ? undefined : height}
         className={className}
+        priority={priority}
+        loading={priority ? undefined : "lazy"}
       />
     );
   }
+  const resized = canResize(src);
   return (
     // eslint-disable-next-line @next/next/no-img-element
     <img
-      src={src}
+      src={resized ? optimizeImageUrl(src, width ?? 800) : src}
+      srcSet={resized ? imageSrcSet(src) : undefined}
+      sizes={resized ? (sizes ?? (fill ? "100vw" : undefined)) : undefined}
       alt={alt}
+      width={fill ? undefined : width}
+      height={fill ? undefined : height}
+      loading={loading}
+      decoding="async"
+      fetchPriority={fetchPriority}
       className={cn(fill && "absolute inset-0 h-full w-full", className)}
     />
   );

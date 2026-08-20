@@ -1,5 +1,5 @@
 import { cache } from "react";
-import { connection } from "next/server";
+import { unstable_cache } from "next/cache";
 import { connectDb } from "@/lib/db";
 import { hasMongo } from "@/lib/env";
 import {
@@ -301,9 +301,13 @@ async function loadContent(): Promise<SiteContent> {
   }
 }
 
+const loadCachedContent = unstable_cache(loadContent, ["site-content"], {
+  revalidate: 120,
+  tags: ["site-content"],
+});
+
 export const getSiteContent = cache(async (): Promise<SiteContent> => {
-  await connection();
-  return loadContent();
+  return loadCachedContent();
 });
 
 export async function getSiteContentForParams() {

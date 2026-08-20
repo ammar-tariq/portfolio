@@ -2,19 +2,34 @@
 
 import { useState } from "react";
 import { RemoteImage } from "@/components/ui/remote-image";
+import { MediaDownloadAllButton, MediaDownloadButton } from "@/components/ui/media-download";
 import type { Project, ProjectScreenshot } from "@/types/content";
 import {
   androidScreenshots,
+  fallbackScreenshots,
   hostedVideoSrc,
   iosScreenshots,
   videoEmbedSrc,
 } from "@/lib/project-media";
 import { cn } from "@/lib/cn";
 
-function ScreenshotGrid({ screenshots }: { screenshots: ProjectScreenshot[] }) {
+function shotDownloadName(project: Project, platform: string, index: number, shot: ProjectScreenshot) {
+  const label = shot.caption || shot.alt || `shot-${index + 1}`;
+  return `${project.slug}-${platform}-${index + 1}-${label}`;
+}
+
+function ScreenshotGrid({
+  project,
+  platform,
+  screenshots,
+}: {
+  project: Project;
+  platform: string;
+  screenshots: ProjectScreenshot[];
+}) {
   return (
     <ul className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
-      {screenshots.map((shot) => (
+      {screenshots.map((shot, index) => (
         <li key={shot.src}>
           <figure className="overflow-hidden rounded-[1.35rem] border border-line bg-bg-elevated/50 shadow-[0_16px_40px_rgba(0,0,0,0.22)]">
             <div className="relative aspect-[9/19.5] bg-bg-soft">
@@ -24,6 +39,11 @@ function ScreenshotGrid({ screenshots }: { screenshots: ProjectScreenshot[] }) {
                 fill
                 sizes="(max-width: 640px) 45vw, (max-width: 1024px) 28vw, 180px"
                 className="object-cover object-top"
+              />
+              <MediaDownloadButton
+                src={shot.src}
+                name={shotDownloadName(project, platform, index, shot)}
+                className="absolute top-2 right-2 z-10"
               />
             </div>
             {shot.caption ? (
@@ -74,35 +94,50 @@ function ScreenshotPlatforms({
 }) {
   const ios = iosScreenshots(project);
   const android = androidScreenshots(project);
+  const fallback = fallbackScreenshots(project);
   const hasIos = ios.length > 0;
   const hasAndroid = android.length > 0;
+  const hasFallback = fallback.length > 0;
   const [platform, setPlatform] = useState<"ios" | "android">(hasIos ? "ios" : "android");
 
-  if (!hasIos && !hasAndroid) return null;
+  if (!hasIos && !hasAndroid && !hasFallback) return null;
 
   const Heading = heading;
-  const shots = platform === "ios" ? ios : android;
+  const shots = hasIos || hasAndroid ? (platform === "ios" ? ios : android) : fallback;
+  const platformKey = hasIos || hasAndroid ? platform : "shots";
+  const downloadItems = shots.map((shot, index) => ({
+    src: shot.src,
+    name: shotDownloadName(project, platformKey, index, shot),
+  }));
 
   return (
     <section className="mt-14">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <Heading className="font-mono text-[11px] tracking-[0.22em] text-accent uppercase">Screenshots</Heading>
-        <div className="flex gap-2" role="tablist" aria-label="Screenshot platform">
-          <PlatformTab
-            selected={platform === "ios"}
-            onClick={() => hasIos && setPlatform("ios")}
-            label="iOS"
-            disabled={!hasIos}
+        <div className="flex flex-wrap items-center gap-2">
+          <MediaDownloadAllButton
+            items={downloadItems}
+            label={hasIos || hasAndroid ? `Download ${platform}` : "Download all"}
           />
-          <PlatformTab
-            selected={platform === "android"}
-            onClick={() => hasAndroid && setPlatform("android")}
-            label="Android"
-            disabled={!hasAndroid}
-          />
+          {hasIos || hasAndroid ? (
+            <div className="flex gap-2" role="tablist" aria-label="Screenshot platform">
+              <PlatformTab
+                selected={platform === "ios"}
+                onClick={() => hasIos && setPlatform("ios")}
+                label="iOS"
+                disabled={!hasIos}
+              />
+              <PlatformTab
+                selected={platform === "android"}
+                onClick={() => hasAndroid && setPlatform("android")}
+                label="Android"
+                disabled={!hasAndroid}
+              />
+            </div>
+          ) : null}
         </div>
       </div>
-      <ScreenshotGrid screenshots={shots} />
+      <ScreenshotGrid project={project} platform={platformKey} screenshots={shots} />
     </section>
   );
 }

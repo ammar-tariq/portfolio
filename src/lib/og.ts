@@ -1,4 +1,4 @@
-import { cloudinaryShareUrl } from "@/lib/cloudinary";
+import { cloudinaryOgPortraitUrl, cloudinaryShareUrl } from "@/lib/cloudinary";
 
 export const OG_SIZE = { width: 1200, height: 630 };
 
@@ -26,4 +26,24 @@ export function ogImages(pathOrUrl: string | undefined, siteUrl: string, alt: st
       alt,
     },
   ];
+}
+
+export function ogPortraitUrl(src?: string) {
+  if (!src) return undefined;
+  return cloudinaryOgPortraitUrl(src);
+}
+
+export async function ogPortraitDataUrl(src?: string) {
+  const url = ogPortraitUrl(src);
+  if (!url) return undefined;
+  try {
+    const response = await fetch(url, { cache: "force-cache" });
+    if (!response.ok) return undefined;
+    const bytes = Buffer.from(await response.arrayBuffer());
+    if (!bytes.byteLength) return undefined;
+    const mime = response.headers.get("content-type")?.split(";")[0] || "image/jpeg";
+    return `data:${mime};base64,${bytes.toString("base64")}`;
+  } catch {
+    return undefined;
+  }
 }

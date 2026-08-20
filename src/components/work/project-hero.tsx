@@ -6,6 +6,7 @@ import type { Project } from "@/types/content";
 import { useContent } from "@/components/providers/content-provider";
 import { BrandMark } from "@/components/ui/brand-mark";
 import { RemoteImage } from "@/components/ui/remote-image";
+import { MediaDownloadButton } from "@/components/ui/media-download";
 import { Container } from "@/components/ui/section";
 import { projectHeroEyebrow } from "@/lib/project-helpers";
 import { cn } from "@/lib/cn";
@@ -50,12 +51,20 @@ export function ProjectHeroMedia({
             alt={`${project.title} banner`}
             fill
             sizes="100vw"
+            priority
             className="object-cover"
           />
         </motion.div>
       ) : null}
-      <div className="absolute inset-0 bg-linear-to-t from-bg from-[12%] via-bg/55 to-bg/25" />
-      <div className="absolute inset-x-0 top-0 h-32 bg-linear-to-b from-bg/50 to-transparent" />
+      <div className="pointer-events-none absolute inset-0 bg-linear-to-t from-bg from-[12%] via-bg/55 to-bg/25" />
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-32 bg-linear-to-b from-bg/50 to-transparent" />
+      {banner ? (
+        <MediaDownloadButton
+          src={banner}
+          name={`${project.slug}-banner`}
+          className="absolute top-4 right-4 z-20"
+        />
+      ) : null}
     </div>
   );
 }
@@ -101,8 +110,15 @@ export function ProjectHeroChrome({
           transition={{ duration: 0.7, ease: easeOutExpo, delay: delayed ? 0.22 : 0.05 }}
         >
           {project.logo ? (
-            <div className="relative mb-4 h-14 w-14 overflow-hidden rounded-[22.5%] border border-white/15 shadow-[0_12px_32px_rgba(0,0,0,0.35)] sm:h-16 sm:w-16">
-              <RemoteImage src={project.logo} alt={`${project.title} app icon`} fill sizes="64px" className="object-cover" />
+            <div className="relative mb-4 inline-block">
+              <div className="relative h-14 w-14 overflow-hidden rounded-[22.5%] border border-white/15 shadow-[0_12px_32px_rgba(0,0,0,0.35)] sm:h-16 sm:w-16">
+                <RemoteImage src={project.logo} alt={`${project.title} app icon`} fill sizes="64px" className="object-cover" />
+              </div>
+              <MediaDownloadButton
+                src={project.logo}
+                name={`${project.slug}-icon`}
+                className="absolute -top-1 -right-1 z-10 h-7 w-7"
+              />
             </div>
           ) : null}
           {eyebrow ? (

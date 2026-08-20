@@ -23,6 +23,7 @@ import { useContent } from "@/components/providers/content-provider";
 import { HomeSectionSync } from "@/components/nav/home-section-sync";
 import { handleHomeSectionClick } from "@/lib/section-nav";
 import { useMotionEnabled } from "@/lib/use-motion-enabled";
+import { useIsDesktop } from "@/lib/use-media-query";
 import Link from "next/link";
 
 const SpatialScene = dynamic(() => import("@/components/spatial/spatial-scene"), {
@@ -32,7 +33,8 @@ const SpatialScene = dynamic(() => import("@/components/spatial/spatial-scene"),
 
 function SpatialLayer() {
   const motionOn = useMotionEnabled();
-  if (!motionOn) return null;
+  const desktop = useIsDesktop();
+  if (!motionOn || !desktop) return null;
   return (
     <div className="pointer-events-none fixed inset-0 z-0">
       <SpatialScene />

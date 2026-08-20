@@ -85,3 +85,13 @@ export function cloudinaryShareUrl(url: string) {
   if (/\/upload\/[^/]*w_1200/.test(url)) return url;
   return url.replace("/upload/", "/upload/w_1200,h_630,c_fill,g_auto,q_auto:eco,f_jpg/");
 }
+
+/** Greyscale, face-weighted crop for the site-wide social card background. */
+export function cloudinaryOgPortraitUrl(url: string) {
+  if (!url.includes("res.cloudinary.com") || !url.includes("/upload/")) return url;
+  if (/\/upload\/[^/]*e_grayscale/.test(url)) return url;
+  return url.replace(
+    "/upload/",
+    "/upload/e_grayscale,e_contrast:22,e_brightness:-6,c_fill,g_face,w_1200,h_630,q_auto:good,f_jpg/",
+  );
+}
