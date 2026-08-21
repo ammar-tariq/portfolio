@@ -1,5 +1,10 @@
 import type { CompanyWatch, JobListing, JobPollState, ListingStatus } from "@/types/job-search";
-import { LISTING_STATUSES, resolveEnabledBoards } from "@/types/job-search";
+import {
+  LISTING_STATUSES,
+  normalizePostedWithinDays,
+  normalizeRequiredSkillGroups,
+  resolveEnabledBoards,
+} from "@/types/job-search";
 
 function str(value: unknown, max = 8000) {
   if (value == null) return "";
@@ -31,6 +36,9 @@ export function listingFromDoc(doc: unknown): JobListing {
     citizenshipRequirement: Boolean(data.citizenshipRequirement),
     stackMatches: Array.isArray(data.stackMatches)
       ? data.stackMatches.map((item) => str(item, 80)).filter(Boolean)
+      : [],
+    requiredMatches: Array.isArray(data.requiredMatches)
+      ? data.requiredMatches.map((item) => str(item, 80)).filter(Boolean)
       : [],
     status,
     applicationId: str(data.applicationId, 80) || undefined,
@@ -70,5 +78,7 @@ export function pollStateFromDoc(doc: unknown): JobPollState {
       Number(data.enabledBoardsVersion) || 0,
     ),
     includeCompanyAts: Boolean(data.includeCompanyAts),
+    postedWithinDays: normalizePostedWithinDays(data.postedWithinDays),
+    requiredSkillGroups: normalizeRequiredSkillGroups(data.requiredSkillGroups),
   };
 }

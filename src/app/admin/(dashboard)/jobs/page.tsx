@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { connectDb } from "@/lib/db";
 import { hasGemini, hasMongo, hasUsajobs } from "@/lib/env";
+import { getSiteContentForParams } from "@/lib/content";
 import { JobListingModel, JobPollStateModel } from "@/models";
 import { listingFromDoc, pollStateFromDoc } from "@/lib/jobs/from-doc";
 import { parseSharedJob } from "@/lib/job-posting";
@@ -61,12 +62,16 @@ export default async function JobsPage({
   }
 
   const [docs, poll] = await Promise.all([
-    JobListingModel.find(filter).sort({ priorityScore: -1, createdAt: -1 }).limit(80).lean(),
+    JobListingModel.find(filter).sort({ postedAt: -1, createdAt: -1, priorityScore: -1 }).limit(80).lean(),
     JobPollStateModel.findById("jobs").lean(),
   ]);
   const items = docs.map(listingFromDoc);
   const state = pollStateFromDoc(poll);
   const enabledBoards = state.enabledBoards.length ? state.enabledBoards : [...DEFAULT_ENABLED_BOARDS];
+  const content = hasMongo() ? await getSiteContentForParams().catch(() => null) : null;
+  const skillSuggestions = content
+    ? content.skillCategories.flatMap((category) => category.items.map((item) => item.name)).slice(0, 24)
+    : [];
 
   const query = q ? `&q=${encodeURIComponent(q)}` : "";
   const sharedInitial = parseSharedJob({ title: params.title, text: params.text, url: params.url });
@@ -75,12 +80,15 @@ export default async function JobsPage({
     <div className="space-y-6">
       <AdminPageHeader
         title="Jobs"
-        description="Find roles on public boards that match your skills, then prepare a resume. You apply on the company site."
+        description="Pick sources, posted window, and must-have skills — then find roles and prepare a resume."
       />
 
       <JobsFinder
         enabledBoards={enabledBoards}
         includeCompanyAts={state.includeCompanyAts}
+        postedWithinDays={state.postedWithinDays}
+        requiredSkillGroups={state.requiredSkillGroups}
+        skillSuggestions={skillSuggestions}
         usajobsReady={hasUsajobs()}
         lastRunAt={state.lastRunAt}
         canEnrich={hasGemini()}
@@ -127,7 +135,7 @@ export default async function JobsPage({
         {items.length === 0 ? (
           <div className="px-5 py-10 text-center text-sm text-muted">
             {statusParam === "open"
-              ? "Nothing to review. Tap Find jobs. Matches come from your Skills page."
+              ? "Nothing to review. Set sources, posted window, and must-have skills, then Find jobs."
               : "Nothing here."}
           </div>
         ) : (
@@ -149,7 +157,21 @@ export default async function JobsPage({
   );
 }
 
+function formatPosted(item: JobListing) {
+  if (!item.postedAt) return "Date unknown";
+  const when = new Date(item.postedAt);
+  if (Number.isNaN(when.getTime())) return "Date unknown";
+  const days = Math.floor((Date.now() - when.getTime()) / (24 * 60 * 60 * 1000));
+  if (days <= 0) return "Posted today";
+  if (days === 1) return "Posted yesterday";
+  if (days < 14) return `Posted ${days}d ago`;
+  return `Posted ${when.toLocaleDateString()}`;
+}
+
 function ListingRow({ item }: { item: JobListing }) {
+  const skillBadges = item.requiredMatches.length
+    ? item.requiredMatches
+    : item.stackMatches.slice(0, 4);
   return (
     <li className="flex flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:justify-between">
       <div className="min-w-0">
@@ -159,13 +181,14 @@ function ListingRow({ item }: { item: JobListing }) {
         <p className="mt-1 text-sm text-muted">
           {item.company}
           {item.location ? ` · ${item.location}` : ""}
+          {` · ${formatPosted(item)}`}
         </p>
         <p className="mt-2 flex flex-wrap items-center gap-1.5">
           <AdminBadge tone={statusTone(item.status)}>
             {item.status === "seen" ? "new" : item.status === "drafted" ? "draft" : item.status}
           </AdminBadge>
           <AdminBadge>{BOARD_LABELS[item.source as keyof typeof BOARD_LABELS] ?? item.source}</AdminBadge>
-          {item.stackMatches.slice(0, 4).map((skill) => (
+          {skillBadges.map((skill) => (
             <AdminBadge key={skill} tone="accent">
               {skill}
             </AdminBadge>

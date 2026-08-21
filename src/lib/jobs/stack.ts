@@ -83,3 +83,54 @@ export function matchStack(text: string, terms: StackTerm[]): string[] {
   }
   return [...hits].slice(0, 12);
 }
+
+/** Build match terms from free-form labels (required skill chips). */
+export function stackTermsFromLabels(labels: string[]): StackTerm[] {
+  const terms: StackTerm[] = [];
+  const seen = new Set<string>();
+  for (const label of labels) {
+    const key = tokenKey(label);
+    if (!key) continue;
+    const aliases = ALIASES[key] ?? [key];
+    for (const alias of aliases) {
+      const id = tokenKey(alias);
+      if (id.length < 2 || seen.has(id)) continue;
+      seen.add(id);
+      terms.push({
+        label: label.trim(),
+        pattern: new RegExp(`(?:^|[^a-z0-9.+#])${escapeRe(alias)}(?:$|[^a-z0-9.+#])`, "i"),
+      });
+    }
+  }
+  return terms;
+}
+
+/**
+ * OR within each group, AND across groups.
+ * Returns matched labels (one preferred label per group that hit) when all groups pass.
+ */
+export function matchRequiredSkillGroups(
+  text: string,
+  groups: string[][],
+): { ok: boolean; matched: string[] } {
+  if (!groups.length) return { ok: true, matched: [] };
+  const hay = ` ${text} `;
+  const matched: string[] = [];
+  for (const group of groups) {
+    const terms = stackTermsFromLabels(group);
+    if (!terms.length) continue;
+    const hit = terms.find((term) => term.pattern.test(hay));
+    if (!hit) return { ok: false, matched: [] };
+    if (!matched.includes(hit.label)) matched.push(hit.label);
+  }
+  return { ok: true, matched };
+}
+
+export function isPostedWithinDays(postedAt: Date | string | undefined, days: number): boolean {
+  if (!days) return true;
+  if (!postedAt) return true; // unknown date — keep, list can show "date unknown"
+  const when = postedAt instanceof Date ? postedAt : new Date(postedAt);
+  if (Number.isNaN(when.getTime())) return true;
+  const cutoff = Date.now() - days * 24 * 60 * 60 * 1000;
+  return when.getTime() >= cutoff;
+}

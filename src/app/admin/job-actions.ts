@@ -14,8 +14,11 @@ import {
   ENABLED_BOARDS_VERSION,
   LISTING_STATUSES,
   WATCH_ATS,
+  normalizePostedWithinDays,
+  normalizeRequiredSkillGroups,
   type BoardSource,
   type ListingStatus,
+  type PostedWithinDays,
   type WatchAts,
 } from "@/types/job-search";
 
@@ -31,7 +34,7 @@ function revalidateJobs(id?: string) {
 }
 
 export async function runJobPoll(): Promise<
-  | { ok: true; added: number; updated: number; skippedRole: number; errors: number }
+  | { ok: true; added: number; updated: number; skippedRole: number; skippedStale: number; errors: number }
   | { ok: false; error: string }
 > {
   await ready();
@@ -43,6 +46,7 @@ export async function runJobPoll(): Promise<
     added: result.added,
     updated: result.updated,
     skippedRole: result.skippedRole,
+    skippedStale: result.skippedStale,
     errors: result.adapterErrors.length,
   };
 }
@@ -67,15 +71,26 @@ export async function enrichJobListings(): Promise<
 export async function saveJobBoardSettings(input: {
   enabledBoards: string[];
   includeCompanyAts: boolean;
+  postedWithinDays?: number;
+  requiredSkillGroups?: string[][];
 }): Promise<{ ok: true } | { ok: false; error: string }> {
   await ready();
   const enabled = input.enabledBoards.filter((id): id is BoardSource =>
     (BOARD_SOURCES as readonly string[]).includes(id),
   );
-  if (!enabled.length) return { ok: false, error: "Turn on at least one job board." };
+  if (!enabled.length) return { ok: false, error: "Pick at least one source." };
+  const groups = normalizeRequiredSkillGroups(input.requiredSkillGroups);
+  if (!groups.length) return { ok: false, error: "Add at least one must-have skill." };
+  const postedWithinDays: PostedWithinDays = normalizePostedWithinDays(input.postedWithinDays);
   await JobPollStateModel.findByIdAndUpdate(
     "jobs",
-    { enabledBoards: enabled, includeCompanyAts: Boolean(input.includeCompanyAts), enabledBoardsVersion: ENABLED_BOARDS_VERSION },
+    {
+      enabledBoards: enabled,
+      includeCompanyAts: Boolean(input.includeCompanyAts),
+      enabledBoardsVersion: ENABLED_BOARDS_VERSION,
+      postedWithinDays,
+      requiredSkillGroups: groups,
+    },
     { upsert: true },
   );
   revalidateJobs();

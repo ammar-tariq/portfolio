@@ -384,6 +384,7 @@ const jobListingSchema = new Schema(
     visaLanguage: { type: Boolean, default: false },
     citizenshipRequirement: { type: Boolean, default: false },
     stackMatches: { type: [String], default: [] },
+    requiredMatches: { type: [String], default: [] },
     status: {
       type: String,
       enum: ["seen", "saved", "skipped", "drafted", "applied", "hidden"],
@@ -437,6 +438,11 @@ const jobPollStateSchema = new Schema(
     },
     includeCompanyAts: { type: Boolean, default: false },
     enabledBoardsVersion: { type: Number, default: 0 },
+    postedWithinDays: { type: Number, default: 7 },
+    requiredSkillGroups: {
+      type: [[String]],
+      default: [["React Native", "React"]],
+    },
   },
   { timestamps: true },
 );

@@ -3,23 +3,39 @@ import { canonicalKey, clipText, normalizeApplyUrl, titleCompanyLocationHash } f
 import type { NormalizedJob } from "@/lib/jobs/normalize";
 import { scoreListing } from "@/lib/jobs/score";
 import type { StackTerm } from "@/lib/jobs/stack";
-import { matchStack } from "@/lib/jobs/stack";
+import { isPostedWithinDays, matchRequiredSkillGroups, matchStack } from "@/lib/jobs/stack";
 import type { AdapterError } from "@/types/job-search";
 
 const LOCKED_STATUSES = new Set(["saved", "skipped", "drafted", "applied", "hidden"]);
 
+export type UpsertOptions = {
+  /** Soft portfolio stack terms (scoring / badges). */
+  terms: StackTerm[];
+  /** Compulsory OR-groups; empty = fall back to any portfolio stack hit. */
+  requiredSkillGroups?: string[][];
+  /** 0 = any; otherwise skip when postedAt is older than N days. */
+  postedWithinDays?: number;
+};
+
 export async function upsertJobs(
   jobs: NormalizedJob[],
-  terms: StackTerm[],
+  options: UpsertOptions | StackTerm[],
 ): Promise<{
   added: number;
   updated: number;
   skippedRole: number;
+  skippedStale: number;
   skippedInvalid: number;
 }> {
+  const opts: UpsertOptions = Array.isArray(options) ? { terms: options } : options;
+  const terms = opts.terms;
+  const requiredGroups = (opts.requiredSkillGroups ?? []).filter((group) => group.length);
+  const postedWithinDays = opts.postedWithinDays ?? 0;
+
   let added = 0;
   let updated = 0;
   let skippedRole = 0;
+  let skippedStale = 0;
   let skippedInvalid = 0;
 
   for (const job of jobs) {
@@ -30,13 +46,32 @@ export async function upsertJobs(
       continue;
     }
 
+    if (!isPostedWithinDays(job.postedAt, postedWithinDays)) {
+      skippedStale += 1;
+      continue;
+    }
+
     const company = job.company.trim() || job.boardToken || job.source;
     const location = job.location.trim();
-    const stackMatches = matchStack(`${title}\n${job.descriptionText}\n${location}`, terms);
-    if (terms.length && !stackMatches.length) {
+    const hay = `${title}\n${job.descriptionText}\n${location}`;
+
+    let requiredMatches: string[] = [];
+    if (requiredGroups.length) {
+      const required = matchRequiredSkillGroups(hay, requiredGroups);
+      if (!required.ok) {
+        skippedRole += 1;
+        continue;
+      }
+      requiredMatches = required.matched;
+    }
+
+    const softMatches = matchStack(hay, terms);
+    if (!requiredGroups.length && terms.length && !softMatches.length) {
       skippedRole += 1;
       continue;
     }
+
+    const stackMatches = [...new Set([...requiredMatches, ...softMatches])].slice(0, 16);
     const hash = titleCompanyLocationHash(title, company, location);
     const key = canonicalKey({
       applyUrl,
@@ -76,6 +111,7 @@ export async function upsertJobs(
         titleCompanyLocationHash: hash,
         ...scored,
         stackMatches,
+        requiredMatches,
         status: "seen",
       });
       added += 1;
@@ -93,6 +129,7 @@ export async function upsertJobs(
       existing.visaLanguage = scored.visaLanguage;
       existing.citizenshipRequirement = scored.citizenshipRequirement;
       existing.stackMatches = stackMatches;
+      existing.requiredMatches = requiredMatches;
       existing.remote = existing.remote || job.remote;
       if (job.postedAt) existing.postedAt = job.postedAt;
     }
@@ -100,7 +137,7 @@ export async function upsertJobs(
     updated += 1;
   }
 
-  return { added, updated, skippedRole, skippedInvalid };
+  return { added, updated, skippedRole, skippedStale, skippedInvalid };
 }
 
 export function pushAdapterError(errors: AdapterError[], adapter: string, error: unknown) {

@@ -27,10 +27,16 @@ import { pushAdapterError, upsertJobs } from "@/lib/jobs/upsert";
 import { isQuotaError } from "@/lib/gemini-error";
 import { watchFromDoc } from "@/lib/jobs/from-doc";
 import type { AdapterError, BoardSource, JobPollResult, WatchAts } from "@/types/job-search";
-import { ENABLED_BOARDS_VERSION, resolveEnabledBoards } from "@/types/job-search";
+import {
+  ENABLED_BOARDS_VERSION,
+  normalizePostedWithinDays,
+  normalizeRequiredSkillGroups,
+  resolveEnabledBoards,
+} from "@/types/job-search";
 import { getSiteContentForParams } from "@/lib/content";
 import { stackTermsFromContent, type StackTerm } from "@/lib/jobs/stack";
 import type { NormalizedJob } from "@/lib/jobs/normalize";
+import type { UpsertOptions } from "@/lib/jobs/upsert";
 
 function normalizeEnabledBoards(value: unknown, version = 0): BoardSource[] {
   return resolveEnabledBoards(Array.isArray(value) ? value.map(String) : [], version);
@@ -41,13 +47,21 @@ const MAX_JOBS_PER_ADAPTER = 180;
 const MAX_WATCH_JOBS = 1000;
 const WATCHES_PER_RUN = 8;
 
-async function ingest(jobs: NormalizedJob[], terms: StackTerm[], max = MAX_JOBS_PER_ADAPTER) {
-  return upsertJobs(jobs.slice(0, max), terms);
+async function ingest(jobs: NormalizedJob[], options: UpsertOptions, max = MAX_JOBS_PER_ADAPTER) {
+  return upsertJobs(jobs.slice(0, max), options);
 }
 
 async function loadStackTerms() {
   const content = await getSiteContentForParams();
   return stackTermsFromContent(content);
+}
+
+function upsertOpts(terms: StackTerm[], saved: Record<string, unknown> | null): UpsertOptions {
+  return {
+    terms,
+    requiredSkillGroups: normalizeRequiredSkillGroups(saved?.requiredSkillGroups),
+    postedWithinDays: normalizePostedWithinDays(saved?.postedWithinDays),
+  };
 }
 
 export async function pollWatchById(
@@ -59,8 +73,9 @@ export async function pollWatchById(
   if (!watch) return { ok: false, error: "Watchlist board not found." };
   try {
     const terms = await loadStackTerms();
+    const saved = (await JobPollStateModel.findById("jobs").lean()) as Record<string, unknown> | null;
     const jobs = await fetchWatchJobs(watch.ats as WatchAts, String(watch.token), String(watch.name));
-    const result = await ingest(jobs, terms, MAX_WATCH_JOBS);
+    const result = await ingest(jobs, upsertOpts(terms, saved), MAX_WATCH_JOBS);
     watch.lastPolledAt = new Date();
     watch.lastError = "";
     await watch.save();
@@ -138,8 +153,8 @@ export async function enrichJobListings(limit = 3): Promise<number> {
   return enrichNewListings(limit);
 }
 
-export async function pollJobSources(options: { enrich?: boolean } = {}): Promise<JobPollResult | { ok: false; error: string }> {
-  const { enrich = true } = options;
+export async function pollJobSources(runOptions: { enrich?: boolean } = {}): Promise<JobPollResult | { ok: false; error: string }> {
+  const { enrich = true } = runOptions;
   if (!hasMongo()) return { ok: false, error: "MongoDB is not configured." };
   await connectDb();
 
@@ -148,13 +163,12 @@ export async function pollJobSources(options: { enrich?: boolean } = {}): Promis
   let added = 0;
   let updated = 0;
   let skippedRole = 0;
+  let skippedStale = 0;
 
-  const saved = await JobPollStateModel.findById("jobs").lean();
-  const enabled = normalizeEnabledBoards(
-    (saved as { enabledBoards?: unknown } | null)?.enabledBoards,
-    Number((saved as { enabledBoardsVersion?: number } | null)?.enabledBoardsVersion) || 0,
-  );
-  const includeCompanyAts = Boolean((saved as { includeCompanyAts?: boolean } | null)?.includeCompanyAts);
+  const saved = (await JobPollStateModel.findById("jobs").lean()) as Record<string, unknown> | null;
+  const enabled = normalizeEnabledBoards(saved?.enabledBoards, Number(saved?.enabledBoardsVersion) || 0);
+  const includeCompanyAts = Boolean(saved?.includeCompanyAts);
+  const upsert = upsertOpts(terms, saved);
 
   const boardRuns: { name: BoardSource; run: () => Promise<NormalizedJob[]> }[] = [
     { name: "remote-ok", run: fetchRemoteOkJobs },
@@ -179,14 +193,15 @@ export async function pollJobSources(options: { enrich?: boolean } = {}): Promis
   for (const board of boardRuns) {
     if (!enabled.includes(board.name)) continue;
     const jobs = await collect(board.name, errors, board.run);
-    const result = await ingest(jobs, terms);
+    const result = await ingest(jobs, upsert);
     added += result.added;
     updated += result.updated;
     skippedRole += result.skippedRole;
+    skippedStale += result.skippedStale;
     await sleep(DELAY_MS);
   }
 
-  let nextIndex = Number((saved as { lastWatchIndex?: number } | null)?.lastWatchIndex) || 0;
+  let nextIndex = Number(saved?.lastWatchIndex) || 0;
   if (includeCompanyAts) {
     const watches = (await CompanyWatchModel.find({ enabled: true }).sort({ name: 1 }).lean()).map(watchFromDoc);
     const start = nextIndex;
@@ -200,10 +215,11 @@ export async function pollJobSources(options: { enrich?: boolean } = {}): Promis
       if (!watch) continue;
       try {
         const jobs = await fetchWatchJobs(watch.ats as WatchAts, watch.token, watch.name);
-        const result = await ingest(jobs, terms, MAX_WATCH_JOBS);
+        const result = await ingest(jobs, upsert, MAX_WATCH_JOBS);
         added += result.added;
         updated += result.updated;
         skippedRole += result.skippedRole;
+        skippedStale += result.skippedStale;
         await CompanyWatchModel.findByIdAndUpdate(watch.id, { lastPolledAt: new Date(), lastError: "" });
       } catch (error) {
         const message = error instanceof Error ? error.message : "Poll failed.";
@@ -231,9 +247,11 @@ export async function pollJobSources(options: { enrich?: boolean } = {}): Promis
       lastWatchIndex: nextIndex,
       enabledBoards: enabled,
       enabledBoardsVersion: ENABLED_BOARDS_VERSION,
+      postedWithinDays: upsert.postedWithinDays ?? 7,
+      requiredSkillGroups: upsert.requiredSkillGroups ?? [],
     },
     { upsert: true },
   );
 
-  return { ok: true, added, updated, skippedRole, adapterErrors: errors };
+  return { ok: true, added, updated, skippedRole, skippedStale, adapterErrors: errors };
 }

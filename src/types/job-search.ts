@@ -150,6 +150,8 @@ export type JobListing = {
   visaLanguage: boolean;
   citizenshipRequirement: boolean;
   stackMatches: string[];
+  /** Labels from required skill groups that matched this listing. */
+  requiredMatches: string[];
   status: ListingStatus;
   applicationId?: string;
   updatedAt?: string;
@@ -160,6 +162,38 @@ export type AdapterError = {
   error: string;
 };
 
+/** Posted-date window for Find jobs. */
+export const POSTED_WITHIN_OPTIONS = [
+  { days: 1 as const, label: "Last 24 hours" },
+  { days: 7 as const, label: "Last 7 days" },
+  { days: 30 as const, label: "Last 30 days" },
+  { days: 0 as const, label: "Any time" },
+];
+
+export type PostedWithinDays = 0 | 1 | 7 | 30;
+
+export const DEFAULT_POSTED_WITHIN_DAYS: PostedWithinDays = 7;
+
+/** Default: React Native or React is required. */
+export const DEFAULT_REQUIRED_SKILL_GROUPS: string[][] = [["React Native", "React"]];
+
+export function normalizePostedWithinDays(value: unknown): PostedWithinDays {
+  const n = Number(value);
+  if (n === 1 || n === 7 || n === 30 || n === 0) return n;
+  return DEFAULT_POSTED_WITHIN_DAYS;
+}
+
+export function normalizeRequiredSkillGroups(value: unknown): string[][] {
+  if (!Array.isArray(value) || !value.length) return DEFAULT_REQUIRED_SKILL_GROUPS.map((group) => [...group]);
+  const groups = value
+    .map((group) => {
+      if (!Array.isArray(group)) return [];
+      return [...new Set(group.map((item) => String(item).trim()).filter(Boolean))].slice(0, 12);
+    })
+    .filter((group) => group.length);
+  return groups.length ? groups.slice(0, 6) : DEFAULT_REQUIRED_SKILL_GROUPS.map((group) => [...group]);
+}
+
 export type JobPollState = {
   lastRunAt?: string;
   lastError?: string;
@@ -169,6 +203,13 @@ export type JobPollState = {
   lastSkippedRole: number;
   enabledBoards: BoardSource[];
   includeCompanyAts: boolean;
+  /** 0 = any age; otherwise drop listings older than N days when postedAt is known. */
+  postedWithinDays: PostedWithinDays;
+  /**
+   * Compulsory skill groups. OR within a group, AND across groups.
+   * Example: [["React Native", "React"]] = must mention React Native or React.
+   */
+  requiredSkillGroups: string[][];
 };
 
 export type JobPollResult = {
@@ -176,5 +217,6 @@ export type JobPollResult = {
   added: number;
   updated: number;
   skippedRole: number;
+  skippedStale: number;
   adapterErrors: AdapterError[];
 };
