@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import { SiteProvider } from "./site-provider";
 import { Navigation } from "@/components/nav/navigation";
@@ -31,10 +32,34 @@ const SpatialScene = dynamic(() => import("@/components/spatial/spatial-scene"),
   loading: () => null,
 });
 
+// Defer the ~1 MB WebGL bundle until after the page is idle, so three.js never
+// competes with first paint, LCP, or input on slower machines. Renders nothing
+// on mobile / reduced-motion / no-WebGL, and starts rendering only after the
+// main thread is free.
 function SpatialLayer() {
   const motionOn = useMotionEnabled();
   const desktop = useIsDesktop();
-  if (!motionOn || !desktop) return null;
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    if (!motionOn || !desktop) return;
+    let idleId: number | undefined;
+    let timeoutId: ReturnType<typeof setTimeout> | undefined;
+    const kick = () => setReady(true);
+    if (typeof window.requestIdleCallback === "function") {
+      idleId = window.requestIdleCallback(kick, { timeout: 2500 });
+    } else {
+      timeoutId = setTimeout(kick, 1200);
+    }
+    return () => {
+      if (idleId !== undefined && typeof window.cancelIdleCallback === "function") {
+        window.cancelIdleCallback(idleId);
+      }
+      if (timeoutId !== undefined) clearTimeout(timeoutId);
+    };
+  }, [motionOn, desktop]);
+
+  if (!motionOn || !desktop || !ready) return null;
   return (
     <div className="pointer-events-none fixed inset-0 z-0">
       <SpatialScene />
