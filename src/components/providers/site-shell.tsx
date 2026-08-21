@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import dynamic from "next/dynamic";
+import { hasHardwareWebGL, subscribeGpu } from "@/components/spatial/gpu";
 import { SiteProvider } from "./site-provider";
 import { Navigation } from "@/components/nav/navigation";
 import { CommandPalette } from "@/components/command/command-palette";
@@ -41,8 +42,12 @@ function SpatialLayer() {
   const desktop = useIsDesktop();
   const [ready, setReady] = useState(false);
 
+  // Hardware WebGL check done here (before importing the bundle) so software-rendered
+  // devices (PageSpeed's SwiftShader, low-end hardware) never even download three.js.
+  const gpu = useSyncExternalStore(subscribeGpu, hasHardwareWebGL, () => false);
+
   useEffect(() => {
-    if (!motionOn || !desktop) return;
+    if (!motionOn || !desktop || !gpu) return;
     let idleId: number | undefined;
     let timeoutId: ReturnType<typeof setTimeout> | undefined;
     const kick = () => setReady(true);
@@ -57,9 +62,9 @@ function SpatialLayer() {
       }
       if (timeoutId !== undefined) clearTimeout(timeoutId);
     };
-  }, [motionOn, desktop]);
+  }, [motionOn, desktop, gpu]);
 
-  if (!motionOn || !desktop || !ready) return null;
+  if (!motionOn || !desktop || !gpu || !ready) return null;
   return (
     <div className="pointer-events-none fixed inset-0 z-0">
       <SpatialScene />
