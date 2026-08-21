@@ -12,7 +12,7 @@ import {
   systemArchitecture,
 } from "@/data/architecture";
 import { githubConfig, openSourceProjects } from "@/data/github";
-import { seoKeywords, seoTopics } from "@/data/seo-keywords";
+import { seoDescription, seoKeywords, seoTitle, seoTopics } from "@/data/seo-keywords";
 import { rewriteProjectMedia } from "@/lib/media-url";
 import type {
   ArchitectureContent,
@@ -20,10 +20,6 @@ import type {
   SiteContent,
   SiteSettings,
 } from "@/types/content";
-
-// Placeholder — real values are served from MongoDB (see src/lib/content.ts).
-const aboutBody =
-  "A short 'about' paragraph describing how you work and the through-line across your projects. The live site loads this from the database; this is placeholder copy for the public repo.";
 
 export function staticSettings(): SiteSettings {
   return {
@@ -41,8 +37,8 @@ export function staticSettings(): SiteSettings {
       resumeUrl: profileData.resumeUrl,
       website: profileData.website,
       focus: [...profileData.focus],
-      aboutHeadline: `${profileData.yearsExperience}+ years building products that have to last.`,
-      aboutBody,
+      aboutHeadline: profileData.aboutHeadline,
+      aboutBody: profileData.aboutBody,
     },
     social: { ...socialData },
     navItems: navData.map((item) => ({
@@ -52,8 +48,8 @@ export function staticSettings(): SiteSettings {
       ...("external" in item && item.external ? { external: true as const } : {}),
     })),
     seo: {
-      title: `${profileData.name} | ${profileData.title}`,
-      description: profileData.summary,
+      title: seoTitle,
+      description: seoDescription,
       keywords: [...seoKeywords],
       topics: [...seoTopics],
     },

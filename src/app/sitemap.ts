@@ -1,11 +1,15 @@
 import type { MetadataRoute } from "next";
+import { connection } from "next/server";
 import { getSiteContent } from "@/lib/content";
 import { siteUrlFrom } from "@/lib/seo";
 import { publicProjects } from "@/lib/project-helpers";
 import { LEGAL_UPDATED_ISO } from "@/lib/legal";
 import { homeSectionSlugs } from "@/lib/home-sections";
 
+export const dynamic = "force-dynamic";
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  await connection();
   const content = await getSiteContent();
   const siteUrl = siteUrlFrom(content);
   const projects = publicProjects(content.projects);

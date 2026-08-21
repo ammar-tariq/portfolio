@@ -1,12 +1,60 @@
-// Placeholder/example data — the real industry set is served from MongoDB. These
-// generic labels back the example projects below and the IndustryId type.
 export const industries = [
-  { id: "web", label: "Web" },
-  { id: "mobile", label: "Mobile" },
-  { id: "saas", label: "SaaS" },
-  { id: "marketplace", label: "Marketplace" },
-  { id: "fintech", label: "Fintech" },
-  { id: "ecommerce", label: "E-commerce" },
+  {
+    "id": "industrial",
+    "label": "Industrial"
+  },
+  {
+    "id": "fintech",
+    "label": "Fintech"
+  },
+  {
+    "id": "marketplace",
+    "label": "Marketplace"
+  },
+  {
+    "id": "entertainment",
+    "label": "Entertainment"
+  },
+  {
+    "id": "events",
+    "label": "Events"
+  },
+  {
+    "id": "social",
+    "label": "Social"
+  },
+  {
+    "id": "dating",
+    "label": "Dating"
+  },
+  {
+    "id": "local",
+    "label": "Local services"
+  },
+  {
+    "id": "marine",
+    "label": "Marine"
+  },
+  {
+    "id": "iot",
+    "label": "IoT"
+  },
+  {
+    "id": "hospitality",
+    "label": "Hospitality"
+  },
+  {
+    "id": "wellness",
+    "label": "Wellness"
+  },
+  {
+    "id": "fashion",
+    "label": "Fashion"
+  },
+  {
+    "id": "ecommerce",
+    "label": "E-commerce"
+  }
 ] as const;
 
 export type IndustryId = (typeof industries)[number]["id"];

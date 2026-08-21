@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next";
+import { connection } from "next/server";
 import { getSiteContent } from "@/lib/content";
 import { siteUrlFrom } from "@/lib/seo";
 
@@ -33,7 +34,10 @@ const allowBots = [
   "Discordbot",
 ];
 
+export const dynamic = "force-dynamic";
+
 export default async function robots(): Promise<MetadataRoute.Robots> {
+  await connection();
   const content = await getSiteContent();
   const siteUrl = siteUrlFrom(content);
   return {

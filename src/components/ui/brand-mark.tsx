@@ -3,11 +3,11 @@ import { cn } from "@/lib/cn";
 export function BrandMark({
   className,
   size = 36,
-  name = "Your Name",
+  name,
 }: {
   className?: string;
   size?: number;
-  name?: string;
+  name: string;
 }) {
   return (
     // eslint-disable-next-line @next/next/no-img-element

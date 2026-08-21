@@ -1,4 +1,5 @@
 import type { SiteContent } from "@/types/content";
+import { siteOrigin } from "@/lib/env";
 
 export type FaqItem = {
   question: string;
@@ -7,7 +8,7 @@ export type FaqItem = {
 
 export function siteFaq(content: SiteContent): FaqItem[] {
   const { profile } = content;
-  const siteUrl = profile.website.replace(/\/$/, "");
+  const siteUrl = siteOrigin(profile.website);
   return [
     {
       question: `Who is ${profile.name}?`,

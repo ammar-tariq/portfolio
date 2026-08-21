@@ -34,9 +34,9 @@ export async function homeMetadata(sectionId: HomeSectionId = "hero"): Promise<M
 
 export async function HomePage({ sectionId = "hero" }: { sectionId?: HomeSectionId }) {
   const content = await getSiteContent();
-  const handle = content.social.githubHandle || "your-handle";
+  const handle = content.social.githubHandle;
   const [cursor, contributions] = await Promise.all([
-    getCursorProfile(content.social.cursorHandle ?? "your-handle"),
+    getCursorProfile(content.social.cursorHandle ?? handle),
     getGithubContributions(handle),
   ]);
   return (

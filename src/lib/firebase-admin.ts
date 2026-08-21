@@ -37,8 +37,15 @@ export function firebaseVapidKey() {
 
 export function publicOrigin() {
   const fromAuth = process.env.AUTH_URL?.trim().replace(/\/$/, "");
-  if (fromAuth) return fromAuth;
-  const host = siteHost();
-  if (host && host !== "example.com") return `https://${host}`;
-  return "";
+  if (fromAuth) {
+    try {
+      const host = new URL(fromAuth).hostname;
+      if (host && host !== "localhost" && host !== "127.0.0.1" && host !== "example.com") {
+        return fromAuth;
+      }
+    } catch {
+      /* ignore */
+    }
+  }
+  return `https://${siteHost()}`;
 }

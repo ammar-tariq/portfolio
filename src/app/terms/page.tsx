@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { LegalH2, LegalList, LegalP, LegalPage } from "@/components/legal/legal-page";
 import { getSiteContent } from "@/lib/content";
-import { routeMetadata } from "@/lib/seo";
+import { routeMetadata, siteUrlFrom } from "@/lib/seo";
 import { LEGAL_UPDATED } from "@/lib/legal";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -17,7 +17,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function TermsPage() {
   const content = await getSiteContent();
   const { profile } = content;
-  const siteUrl = profile.website.replace(/\/$/, "");
+  const siteUrl = siteUrlFrom(content);
 
   return (
     <LegalPage name={profile.name} title="Terms of Service" updated={LEGAL_UPDATED}>

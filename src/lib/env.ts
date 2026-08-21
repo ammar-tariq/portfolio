@@ -2,10 +2,40 @@ export function hasMongo() {
   return Boolean(process.env.MONGODB_URI);
 }
 
-// Public site host, from env. Falls back to a generic value so no real domain is
-// hardcoded in the repo. Used for outbound User-Agents and notification copy.
+const DEFAULT_SITE_HOST = "ammartariq.com";
+const PLACEHOLDER_HOSTS = new Set(["example.com", "www.example.com", "localhost", "127.0.0.1"]);
+
+function hostnameOf(value: string) {
+  try {
+    const url = new URL(value.includes("://") ? value : `https://${value}`);
+    return url.hostname.replace(/^www\./, "").toLowerCase();
+  } catch {
+    return "";
+  }
+}
+
+function originOf(value: string | undefined) {
+  const raw = value?.trim();
+  if (!raw) return "";
+  const host = hostnameOf(raw);
+  if (!host || PLACEHOLDER_HOSTS.has(host)) return "";
+  return `https://${host}`;
+}
+
+// Public site host. SITE_HOST wins; otherwise AUTH_URL if it is not localhost;
+// otherwise the production domain. Used for outbound User-Agents and notification copy.
 export function siteHost() {
-  return process.env.SITE_HOST?.trim() || "example.com";
+  return (
+    originOf(process.env.SITE_HOST)?.replace(/^https:\/\//, "") ||
+    originOf(process.env.AUTH_URL)?.replace(/^https:\/\//, "") ||
+    DEFAULT_SITE_HOST
+  );
+}
+
+// Canonical public origin for sitemap, robots, JSON-LD, and metadata.
+// Never returns example.com / localhost — those break Google Search Console.
+export function siteOrigin(website?: string) {
+  return originOf(website) || originOf(process.env.AUTH_URL) || `https://${siteHost()}`;
 }
 
 export function hasCloudinary() {

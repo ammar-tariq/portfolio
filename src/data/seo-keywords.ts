@@ -2,11 +2,19 @@ function unique(items: string[]) {
   return [...new Set(items.map((item) => item.trim()).filter(Boolean))];
 }
 
-// Placeholder/example data — the real SEO fields are served from MongoDB. Keep
-// this generic (no real name or location) so nothing personal ships in the repo.
-// Keep the lists short and factual: Google ignores the keywords meta tag, Bing
-// treats oversized keyword lists as a spam signal, and LLM crawlers read raw HTML.
+export const seoTitle = "Ammar Tariq | Senior Full-Stack & React Native Engineer";
+
+export const seoDescription =
+  "Ammar Tariq is a senior software engineer with 8+ years shipping production React Native apps, TypeScript frontends, NestJS and Node.js backends, IoT (MQTT), realtime chat, payments, marketplaces, and AI-enabled products. Based in Karachi, Pakistan. Available remotely worldwide, Gulf, UAE, and the United States.";
+
+// Fallback SEO fields used when MongoDB is unavailable. Keep the lists short:
+// Google ignores the keywords meta tag, Bing treats oversized keyword lists as
+// a spam signal, and LLM crawlers read raw HTML.
 export const seoKeywords = unique([
+  "Ammar Tariq",
+  "Ammar Tariq software engineer",
+  "Ammar Tariq React Native developer",
+  "Ammar Tariq Karachi",
   "Senior Software Engineer",
   "Senior Full-Stack Engineer",
   "Senior React Native Developer",

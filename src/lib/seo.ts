@@ -6,9 +6,10 @@ import { coverImage, allScreenshots } from "@/lib/project-media";
 import { publicProjects } from "@/lib/project-helpers";
 import { siteFaq } from "@/lib/faq";
 import { homeSectionById, type HomeSectionId } from "@/lib/home-sections";
+import { siteOrigin } from "@/lib/env";
 
 export function siteUrlFrom(content: SiteContent) {
-  return content.profile.website.replace(/\/$/, "");
+  return siteOrigin(content.profile.website);
 }
 
 export function skillNames(content: SiteContent) {
