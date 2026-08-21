@@ -141,6 +141,7 @@ const settingsSchema = new Schema(
     social: { type: Schema.Types.Mixed, default: {} },
     navItems: { type: Schema.Types.Mixed, default: [] },
     seo: { type: Schema.Types.Mixed, default: {} },
+    defaultResumeTemplate: { type: String, enum: ["classic", "executive", "compact", "modern"], default: "classic" },
   },
   { timestamps: true },
 );
@@ -213,6 +214,7 @@ const jobApplicationSchema = new Schema(
     aboutCompany: { type: String, default: "" },
     extraQuestions: { type: String, default: "" },
     keywords: { type: [String], default: [] },
+    resumeTemplate: { type: String, enum: ["classic", "executive", "compact", "modern"] },
     resume: { type: Schema.Types.Mixed, default: {} },
     coverLetter: { type: String, default: "" },
     answers: {

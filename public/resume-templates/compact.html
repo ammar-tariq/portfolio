@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Resume preview — Compact</title>
+  <link rel="stylesheet" href="./compact.css" />
+  <style>@media screen {
+  html { background: #d8d8dc; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    padding: 28px 16px 48px;
+  }
+  .preview-bar {
+    font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;
+    max-width: 7.6in;
+    margin: 0 auto 16px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 14px;
+    align-items: center;
+    justify-content: space-between;
+    color: #222;
+  }
+  .preview-bar a {
+    color: #1a1a1a;
+    font-size: 13px;
+  }
+  .preview-bar nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .preview-bar .label {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .resume {
+    background: #fff;
+    box-shadow: 0 2px 16px rgba(0, 0, 0, 0.1);
+  }
+}
+@media print {
+  .preview-bar { display: none !important; }
+  html, body { background: #fff; padding: 0; }
+}</style>
+</head>
+<body>
+  <div class="preview-bar">
+    <div>
+      <div class="label">Compact template</div>
+      <div style="font-size:12px;color:#555;margin-top:2px">One-page fit · Long AI drafts without regenerating</div>
+    </div>
+    <nav>
+      <a href="./index.html">All templates</a>
+      <a href="./classic.html">Classic</a>
+        <a href="./executive.html">Executive</a>
+        <a href="./compact.html" aria-current="page">Compact</a>
+        <a href="./modern.html">Modern</a>
+    </nav>
+  </div>
+  <article class="resume resume--compact">
+<header class="r-head">
+  <h1>Ammar Tariq</h1>
+  <p class="r-title">Senior Software Engineer</p>
+  <p class="r-place">Karachi, Pakistan</p>
+  <p class="r-contact">
+    <span>ammar.tariq10@gmail.com</span>
+    <span>+92 300 0000000</span>
+    <span>linkedin.com/in/ammar10</span>
+    <span>ammartariq.com</span>
+  </p>
+</header>
+
+<section>
+  <h2>Summary</h2>
+  <p class="r-summary">
+    Senior software engineer with 8+ years shipping production systems across React Native,
+    TypeScript frontends, NestJS services, and AI-enabled workflows. Known for clear architecture,
+    honest performance trade-offs, and end-to-end ownership from mobile clients to APIs and payments.
+  </p>
+</section>
+
+<section>
+  <h2>Experience</h2>
+
+  <article class="r-job">
+    <div class="r-job-top">
+      <h3>Senior Full-Stack Engineer</h3>
+      <span class="r-dates">2023 — Present</span>
+    </div>
+    <p class="r-org">Pixel Genesys · Remote / United States</p>
+    <ul>
+      <li>Architected and scaled SaaS platforms with Node.js, NestJS, and mixed SQL/NoSQL data stores.</li>
+      <li>Shipped SoundSeen and Zeus Lights full-stack — React Native, NestJS, Stripe, and MQTT device control.</li>
+      <li>Designed GraphQL and REST API contracts that reduced frontend over-fetching and latency.</li>
+      <li>Integrated LLM workflows into product surfaces, including Bar Genius.</li>
+    </ul>
+  </article>
+
+  <article class="r-job">
+    <div class="r-job-top">
+      <h3>Head of Department / Senior Engineer</h3>
+      <span class="r-dates">2023</span>
+    </div>
+    <p class="r-org">Meta Frolic Labs · Karachi, Pakistan</p>
+    <ul>
+      <li>Led technical reviews and mentored engineers on mobile architecture and frontend performance.</li>
+      <li>Standardized TypeScript patterns and introduced CI/CD and automated testing.</li>
+      <li>Guided cloud-native architecture and real-time communication (WebRTC) practices.</li>
+    </ul>
+  </article>
+
+  <article class="r-job">
+    <div class="r-job-top">
+      <h3>Senior Mobile Developer</h3>
+      <span class="r-dates">2019 — 2023</span>
+    </div>
+    <p class="r-org">Salsoft Technologies · Karachi, Pakistan</p>
+    <ul>
+      <li>Delivered 10+ production mobile applications with React Native CLI, TypeScript, and Redux.</li>
+      <li>Implemented WebRTC calling with Janus Gateway — signaling, media routing, and NAT traversal.</li>
+      <li>Built native Android integrations: sensors, background services, and custom device behavior.</li>
+    </ul>
+  </article>
+
+  <article class="r-job">
+    <div class="r-job-top">
+      <h3>Software Engineer</h3>
+      <span class="r-dates">2018 — 2019</span>
+    </div>
+    <p class="r-org">Salsoft Technologies · Karachi, Pakistan</p>
+    <ul>
+      <li>Built and maintained mobile and web product surfaces across React Native, React, and Node.js.</li>
+      <li>Supported backend teams with Node.js services and REST APIs.</li>
+    </ul>
+  </article>
+</section>
+
+<section>
+  <h2>Projects</h2>
+
+  <article class="r-project">
+    <div class="r-project-top">
+      <h3>SoundSeen</h3>
+    </div>
+    <p class="r-line">Full-stack consumer audio app — React Native, Express, Stripe, and store delivery.</p>
+    <ul>
+      <li>Owned mobile UI, cached API access, Express services, and payment webhooks end to end.</li>
+    </ul>
+  </article>
+
+  <article class="r-project">
+    <div class="r-project-top">
+      <h3>Zeus Lights</h3>
+    </div>
+    <p class="r-line">Permanent LED lighting control — React Native, Next.js dashboard, NestJS, MQTT.</p>
+    <ul>
+      <li>Device bus and cloud contract shared by the homeowner app and operations dashboard.</li>
+    </ul>
+  </article>
+</section>
+
+<section>
+  <h2>Skills</h2>
+  <p class="r-skill"><strong>Mobile</strong> React Native, Expo, EAS, React Navigation, Native Modules</p>
+  <p class="r-skill"><strong>Frontend</strong> React, Next.js, TypeScript, Redux Toolkit, RTK Query</p>
+  <p class="r-skill"><strong>Backend</strong> Node.js, NestJS, Express, GraphQL, Socket.io, MQTT, Stripe, WebRTC</p>
+  <p class="r-skill"><strong>Data</strong> PostgreSQL, MongoDB, Redis</p>
+  <p class="r-skill"><strong>Cloud</strong> Docker, GCP, Nginx, CI/CD</p>
+</section>
+  </article>
+</body>
+</html>

@@ -1,0 +1,180 @@
+@page { margin: 0.55in 0.65in; }
+* { box-sizing: border-box; }
+html, body {
+  margin: 0;
+  padding: 0;
+  background: #fff;
+  color: #0e0e10;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+.resume {
+  font-family: Helvetica, Arial, "Liberation Sans", sans-serif;
+  font-size: 10.5pt;
+  line-height: 1.4;
+  max-width: 7.6in;
+  margin: 0 auto;
+  padding: 0.4in 0.2in 0.45in;
+  color: #0e0e10;
+}
+.resume a { color: inherit; text-decoration: none; }
+
+/* —— Header —— */
+.resume .r-head {
+  text-align: left;
+  padding: 10pt 0 12pt;
+  margin: 0 0 4pt;
+  border-top: 3pt solid #0e0e10;
+  border-bottom: 1pt solid #0e0e10;
+}
+.resume .r-head h1 {
+  margin: 0 0 4pt;
+  font-size: 24pt;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.05;
+  text-transform: none;
+}
+.resume .r-title {
+  margin: 0;
+  font-size: 11.5pt;
+  font-weight: 700;
+  letter-spacing: 0.015em;
+  color: #0e0e10;
+}
+.resume .r-place {
+  margin: 3pt 0 8pt;
+  font-size: 9.25pt;
+  color: #52525a;
+  letter-spacing: 0.02em;
+}
+.resume .r-contact {
+  margin: 0;
+  font-size: 9pt;
+  line-height: 1.5;
+  color: #2c2c32;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  gap: 0;
+  row-gap: 2pt;
+}
+.resume .r-contact span {
+  white-space: nowrap;
+}
+.resume .r-contact span + span::before {
+  content: "|";
+  display: inline-block;
+  margin: 0 8pt;
+  color: #b0b0b6;
+  font-weight: 400;
+}
+
+/* —— Sections —— */
+.resume h2 {
+  margin: 16pt 0 8pt;
+  padding: 0 0 3.5pt;
+  font-size: 8.75pt;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #0e0e10;
+  border-bottom: 1.25pt solid #0e0e10;
+  line-height: 1.2;
+}
+.resume .r-summary {
+  margin: 0;
+  font-size: 10.25pt;
+  line-height: 1.45;
+  color: #1a1a1e;
+}
+
+/* —— Experience / Projects —— */
+.resume .r-job,
+.resume .r-project {
+  margin: 0 0 11pt;
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+.resume .r-job:last-child,
+.resume .r-project:last-child {
+  margin-bottom: 0;
+}
+.resume .r-job-top,
+.resume .r-project-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 14pt;
+  margin: 0;
+}
+.resume .r-job-top h3,
+.resume .r-project-top h3 {
+  margin: 0;
+  font-size: 11pt;
+  font-weight: 700;
+  line-height: 1.25;
+  color: #0e0e10;
+  flex: 1 1 auto;
+}
+.resume .r-dates {
+  margin: 0;
+  font-size: 9.5pt;
+  font-weight: 400;
+  color: #3a3a42;
+  white-space: nowrap;
+  flex: 0 0 auto;
+}
+.resume .r-org {
+  margin: 1.5pt 0 4pt;
+  font-size: 9.75pt;
+  font-style: italic;
+  font-weight: 400;
+  color: #4a4a52;
+  line-height: 1.3;
+}
+.resume .r-line {
+  margin: 1.5pt 0 3.5pt;
+  font-size: 9.75pt;
+  color: #4a4a52;
+  line-height: 1.35;
+}
+.resume ul {
+  margin: 0;
+  padding: 0 0 0 13pt;
+  list-style: disc;
+}
+.resume li {
+  margin: 0 0 3pt;
+  padding: 0;
+  font-size: 10pt;
+  line-height: 1.38;
+  color: #16161a;
+}
+.resume li:last-child {
+  margin-bottom: 0;
+}
+
+/* —— Skills —— */
+.resume .r-skill {
+  margin: 0 0 4pt;
+  font-size: 10pt;
+  line-height: 1.4;
+  color: #16161a;
+}
+.resume .r-skill:last-child {
+  margin-bottom: 0;
+}
+.resume .r-skill strong {
+  font-weight: 700;
+  color: #0e0e10;
+  display: inline-block;
+  min-width: 5.2em;
+  margin-right: 6pt;
+}
+
+@media print {
+  .resume { padding: 0; max-width: none; }
+  .resume .r-job,
+  .resume .r-project { page-break-inside: avoid; break-inside: avoid; }
+}

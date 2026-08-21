@@ -1,0 +1,198 @@
+/**
+ * Classic — default ATS resume.
+ *
+ * Design intent: Harvard / FAANG single-column CV. Centered masthead, hairline
+ * section rules, role left / dates right on one baseline. Dense but readable.
+ * One column only — no tables, sidebars, icons, or skill bars.
+ *
+ * After editing, run `npm run resume-previews` to refresh public HTML/CSS previews.
+ */
+export const classicCss = /* css */ `
+@page { margin: 0.55in 0.6in; }
+* { box-sizing: border-box; }
+html, body {
+  margin: 0;
+  padding: 0;
+  background: #fff;
+  color: #111114;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+.resume {
+  font-family: Helvetica, Arial, "Liberation Sans", sans-serif;
+  font-size: 10.25pt;
+  line-height: 1.38;
+  max-width: 7.5in;
+  margin: 0 auto;
+  padding: 0.35in 0.15in 0.4in;
+  color: #111114;
+}
+.resume a { color: inherit; text-decoration: none; }
+
+/* —— Header —— */
+.resume .r-head {
+  text-align: center;
+  padding: 0 0 11pt;
+  margin: 0 0 2pt;
+  border-bottom: 1.6pt solid #111114;
+}
+.resume .r-head h1 {
+  margin: 0 0 3pt;
+  font-size: 20pt;
+  font-weight: 700;
+  letter-spacing: 0.085em;
+  line-height: 1.1;
+  text-transform: uppercase;
+}
+.resume .r-title {
+  margin: 0;
+  font-size: 10.75pt;
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  color: #1a1a1d;
+}
+.resume .r-place {
+  margin: 2pt 0 7pt;
+  font-size: 9pt;
+  color: #55555c;
+  letter-spacing: 0.02em;
+}
+.resume .r-contact {
+  margin: 0;
+  font-size: 8.75pt;
+  line-height: 1.45;
+  color: #2a2a2e;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0;
+  row-gap: 2pt;
+}
+.resume .r-contact span {
+  white-space: nowrap;
+}
+.resume .r-contact span + span::before {
+  content: "·";
+  display: inline-block;
+  margin: 0 7pt;
+  color: #9a9aa0;
+  font-weight: 400;
+}
+
+/* —— Sections —— */
+.resume section {
+  margin: 0;
+  padding: 0;
+}
+.resume section + section {
+  margin-top: 0;
+}
+.resume h2 {
+  margin: 13pt 0 7pt;
+  padding: 0 0 2.5pt;
+  font-size: 9pt;
+  font-weight: 700;
+  letter-spacing: 0.17em;
+  text-transform: uppercase;
+  color: #111114;
+  border-bottom: 0.7pt solid #c4c4c8;
+  line-height: 1.2;
+}
+.resume .r-summary {
+  margin: 0;
+  font-size: 10pt;
+  line-height: 1.42;
+  color: #1c1c20;
+  text-align: left;
+}
+
+/* —— Experience / Projects —— */
+.resume .r-job,
+.resume .r-project {
+  margin: 0 0 9pt;
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+.resume .r-job:last-child,
+.resume .r-project:last-child {
+  margin-bottom: 0;
+}
+.resume .r-job-top,
+.resume .r-project-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12pt;
+  margin: 0;
+}
+.resume .r-job-top h3,
+.resume .r-project-top h3 {
+  margin: 0;
+  font-size: 10.5pt;
+  font-weight: 700;
+  line-height: 1.25;
+  color: #111114;
+  flex: 1 1 auto;
+}
+.resume .r-dates {
+  margin: 0;
+  font-size: 9.25pt;
+  font-weight: 400;
+  color: #3a3a40;
+  white-space: nowrap;
+  flex: 0 0 auto;
+  letter-spacing: 0.01em;
+}
+.resume .r-org {
+  margin: 1pt 0 3.5pt;
+  font-size: 9.5pt;
+  font-weight: 400;
+  color: #4a4a52;
+  line-height: 1.3;
+}
+.resume .r-line {
+  margin: 1pt 0 3pt;
+  font-size: 9.5pt;
+  color: #4a4a52;
+  line-height: 1.35;
+}
+.resume ul {
+  margin: 0;
+  padding: 0 0 0 12pt;
+  list-style: disc;
+}
+.resume li {
+  margin: 0 0 2.5pt;
+  padding: 0;
+  font-size: 9.75pt;
+  line-height: 1.36;
+  color: #1a1a1d;
+}
+.resume li:last-child {
+  margin-bottom: 0;
+}
+
+/* —— Skills —— */
+.resume .r-skill {
+  margin: 0 0 3.5pt;
+  font-size: 9.75pt;
+  line-height: 1.38;
+  color: #1a1a1d;
+}
+.resume .r-skill:last-child {
+  margin-bottom: 0;
+}
+.resume .r-skill strong {
+  font-weight: 700;
+  color: #111114;
+  display: inline-block;
+  min-width: 4.6em;
+  margin-right: 4pt;
+}
+
+@media print {
+  .resume { padding: 0; max-width: none; }
+  .resume .r-job,
+  .resume .r-project { page-break-inside: avoid; break-inside: avoid; }
+}
+`.trim();

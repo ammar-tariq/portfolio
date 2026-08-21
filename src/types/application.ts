@@ -1,3 +1,5 @@
+import type { ResumeTemplateId } from "@/lib/resume-templates/types";
+
 export type ApplicationStatus = "draft" | "applied" | "archived";
 
 export type InboxStatus = "none" | "replied" | "interview" | "rejected" | "offer";
@@ -74,6 +76,8 @@ export type JobApplication = {
   aboutCompany: string;
   extraQuestions: string;
   keywords: string[];
+  /** Per-application resume skin; falls back to site defaultResumeTemplate. */
+  resumeTemplate?: ResumeTemplateId;
   resume: GeneratedResume;
   coverLetter: string;
   answers: ApplicationAnswer[];

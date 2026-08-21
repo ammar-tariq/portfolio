@@ -1,3 +1,5 @@
+import type { ResumeTemplateId } from "@/lib/resume-templates/types";
+
 export type ProjectScreenshot = {
   src: string;
   alt: string;
@@ -173,6 +175,8 @@ export type Profile = {
   availability: string;
   yearsExperience: number;
   email: string;
+  /** International form preferred, e.g. +92 300 1234567 — shown on resume contact line. */
+  phone?: string;
   resumeUrl: string;
   website: string;
   focus: string[];
@@ -220,6 +224,8 @@ export type SiteSettings = {
   social: Social;
   navItems: NavItem[];
   seo: SeoSettings;
+  /** Default skin for generated application resumes (classic | executive | compact | modern). */
+  defaultResumeTemplate?: ResumeTemplateId;
 };
 
 export type SiteContent = {
@@ -227,6 +233,7 @@ export type SiteContent = {
   social: Social;
   navItems: NavItem[];
   seo: SeoSettings;
+  defaultResumeTemplate?: ResumeTemplateId;
   projects: Project[];
   experience: Experience[];
   skillCategories: SkillCategory[];

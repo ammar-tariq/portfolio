@@ -1,6 +1,15 @@
 import { generateGeminiJson } from "@/lib/draft-project";
 import { publicProjects } from "@/lib/project-helpers";
 import { destroyImage } from "@/lib/cloudinary";
+import {
+  DEFAULT_RESUME_TEMPLATE,
+  isResumeTemplateId,
+  resumeContactLine,
+  resumeContactParts,
+  resumeDocumentHtml,
+  resolveResumeTemplateId,
+  type ResumeTemplateId,
+} from "@/lib/resume-templates";
 import type { SiteContent } from "@/types/content";
 import type {
   ApplicationAnswer,
@@ -46,6 +55,7 @@ export function applicationFromDoc(doc: unknown): JobApplication {
     aboutCompany: str(data.aboutCompany, 8000),
     extraQuestions: str(data.extraQuestions, 8000),
     keywords: strList(data.keywords, 40, 80),
+    resumeTemplate: isResumeTemplateId(data.resumeTemplate) ? data.resumeTemplate : undefined,
     resume: normalizeResume(resume, str(data.company, 160), str(data.role, 160)),
     coverLetter: str(data.coverLetter, 6000),
     answers: answers.map((item) => {
@@ -161,6 +171,7 @@ function portfolioFacts(content: SiteContent) {
       summary: content.profile.summary,
       location: content.profile.location,
       email: content.profile.email,
+      phone: content.profile.phone,
       website: content.profile.website,
       yearsExperience: content.profile.yearsExperience,
       availability: content.profile.availability,
@@ -247,7 +258,8 @@ Rules:
 - coverLetter: 3 short paragraphs, under 1800 characters. Address the company and role. Mention 1–2 relevant projects by name. No "I am writing to apply". Do not put screening answers in the cover letter.
 - screeningAnswers: extract every application question from extra questions, the JD, and any pasted recruiter/hiring email. Include numbered questions, "please reply/answer", work authorization, visa, notice period, salary/compensation, start date, location/remote, why this role/company, and similar prompts. Answer each separately. If there are truly no questions, return []. Answers must stay inside the facts.
 - Do not invent education.
-- Prefer standard ATS section vocabulary in the prose (Summary, Skills, Experience, Projects).
+- Prefer standard ATS section vocabulary in the prose (Summary, Experience, Projects, Skills).
+- Section order for the resume object: summary, then experience, then projects, then skills (skills last).
 
 Candidate facts (source of truth):
 ${JSON.stringify(facts)}
@@ -343,39 +355,43 @@ ${questions}`;
   return parsed;
 }
 
-function escapeHtml(value: string) {
-  return value
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;");
+export function siteDefaultResumeTemplate(content: SiteContent): ResumeTemplateId {
+  return resolveResumeTemplateId(content.defaultResumeTemplate ?? DEFAULT_RESUME_TEMPLATE);
 }
 
 export function resumePlainText(content: SiteContent, application: JobApplication) {
   const { profile, social } = content;
   const { resume } = application;
+  const contact = resumeContactLine(resumeContactParts(profile, social), " | ");
   const lines = [
     profile.name,
-    `${resume.targetRole} | ${profile.location}`,
-    [profile.email, social.linkedin, social.github, profile.website || social.website].filter(Boolean).join(" | "),
+    resume.targetRole || profile.title,
+    profile.location,
+    contact,
     "",
     "SUMMARY",
     resume.summary,
     "",
-    "SKILLS",
-    ...resume.skills.map((group) => `${group.label}: ${group.items.join(", ")}`),
-    "",
     "EXPERIENCE",
   ];
   for (const item of resume.experience) {
-    lines.push(`${item.role} | ${item.company} | ${item.period}${item.location ? ` | ${item.location}` : ""}`);
-    for (const bullet of item.bullets) lines.push(`- ${bullet}`);
+    const org = [item.company, item.location].filter(Boolean).join(" · ");
+    lines.push(`${item.role}`);
+    lines.push([org, item.period].filter(Boolean).join(" | "));
+    for (const bullet of item.bullets) lines.push(`• ${bullet}`);
     lines.push("");
   }
-  lines.push("PROJECTS");
-  for (const project of resume.projects) {
-    lines.push(`${project.title}${project.line ? ` — ${project.line}` : ""}`);
-    for (const bullet of project.bullets ?? []) lines.push(`- ${bullet}`);
+  if (resume.projects.length) {
+    lines.push("PROJECTS");
+    for (const project of resume.projects) {
+      lines.push(`${project.title}${project.line ? ` — ${project.line}` : ""}`);
+      for (const bullet of project.bullets ?? []) lines.push(`• ${bullet}`);
+    }
+    lines.push("");
+  }
+  if (resume.skills.length) {
+    lines.push("SKILLS");
+    lines.push(...resume.skills.map((group) => `${group.label}: ${group.items.join(", ")}`));
   }
   if (application.keywords.length) {
     lines.push("", "KEYWORDS");
@@ -384,84 +400,24 @@ export function resumePlainText(content: SiteContent, application: JobApplicatio
   return `${lines.join("\n").trim()}\n`;
 }
 
-export function resumeHtml(content: SiteContent, application: JobApplication, options?: { fragment?: boolean }) {
-  const { profile, social } = content;
-  const { resume } = application;
-  const contact = [profile.email, social.linkedin, social.github, profile.website || social.website]
-    .filter(Boolean)
-    .map(escapeHtml)
-    .join(" · ");
-  const skills = resume.skills
-    .map(
-      (group) =>
-        `<p><strong>${escapeHtml(group.label)}:</strong> ${escapeHtml(group.items.join(", "))}</p>`,
-    )
-    .join("");
-  const experience = resume.experience
-    .map((item) => {
-      const bullets = item.bullets.map((bullet) => `<li>${escapeHtml(bullet)}</li>`).join("");
-      return `<article>
-        <h3>${escapeHtml(item.role)} · ${escapeHtml(item.company)}</h3>
-        <p>${escapeHtml(item.period)}${item.location ? ` · ${escapeHtml(item.location)}` : ""}</p>
-        <ul>${bullets}</ul>
-      </article>`;
-    })
-    .join("");
-  const projects = resume.projects
-    .map((project) => {
-      const bullets = (project.bullets ?? []).map((bullet) => `<li>${escapeHtml(bullet)}</li>`).join("");
-      return `<article>
-        <h3>${escapeHtml(project.title)}</h3>
-        <p>${escapeHtml(project.line)}</p>
-        ${bullets ? `<ul>${bullets}</ul>` : ""}
-      </article>`;
-    })
-    .join("");
-
-  const body = `
-  <header>
-    <h1>${escapeHtml(profile.name)}</h1>
-    <p>${escapeHtml(resume.targetRole)} · ${escapeHtml(profile.location)}</p>
-    <p>${contact}</p>
-  </header>
-  <h2>Summary</h2>
-  <p>${escapeHtml(resume.summary)}</p>
-  <h2>Skills</h2>
-  ${skills}
-  <h2>Experience</h2>
-  ${experience}
-  <h2>Projects</h2>
-  ${projects}`;
-
-  if (options?.fragment) return body;
-
-  return `<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <title>${escapeHtml(profile.name)} — ${escapeHtml(resume.targetRole)}</title>
-  <style>
-    body { font-family: Arial, Helvetica, sans-serif; color: #111; max-width: 800px; margin: 32px auto; line-height: 1.45; }
-    h1, h2, h3 { margin: 0 0 8px; }
-    h1 { font-size: 28px; }
-    h2 { font-size: 13px; letter-spacing: .12em; text-transform: uppercase; margin-top: 28px; border-bottom: 1px solid #ddd; padding-bottom: 4px; }
-    h3 { font-size: 16px; }
-    p, li { font-size: 14px; }
-    ul { margin: 8px 0 16px 20px; }
-  </style>
-</head>
-<body>
-  ${body}
-</body>
-</html>
-`;
+export function resumeHtml(
+  content: SiteContent,
+  application: JobApplication,
+  options?: { fragment?: boolean; templateId?: ResumeTemplateId },
+) {
+  return resumeDocumentHtml(content, application, {
+    fragment: options?.fragment,
+    templateId: options?.templateId,
+    siteDefault: siteDefaultResumeTemplate(content),
+  });
 }
 
 export function coverLetterText(content: SiteContent, application: JobApplication) {
-  const { profile } = content;
+  const { profile, social } = content;
+  const contact = resumeContactLine(resumeContactParts(profile, social), "\n");
   return [
     `${profile.name}`,
-    profile.email,
+    contact,
     "",
     `Re: ${application.role} — ${application.company}`,
     "",

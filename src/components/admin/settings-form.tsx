@@ -7,6 +7,12 @@ import { rewriteSiteCopy, saveSettings } from "@/app/admin/actions";
 import { Field, GeminiAction, LinesEditor, TextArea, TextInput } from "@/components/admin/fields";
 import { ImageUpload } from "@/components/admin/image-upload";
 import { AdminButton } from "@/components/admin/admin-ui";
+import {
+  DEFAULT_RESUME_TEMPLATE,
+  RESUME_TEMPLATES,
+  resolveResumeTemplateId,
+  type ResumeTemplateId,
+} from "@/lib/resume-templates";
 
 export function SettingsForm({
   initial,
@@ -119,6 +125,7 @@ export function SettingsForm({
             <Field label="Availability"><TextInput value={profile.availability} onChange={(e) => setSettings({ ...settings, profile: { ...profile, availability: e.target.value } })} /></Field>
             <Field label="Years"><TextInput type="number" value={profile.yearsExperience} onChange={(e) => setSettings({ ...settings, profile: { ...profile, yearsExperience: Number(e.target.value) } })} /></Field>
             <Field label="Email"><TextInput value={profile.email} onChange={(e) => setSettings({ ...settings, profile: { ...profile, email: e.target.value } })} /></Field>
+            <Field label="Phone (resume contact)"><TextInput value={profile.phone ?? ""} onChange={(e) => setSettings({ ...settings, profile: { ...profile, phone: e.target.value } })} placeholder="+92 300 1234567" /></Field>
             <Field label="Website"><TextInput value={profile.website} onChange={(e) => setSettings({ ...settings, profile: { ...profile, website: e.target.value } })} /></Field>
             <Field label="Resume URL"><TextInput value={profile.resumeUrl} onChange={(e) => setSettings({ ...settings, profile: { ...profile, resumeUrl: e.target.value } })} /></Field>
           </div>
@@ -133,6 +140,44 @@ export function SettingsForm({
               }),
             )}
           />
+          <div className="grid gap-3 rounded-xl border border-line bg-bg/40 p-4">
+            <p className="font-mono text-[11px] tracking-[0.16em] text-subtle uppercase">Default resume template</p>
+            <p className="text-sm text-muted">
+              Used for new applications and PDFs when an application has no override. Classic is the recommended
+              default.
+            </p>
+    <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+              {RESUME_TEMPLATES.map((template) => {
+                const selected =
+                  resolveResumeTemplateId(settings.defaultResumeTemplate, DEFAULT_RESUME_TEMPLATE) === template.id;
+                return (
+                  <button
+                    key={template.id}
+                    type="button"
+                    onClick={() =>
+                      setSettings({ ...settings, defaultResumeTemplate: template.id as ResumeTemplateId })
+                    }
+                    className={`rounded-2xl border px-3 py-3 text-left transition ${
+                      selected ? "border-accent bg-accent/10" : "border-line bg-bg-elevated/40 hover:border-fg/30"
+                    }`}
+                  >
+                    <p className="text-sm text-fg">{template.label}</p>
+                    <p className="mt-0.5 font-mono text-[10px] tracking-wide text-subtle uppercase">{template.tagline}</p>
+                    <p className="mt-2 text-xs leading-relaxed text-muted">{template.description}</p>
+                    <a
+                      href={template.previewPath}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="mt-2 inline-block text-xs text-accent"
+                      onClick={(event) => event.stopPropagation()}
+                    >
+                      Preview HTML
+                    </a>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
           <div className="grid gap-4 md:grid-cols-2">
             {(
               [

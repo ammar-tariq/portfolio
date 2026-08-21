@@ -32,6 +32,7 @@ import { slugify } from "@/lib/project-helpers";
 import { destroyImage } from "@/lib/cloudinary";
 import { fetchPublicJobPage, type SharedJob } from "@/lib/job-posting";
 import { formatGeminiError, parseRetrySeconds } from "@/lib/gemini-error";
+import { isResumeTemplateId, type ResumeTemplateId } from "@/lib/resume-templates";
 import type { ArchitectureContent, Industry, Project, SiteSettings } from "@/types/content";
 import { draftProjectWithGemini, rewriteProjectFieldWithGemini, type ProjectCopyField } from "@/lib/draft-project";
 import { rewriteArchitectureSectionWithGemini, type ArchitectureSection } from "@/lib/draft-architecture";
@@ -518,6 +519,14 @@ export async function setApplicationStatus(id: string, status: ApplicationStatus
   }
   revalidateApplications(id);
   revalidatePath("/admin/jobs");
+}
+
+export async function setApplicationResumeTemplate(id: string, template: ResumeTemplateId) {
+  await ready();
+  if (!isResumeTemplateId(template)) return;
+  await JobApplicationModel.findByIdAndUpdate(id, { resumeTemplate: template });
+  revalidateApplications(id);
+  revalidatePath(`/admin/applications/${id}/print`);
 }
 
 export async function deleteJobApplication(id: string) {

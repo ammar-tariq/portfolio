@@ -16,6 +16,7 @@ import { staticContent } from "@/lib/static-content";
 import { canonicalizeSectionHref } from "@/lib/home-sections";
 import { BLOG_PATH } from "@/lib/blog";
 import { resolveMediaUrl, rewriteProjectMedia } from "@/lib/media-url";
+import { isResumeTemplateId } from "@/lib/resume-templates/types";
 import type {
   ArchitectureContent,
   CommandItem,
@@ -178,9 +179,13 @@ function settingsFromDoc(doc: unknown): SiteSettings {
   const fallback = staticContent();
   const profile = { ...fallback.profile, ...(data.profile as SiteSettings["profile"] | undefined) };
   const seo = { ...fallback.seo, ...(data.seo as SiteSettings["seo"] | undefined) };
+  const defaultResumeTemplate = isResumeTemplateId(data.defaultResumeTemplate)
+    ? data.defaultResumeTemplate
+    : fallback.defaultResumeTemplate ?? "classic";
   return {
     profile: {
       ...profile,
+      phone: typeof profile.phone === "string" ? profile.phone : fallback.profile.phone ?? "",
       photoUrl: resolveMediaUrl(profile.photoUrl, profile.photoPublicId) ?? profile.photoUrl,
     },
     social: { ...fallback.social, ...(data.social as SiteSettings["social"] | undefined) },
@@ -189,6 +194,7 @@ function settingsFromDoc(doc: unknown): SiteSettings {
       ...seo,
       defaultOgImage: resolveMediaUrl(seo.defaultOgImage, seo.defaultOgImagePublicId) ?? seo.defaultOgImage,
     },
+    defaultResumeTemplate,
   };
 }
 
@@ -255,6 +261,7 @@ function assemble(parts: {
     social: parts.settings.social,
     navItems: parts.settings.navItems.map((item) => normalizeNavItem(item, parts.settings.social.medium)),
     seo: parts.settings.seo,
+    defaultResumeTemplate: parts.settings.defaultResumeTemplate ?? "classic",
     commands: buildCommands(parts.settings),
   };
 }

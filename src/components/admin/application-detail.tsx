@@ -4,9 +4,22 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import type { JobApplication } from "@/types/application";
-import { answerApplicationQuestions, deleteJobApplication, generateExistingJobApplication, sendJobApplication, setApplicationStatus } from "@/app/admin/actions";
+import {
+  answerApplicationQuestions,
+  deleteJobApplication,
+  generateExistingJobApplication,
+  sendJobApplication,
+  setApplicationResumeTemplate,
+  setApplicationStatus,
+} from "@/app/admin/actions";
 import { Field, TextArea, TextInput } from "@/components/admin/fields";
 import { emailBodyWithAnswers } from "@/lib/application-email";
+import {
+  DEFAULT_RESUME_TEMPLATE,
+  RESUME_TEMPLATES,
+  resolveResumeTemplateId,
+  type ResumeTemplateId,
+} from "@/lib/resume-templates";
 
 function Spinner({ className }: { className?: string }) {
   return <Loader2 className={`h-4 w-4 animate-spin ${className ?? ""}`} />;
@@ -18,12 +31,14 @@ export function ApplicationDetail({
   canGenerate,
   defaultSubject,
   resumeText,
+  siteDefaultTemplate = DEFAULT_RESUME_TEMPLATE,
 }: {
   application: JobApplication;
   canSend: boolean;
   canGenerate: boolean;
   defaultSubject: string;
   resumeText: string;
+  siteDefaultTemplate?: ResumeTemplateId;
 }) {
   const router = useRouter();
   const [questions, setQuestions] = useState("");
@@ -37,10 +52,11 @@ export function ApplicationDetail({
   const [attachResume, setAttachResume] = useState(true);
   const [attachAnswers, setAttachAnswers] = useState(false);
 
-  const [busy, setBusy] = useState<"answers" | "delete" | "send" | "generate" | null>(null);
+  const [busy, setBusy] = useState<"answers" | "delete" | "send" | "generate" | "template" | null>(null);
   const [error, setError] = useState("");
   const [copied, setCopied] = useState("");
   const [cooldown, setCooldown] = useState(0);
+  const activeTemplate = resolveResumeTemplateId(application.resumeTemplate, siteDefaultTemplate);
 
   useEffect(() => {
     if (cooldown <= 0) return;
@@ -135,6 +151,15 @@ export function ApplicationDetail({
       setError(result.error);
       return;
     }
+    router.refresh();
+  }
+
+  async function onTemplate(template: ResumeTemplateId) {
+    if (template === activeTemplate) return;
+    setBusy("template");
+    setError("");
+    await setApplicationResumeTemplate(application.id, template);
+    setBusy(null);
     router.refresh();
   }
 
@@ -247,6 +272,48 @@ export function ApplicationDetail({
         </div>
       )}
       {application.warning ? <p className="text-sm text-muted">{application.warning}</p> : null}
+
+      <section className="grid gap-3 rounded-3xl border border-line bg-bg-elevated/40 p-5">
+        <div className="flex flex-wrap items-end justify-between gap-2">
+          <div>
+            <p className="font-mono text-[11px] tracking-[0.16em] text-subtle uppercase">Resume template</p>
+            <p className="mt-1 text-sm text-muted">
+              Controls print view and PDF layout. Does not regenerate content.
+              {!application.resumeTemplate ? ` Using site default (${siteDefaultTemplate}).` : null}
+            </p>
+          </div>
+          {busy === "template" ? <Spinner className="text-muted" /> : null}
+        </div>
+        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+          {RESUME_TEMPLATES.map((template) => {
+            const selected = activeTemplate === template.id;
+            return (
+              <button
+                key={template.id}
+                type="button"
+                disabled={busy !== null}
+                onClick={() => void onTemplate(template.id)}
+                className={`rounded-2xl border px-3 py-3 text-left transition disabled:opacity-50 ${
+                  selected ? "border-accent bg-accent/10" : "border-line bg-bg/40 hover:border-fg/30"
+                }`}
+              >
+                <p className="text-sm text-fg">{template.label}</p>
+                <p className="mt-0.5 font-mono text-[10px] tracking-wide text-subtle uppercase">{template.tagline}</p>
+                <p className="mt-2 text-xs leading-relaxed text-muted">{template.bestFor}</p>
+                <a
+                  href={template.previewPath}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="mt-2 inline-block text-xs text-accent"
+                  onClick={(event) => event.stopPropagation()}
+                >
+                  Preview HTML
+                </a>
+              </button>
+            );
+          })}
+        </div>
+      </section>
 
       <section className="grid gap-4 rounded-3xl border border-line bg-bg-elevated/40 p-5">
         <p className="font-mono text-[11px] tracking-[0.16em] text-subtle uppercase">Send application</p>
@@ -404,20 +471,16 @@ export function ApplicationDetail({
       <section>
         <h2 className="font-serif text-2xl">Resume</h2>
         <p className="mt-4 text-sm leading-relaxed text-muted">{application.resume.summary}</p>
-        <div className="mt-6 space-y-3 text-sm">
-          {application.resume.skills.map((group) => (
-            <p key={group.label} className="text-muted">
-              <span className="text-fg">{group.label}:</span> {group.items.join(", ")}
-            </p>
-          ))}
-        </div>
         <div className="mt-8 space-y-6">
           {application.resume.experience.map((item) => (
             <article key={`${item.company}-${item.period}`}>
-              <h3 className="text-fg">
-                {item.role} · {item.company}
-              </h3>
-              <p className="text-sm text-subtle">{item.period}</p>
+              <div className="flex flex-wrap items-baseline justify-between gap-2">
+                <h3 className="text-fg">{item.role}</h3>
+                <p className="text-sm text-subtle">{item.period}</p>
+              </div>
+              <p className="text-sm text-muted">
+                {[item.company, item.location].filter(Boolean).join(" · ")}
+              </p>
               <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-muted">
                 {item.bullets.map((bullet) => (
                   <li key={bullet}>{bullet}</li>
@@ -432,6 +495,13 @@ export function ApplicationDetail({
               <h3 className="text-fg">{project.title}</h3>
               <p className="text-sm text-muted">{project.line}</p>
             </article>
+          ))}
+        </div>
+        <div className="mt-8 space-y-3 text-sm">
+          {application.resume.skills.map((group) => (
+            <p key={group.label} className="text-muted">
+              <span className="text-fg">{group.label}:</span> {group.items.join(", ")}
+            </p>
           ))}
         </div>
       </section>

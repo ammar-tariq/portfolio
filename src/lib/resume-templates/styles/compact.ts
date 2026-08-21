@@ -1,0 +1,185 @@
+/**
+ * Compact — Classic geometry, tighter rhythm.
+ *
+ * Design intent: same scan path as Classic (centered header, role/dates split)
+ * with smaller type and reduced gaps so a long AI draft still fits one page
+ * without regenerating content. Use when Experience + Projects overflow.
+ *
+ * After editing, run `npm run resume-previews` to refresh public HTML/CSS previews.
+ */
+export const compactCss = /* css */ `
+@page { margin: 0.45in 0.5in; }
+* { box-sizing: border-box; }
+html, body {
+  margin: 0;
+  padding: 0;
+  background: #fff;
+  color: #111114;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+.resume {
+  font-family: Helvetica, Arial, "Liberation Sans", sans-serif;
+  font-size: 9.25pt;
+  line-height: 1.3;
+  max-width: 7.6in;
+  margin: 0 auto;
+  padding: 0.25in 0.1in 0.3in;
+  color: #111114;
+}
+.resume a { color: inherit; text-decoration: none; }
+
+/* —— Header —— */
+.resume .r-head {
+  text-align: center;
+  padding: 0 0 7pt;
+  margin: 0 0 1pt;
+  border-bottom: 1.25pt solid #111114;
+}
+.resume .r-head h1 {
+  margin: 0 0 2pt;
+  font-size: 16pt;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  line-height: 1.08;
+  text-transform: uppercase;
+}
+.resume .r-title {
+  margin: 0;
+  font-size: 9.5pt;
+  font-weight: 400;
+  color: #1a1a1d;
+}
+.resume .r-place {
+  margin: 1pt 0 4pt;
+  font-size: 8pt;
+  color: #55555c;
+}
+.resume .r-contact {
+  margin: 0;
+  font-size: 8pt;
+  line-height: 1.4;
+  color: #2a2a2e;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0;
+  row-gap: 1pt;
+}
+.resume .r-contact span {
+  white-space: nowrap;
+}
+.resume .r-contact span + span::before {
+  content: "·";
+  display: inline-block;
+  margin: 0 5pt;
+  color: #9a9aa0;
+}
+
+/* —— Sections —— */
+.resume h2 {
+  margin: 9pt 0 4.5pt;
+  padding: 0 0 1.5pt;
+  font-size: 8pt;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: #111114;
+  border-bottom: 0.6pt solid #c4c4c8;
+  line-height: 1.15;
+}
+.resume .r-summary {
+  margin: 0;
+  font-size: 9pt;
+  line-height: 1.34;
+  color: #1c1c20;
+}
+
+/* —— Experience / Projects —— */
+.resume .r-job,
+.resume .r-project {
+  margin: 0 0 6pt;
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+.resume .r-job:last-child,
+.resume .r-project:last-child {
+  margin-bottom: 0;
+}
+.resume .r-job-top,
+.resume .r-project-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 10pt;
+  margin: 0;
+}
+.resume .r-job-top h3,
+.resume .r-project-top h3 {
+  margin: 0;
+  font-size: 9.5pt;
+  font-weight: 700;
+  line-height: 1.2;
+  color: #111114;
+  flex: 1 1 auto;
+}
+.resume .r-dates {
+  margin: 0;
+  font-size: 8.25pt;
+  font-weight: 400;
+  color: #3a3a40;
+  white-space: nowrap;
+  flex: 0 0 auto;
+}
+.resume .r-org {
+  margin: 0.5pt 0 2pt;
+  font-size: 8.5pt;
+  color: #4a4a52;
+  line-height: 1.25;
+}
+.resume .r-line {
+  margin: 0.5pt 0 2pt;
+  font-size: 8.5pt;
+  color: #4a4a52;
+  line-height: 1.3;
+}
+.resume ul {
+  margin: 0;
+  padding: 0 0 0 10pt;
+  list-style: disc;
+}
+.resume li {
+  margin: 0 0 1.25pt;
+  padding: 0;
+  font-size: 8.75pt;
+  line-height: 1.3;
+  color: #1a1a1d;
+}
+.resume li:last-child {
+  margin-bottom: 0;
+}
+
+/* —— Skills —— */
+.resume .r-skill {
+  margin: 0 0 2pt;
+  font-size: 8.75pt;
+  line-height: 1.3;
+  color: #1a1a1d;
+}
+.resume .r-skill:last-child {
+  margin-bottom: 0;
+}
+.resume .r-skill strong {
+  font-weight: 700;
+  color: #111114;
+  display: inline-block;
+  min-width: 4.2em;
+  margin-right: 3pt;
+}
+
+@media print {
+  .resume { padding: 0; max-width: none; }
+  .resume .r-job,
+  .resume .r-project { page-break-inside: avoid; break-inside: avoid; }
+}
+`.trim();

@@ -10,6 +10,7 @@ export const profile = {
   "availability": "Open to remote · Gulf · worldwide",
   "yearsExperience": 8,
   "email": "ammar.tariq10@gmail.com",
+  "phone": "",
   "resumeUrl": "/resume",
   "website": "https://ammartariq.com",
   "focus": [
