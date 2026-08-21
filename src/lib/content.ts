@@ -181,7 +181,7 @@ function settingsFromDoc(doc: unknown): SiteSettings {
   const seo = { ...fallback.seo, ...(data.seo as SiteSettings["seo"] | undefined) };
   const defaultResumeTemplate = isResumeTemplateId(data.defaultResumeTemplate)
     ? data.defaultResumeTemplate
-    : fallback.defaultResumeTemplate ?? "classic";
+    : fallback.defaultResumeTemplate ?? "modern";
   return {
     profile: {
       ...profile,
@@ -261,7 +261,7 @@ function assemble(parts: {
     social: parts.settings.social,
     navItems: parts.settings.navItems.map((item) => normalizeNavItem(item, parts.settings.social.medium)),
     seo: parts.settings.seo,
-    defaultResumeTemplate: parts.settings.defaultResumeTemplate ?? "classic",
+    defaultResumeTemplate: parts.settings.defaultResumeTemplate ?? "modern",
     commands: buildCommands(parts.settings),
   };
 }

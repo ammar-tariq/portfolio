@@ -141,7 +141,7 @@ const settingsSchema = new Schema(
     social: { type: Schema.Types.Mixed, default: {} },
     navItems: { type: Schema.Types.Mixed, default: [] },
     seo: { type: Schema.Types.Mixed, default: {} },
-    defaultResumeTemplate: { type: String, enum: ["classic", "executive", "compact", "modern"], default: "classic" },
+    defaultResumeTemplate: { type: String, enum: ["classic", "executive", "compact", "modern"], default: "modern" },
   },
   { timestamps: true },
 );

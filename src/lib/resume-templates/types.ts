@@ -2,7 +2,7 @@ export const RESUME_TEMPLATE_IDS = ["classic", "executive", "compact", "modern"]
 
 export type ResumeTemplateId = (typeof RESUME_TEMPLATE_IDS)[number];
 
-export const DEFAULT_RESUME_TEMPLATE: ResumeTemplateId = "classic";
+export const DEFAULT_RESUME_TEMPLATE: ResumeTemplateId = "modern";
 
 export type ResumeTemplateMeta = {
   id: ResumeTemplateId;

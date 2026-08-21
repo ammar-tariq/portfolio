@@ -13,10 +13,10 @@ export const RESUME_TEMPLATES: ResumeTemplateMeta[] = [
   {
     id: "classic",
     label: "Classic",
-    tagline: "Default · ATS-safe",
+    tagline: "ATS-safe",
     description:
       "Centered masthead, hairline section rules, role left / dates right. Clean Harvard-style single column for most applications.",
-    bestFor: "Default for almost every role",
+    bestFor: "Traditional ATS applications",
     previewPath: "/resume-templates/classic.html",
   },
   {
@@ -40,10 +40,10 @@ export const RESUME_TEMPLATES: ResumeTemplateMeta[] = [
   {
     id: "modern",
     label: "Modern",
-    tagline: "Accent · open",
+    tagline: "Default · accent",
     description:
       "Left accent bar, slate-teal section marks, title-case name, open leading. Contemporary product-engineering look without sidebars or icons.",
-    bestFor: "Startups, product, and design-adjacent roles",
+    bestFor: "Default for almost every role",
     previewPath: "/resume-templates/modern.html",
   },
 ];

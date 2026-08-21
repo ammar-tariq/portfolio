@@ -54,7 +54,7 @@ export function staticSettings(): SiteSettings {
       keywords: [...seoKeywords],
       topics: [...seoTopics],
     },
-    defaultResumeTemplate: "classic",
+    defaultResumeTemplate: "modern",
   };
 }
 
@@ -76,7 +76,7 @@ export function staticContent(): SiteContent {
     social: settings.social,
     navItems: settings.navItems,
     seo: settings.seo,
-    defaultResumeTemplate: settings.defaultResumeTemplate ?? "classic",
+    defaultResumeTemplate: settings.defaultResumeTemplate ?? "modern",
     projects: (projectData as Project[]).map(rewriteProjectMedia),
     experience: experienceData.map((item, index) => ({ ...item, sortOrder: index })),
     skillCategories: skillData.map((item, index) => ({ ...item, sortOrder: index })),

@@ -143,7 +143,7 @@ export function SettingsForm({
           <div className="grid gap-3 rounded-xl border border-line bg-bg/40 p-4">
             <p className="font-mono text-[11px] tracking-[0.16em] text-subtle uppercase">Default resume template</p>
             <p className="text-sm text-muted">
-              Used for new applications and PDFs when an application has no override. Classic is the recommended
+              Used for new applications and PDFs when an application has no override. Modern is the recommended
               default.
             </p>
     <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">

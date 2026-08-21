@@ -46,7 +46,7 @@ export default async function ApplicationPage({
         canGenerate={hasGemini()}
         defaultSubject={defaultSubject}
         resumeText={resumePlainText(content, application)}
-        siteDefaultTemplate={content.defaultResumeTemplate ?? "classic"}
+        siteDefaultTemplate={content.defaultResumeTemplate ?? "modern"}
       />
     </div>
   );
