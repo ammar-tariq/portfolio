@@ -4,14 +4,20 @@ import { hasGemini, hasMongo, hasUsajobs } from "@/lib/env";
 import { generateGeminiJson } from "@/lib/draft-project";
 import { fetchWatchJobs } from "@/lib/jobs/adapters/ats";
 import {
+  fetchA16zSpeedrunJobs,
+  fetchAgenticJobs,
   fetchArbeitnowJobs,
+  fetchGetOnBoardJobs,
   fetchHimalayasJobs,
   fetchHnWhoIsHiringJobs,
   fetchJobicyJobs,
+  fetchJobspressoJobs,
   fetchLandingJobs,
   fetchMuseJobs,
+  fetchNodeskJobs,
   fetchRemoteOkJobs,
   fetchRemotiveJobs,
+  fetchTheHubJobs,
   fetchUsaJobs,
   fetchWeWorkRemotelyJobs,
   fetchWorkingNomadsJobs,
@@ -161,6 +167,12 @@ export async function pollJobSources(options: { enrich?: boolean } = {}): Promis
     { name: "the-muse", run: fetchMuseJobs },
     { name: "hn-who-is-hiring", run: fetchHnWhoIsHiringJobs },
     { name: "landing-jobs", run: fetchLandingJobs },
+    { name: "nodesk", run: fetchNodeskJobs },
+    { name: "get-on-board", run: fetchGetOnBoardJobs },
+    { name: "jobspresso", run: fetchJobspressoJobs },
+    { name: "the-hub", run: fetchTheHubJobs },
+    { name: "agentic-jobs", run: fetchAgenticJobs },
+    { name: "a16z-speedrun", run: fetchA16zSpeedrunJobs },
   ];
   if (hasUsajobs()) boardRuns.push({ name: "usajobs", run: fetchUsaJobs });
 

@@ -364,6 +364,233 @@ export async function fetchLandingJobs(): Promise<NormalizedJob[]> {
   });
 }
 
+function splitTitleAtCompany(titleRaw: string) {
+  const cleaned = decodeXml(titleRaw).replace(/&amp;/gi, "&").trim();
+  const at = /\s+at\s+/i.exec(cleaned);
+  if (!at || at.index == null) return { title: cleaned, company: "" };
+  return {
+    title: cleaned.slice(0, at.index).trim(),
+    company: cleaned.slice(at.index + at[0].length).trim(),
+  };
+}
+
+export async function fetchNodeskJobs(): Promise<NormalizedJob[]> {
+  const result = await fetchJobFeed("https://nodesk.co/remote-jobs/index.xml");
+  if (!result.ok) throw new Error(result.error);
+  return xmlBlocks(result.text, "item").map((block) => {
+    const titleRaw = stripHtml(xmlField(block, "title"));
+    const { title, company } = splitTitleAtCompany(titleRaw);
+    const applyUrl = stripHtml(xmlHref(block) || xmlField(block, "guid"));
+    const description = clipText(stripHtml(xmlField(block, "description")));
+    return {
+      source: "nodesk" as const,
+      applyUrl,
+      sourceUrls: applyUrl ? [applyUrl] : [],
+      atsJobId: stripHtml(xmlField(block, "guid")).slice(0, 120),
+      title: (title || titleRaw).slice(0, 200),
+      company: (company || "NoDesk").slice(0, 160),
+      location: "Remote",
+      remote: true,
+      descriptionText: description,
+      postedAt: postedDate(stripHtml(xmlField(block, "pubDate"))),
+    };
+  });
+}
+
+export async function fetchGetOnBoardJobs(): Promise<NormalizedJob[]> {
+  const jobs: NormalizedJob[] = [];
+  for (let page = 1; page <= 3; page += 1) {
+    const data = await fetchJobJson<Record<string, unknown>>(
+      `https://www.getonbrd.com/api/v0/categories/programming/jobs?per_page=50&page=${page}&expand[]=company`,
+    );
+    const rows = asList(data.data);
+    if (!rows.length) break;
+    for (const item of rows) {
+      const row = asRecord(item);
+      const attrs = asRecord(row.attributes);
+      const companyNode = asRecord(asRecord(attrs.company).data);
+      const companyAttrs = asRecord(companyNode.attributes);
+      const id = text(row.id, 120);
+      const applyUrl = id ? `https://www.getonbrd.com/jobs/${id}` : "";
+      const location = text(
+        asList(attrs.countries).map(String).join(", ") ||
+          attrs.remote_zone ||
+          asList(attrs.location_cities).map(String).join(", "),
+        200,
+      );
+      const description = clipText(
+        stripHtml(
+          [attrs.description_headline, attrs.description, attrs.projects, attrs.functions]
+            .map((part) => text(part, 12000))
+            .filter(Boolean)
+            .join("\n\n"),
+        ),
+      );
+      jobs.push({
+        source: "get-on-board",
+        applyUrl,
+        sourceUrls: applyUrl ? [applyUrl] : [],
+        atsJobId: id,
+        title: text(attrs.title, 200),
+        company: text(companyAttrs.name || companyNode.id, 160) || "Get on Board",
+        location: location || (attrs.remote ? "Remote" : ""),
+        remote:
+          Boolean(attrs.remote) ||
+          /remote/i.test(text(attrs.remote_modality)) ||
+          looksRemote(location, text(attrs.title), description),
+        descriptionText: description,
+        postedAt: postedDate(attrs.published_at),
+      });
+    }
+  }
+  return dedupeJobs(jobs);
+}
+
+export async function fetchJobspressoJobs(): Promise<NormalizedJob[]> {
+  const result = await fetchJobFeed("https://jobspresso.co/?feed=job_feed");
+  if (!result.ok) throw new Error(result.error);
+  return xmlBlocks(result.text, "item").map((block) => {
+    const title = stripHtml(xmlField(block, "title"));
+    const applyUrl = stripHtml(xmlHref(block));
+    const company = stripHtml(xmlField(block, "job_listing:company"));
+    const location = stripHtml(xmlField(block, "job_listing:location"));
+    const description = clipText(
+      stripHtml(xmlField(block, "content:encoded") || xmlField(block, "description")),
+    );
+    return {
+      source: "jobspresso" as const,
+      applyUrl,
+      sourceUrls: applyUrl ? [applyUrl] : [],
+      atsJobId: stripHtml(xmlField(block, "guid") || applyUrl).slice(0, 120),
+      title: title.slice(0, 200),
+      company: (company || "Jobspresso").slice(0, 160),
+      location: location.slice(0, 200) || "Remote",
+      remote: true,
+      descriptionText: description,
+      postedAt: postedDate(stripHtml(xmlField(block, "pubDate"))),
+    };
+  });
+}
+
+export async function fetchTheHubJobs(): Promise<NormalizedJob[]> {
+  const jobs: NormalizedJob[] = [];
+  const queries = [
+    "https://thehub.io/api/v2/jobsandfeatured?page=1&countryCode=EU",
+    "https://thehub.io/api/v2/jobsandfeatured?page=2&countryCode=EU",
+    "https://thehub.io/api/v2/jobsandfeatured?page=1&isRemote=true",
+    "https://thehub.io/api/v2/jobsandfeatured?page=2&isRemote=true",
+  ];
+  for (const url of queries) {
+    const data = await fetchJobJson<Record<string, unknown>>(url);
+    const docs = asList(asRecord(data.jobs).docs);
+    for (const item of docs) {
+      const row = asRecord(item);
+      const company = asRecord(row.company);
+      const locationNode = asRecord(row.location);
+      const location = text(
+        locationNode.address ||
+          [locationNode.locality, locationNode.country].filter(Boolean).join(", "),
+        200,
+      );
+      const id = text(row.id, 80);
+      const applyUrl = id ? `https://thehub.io/jobs/${id}` : "";
+      const title = text(row.title, 200);
+      jobs.push({
+        source: "the-hub",
+        applyUrl,
+        sourceUrls: applyUrl ? [applyUrl] : [],
+        atsJobId: id || text(row.key, 80),
+        title,
+        company: text(company.name, 160) || "The Hub",
+        location: location || (row.isRemote ? "Remote" : "Europe"),
+        remote: Boolean(row.isRemote) || looksRemote(location, title),
+        descriptionText: "",
+      });
+    }
+  }
+  return dedupeJobs(jobs);
+}
+
+export async function fetchAgenticJobs(): Promise<NormalizedJob[]> {
+  const jobs: NormalizedJob[] = [];
+  for (let page = 1; page <= 3; page += 1) {
+    const data = await fetchJobJson<Record<string, unknown>>(
+      `https://agentic-engineering-jobs.com/api/v1/jobs?page=${page}`,
+    );
+    const rows = asList(data.data);
+    if (!rows.length) break;
+    for (const item of rows) {
+      const row = asRecord(item);
+      const methods = asList(row.applyMethods)
+        .map((method) => asRecord(method))
+        .filter((method) => text(method.type) === "url" && text(method.value));
+      const slug = text(row.slug, 160);
+      const applyUrl =
+        text(methods[0]?.value, 500) ||
+        (slug ? `https://agentic-engineering-jobs.com/jobs/${slug}` : "");
+      const location = text(row.location || row.city, 200);
+      const description = clipText(stripHtml(text(row.description, 40000)));
+      const stack = asList(row.techStackTags).map(String).filter(Boolean).join(", ");
+      jobs.push({
+        source: "agentic-jobs",
+        applyUrl,
+        sourceUrls: applyUrl ? [applyUrl] : [],
+        atsJobId: slug || text(row.title, 80),
+        title: text(row.title, 200),
+        company: text(row.companyName, 160) || "Agentic Jobs",
+        location: location || (text(row.locationType) === "remote" ? "Remote" : ""),
+        remote:
+          text(row.locationType).toLowerCase() === "remote" ||
+          looksRemote(location, text(row.title), description),
+        descriptionText: stack ? `${description}\n\nStack: ${stack}`.slice(0, 40000) : description,
+        postedAt: postedDate(row.postedAt),
+      });
+    }
+  }
+  return dedupeJobs(jobs);
+}
+
+export async function fetchA16zSpeedrunJobs(): Promise<NormalizedJob[]> {
+  const jobs: NormalizedJob[] = [];
+  for (let page = 0; page < 3; page += 1) {
+    const data = await fetchJobJson<Record<string, unknown>>(
+      `https://speedrun-talent-network.com/api/v1/jobs?page=${page}&q=engineer`,
+    );
+    const rows = asList(data.jobs);
+    if (!rows.length) break;
+    for (const item of rows) {
+      const row = asRecord(item);
+      const applyUrl = text(row.url, 500);
+      const location = text(row.location, 200);
+      const title = text(row.title, 200);
+      const workplace = text(row.workplace_type);
+      jobs.push({
+        source: "a16z-speedrun",
+        applyUrl,
+        sourceUrls: applyUrl ? [applyUrl] : [],
+        atsJobId: text(row.id, 80),
+        title,
+        company: text(row.company, 160) || "a16z portfolio",
+        location: location || (row.remote ? "Remote" : ""),
+        remote:
+          Boolean(row.remote) ||
+          /remote/i.test(workplace) ||
+          looksRemote(location, title, workplace),
+        descriptionText: [
+          text(row.function) ? `Function: ${text(row.function)}` : "",
+          text(row.seniority) ? `Seniority: ${text(row.seniority)}` : "",
+          text(row.employment_type) ? `Type: ${text(row.employment_type)}` : "",
+          workplace ? `Workplace: ${workplace}` : "",
+        ]
+          .filter(Boolean)
+          .join("\n"),
+        postedAt: postedDate(row.published_at),
+      });
+    }
+  }
+  return dedupeJobs(jobs);
+}
+
 export async function fetchUsaJobs(): Promise<NormalizedJob[]> {
   if (!hasUsajobs()) return [];
   const key = process.env.USAJOBS_API_KEY!.trim();

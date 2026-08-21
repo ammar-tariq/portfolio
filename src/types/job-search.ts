@@ -23,6 +23,12 @@ export const BOARD_SOURCES = [
   "the-muse",
   "hn-who-is-hiring",
   "landing-jobs",
+  "nodesk",
+  "get-on-board",
+  "jobspresso",
+  "the-hub",
+  "agentic-jobs",
+  "a16z-speedrun",
   "usajobs",
 ] as const;
 
@@ -35,6 +41,11 @@ export const LEGACY_BOARD_SOURCES: BoardSource[] = [
   "himalayas",
   "arbeitnow",
   "we-work-remotely",
+  "jobicy",
+  "working-nomads",
+  "the-muse",
+  "hn-who-is-hiring",
+  "landing-jobs",
   "usajobs",
 ];
 
@@ -49,6 +60,12 @@ export const BOARD_LABELS: Record<BoardSource, string> = {
   "the-muse": "The Muse",
   "hn-who-is-hiring": "HN Who's Hiring",
   "landing-jobs": "Landing.jobs",
+  nodesk: "NoDesk",
+  "get-on-board": "Get on Board",
+  jobspresso: "Jobspresso",
+  "the-hub": "The Hub",
+  "agentic-jobs": "Agentic Engineering Jobs",
+  "a16z-speedrun": "a16z Speedrun Talent",
   usajobs: "USAJOBS",
 };
 
@@ -63,6 +80,12 @@ export const DEFAULT_ENABLED_BOARDS: BoardSource[] = [
   "the-muse",
   "hn-who-is-hiring",
   "landing-jobs",
+  "nodesk",
+  "get-on-board",
+  "jobspresso",
+  "the-hub",
+  "agentic-jobs",
+  "a16z-speedrun",
 ];
 
 export function mergeEnabledBoards(saved: string[]): BoardSource[] {
@@ -80,7 +103,7 @@ export function mergeEnabledBoards(saved: string[]): BoardSource[] {
 }
 
 /** Bump when adding default-on boards so existing Mongo settings pick them up once. */
-export const ENABLED_BOARDS_VERSION = 2;
+export const ENABLED_BOARDS_VERSION = 3;
 
 export function resolveEnabledBoards(saved: string[], version = 0): BoardSource[] {
   if (version < ENABLED_BOARDS_VERSION) return mergeEnabledBoards(saved);
