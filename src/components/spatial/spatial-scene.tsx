@@ -1,7 +1,7 @@
 "use client";
 
 import { Component, useEffect, useMemo, useRef, useSyncExternalStore, type ErrorInfo, type ReactNode } from "react";
-import { Canvas, useFrame } from "@react-three/fiber";
+import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Stars } from "@react-three/drei";
 import * as THREE from "three";
 import { useSite } from "@/components/providers/site-provider";
@@ -154,6 +154,24 @@ function getServerWebGL() {
   return false;
 }
 
+// Cap the render loop well below 60fps. An uncapped `frameloop="always"` makes
+// three.js redraw every frame — on software-rendered / throttled devices (like
+// PageSpeed's emulated desktop) that's ~30s of main-thread work and a 21s TBT.
+// ~24fps still reads as smooth ambient motion for a background, at a fraction
+// of the cost.
+const MAX_FPS = 24;
+
+// Runs the three.js frame loop in "demand" mode but re-invalidates at MAX_FPS so
+// the ambient animation stays alive while the per-frame GPU/CPU cost is capped.
+function FrameLimiter() {
+  const invalidate = useThree((state) => state.invalidate);
+  useEffect(() => {
+    const id = window.setInterval(() => invalidate(), 1000 / MAX_FPS);
+    return () => window.clearInterval(id);
+  }, [invalidate]);
+  return null;
+}
+
 export default function SpatialScene() {
   const { theme, commandOpen } = useSite();
   const compact = !useIsDesktop();
@@ -167,7 +185,7 @@ export default function SpatialScene() {
       <WebGLGuard>
         <Canvas
           dpr={compact ? [1, 1.15] : [1, 1.5]}
-          frameloop={playing ? "always" : "demand"}
+          frameloop={playing ? "demand" : "never"}
           style={{ background: "transparent" }}
           gl={{
             antialias: !compact,
@@ -182,6 +200,7 @@ export default function SpatialScene() {
           camera={{ position: [0, 0.12, 6.2], fov: 34 }}
         >
           <Scene theme={theme} compact={compact} />
+          {playing ? <FrameLimiter /> : null}
         </Canvas>
       </WebGLGuard>
     </div>
