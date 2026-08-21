@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Resume templates — preview</title>
+  <title>Resume templates — A4 preview</title>
   <style>
     * { box-sizing: border-box; }
     body {
@@ -14,13 +14,13 @@
       min-height: 100vh;
       padding: 40px 20px 64px;
     }
-    main { max-width: 920px; margin: 0 auto; }
+    main { max-width: 960px; margin: 0 auto; }
     h1 { font-size: 28px; margin: 0 0 8px; letter-spacing: -0.02em; }
-    .lead { color: #a8a8b0; margin: 0 0 28px; line-height: 1.5; max-width: 540px; }
+    .lead { color: #a8a8b0; margin: 0 0 28px; line-height: 1.5; max-width: 560px; }
     .grid {
       display: grid;
       gap: 14px;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
     }
     .card {
       display: block;
@@ -44,11 +44,7 @@
     }
     .card p { margin: 0; font-size: 13px; line-height: 1.45; color: #b4b4bc; }
     .card .open { display: inline-block; margin-top: 14px; font-size: 13px; color: #d0d0d8; }
-    .frames {
-      margin-top: 36px;
-      display: grid;
-      gap: 20px;
-    }
+    .frames { margin-top: 36px; display: grid; gap: 20px; }
     .frame-wrap h2 {
       font-size: 13px;
       letter-spacing: 0.12em;
@@ -59,42 +55,41 @@
     }
     iframe {
       width: 100%;
-      height: 920px;
+      height: 1000px;
       border: 1px solid #2e2e34;
       border-radius: 12px;
-      background: #d8d8dc;
+      background: #c8c8ce;
     }
   </style>
 </head>
 <body>
   <main>
-    <h1>Resume templates</h1>
+    <h1>Resume templates (A4)</h1>
     <p class="lead">
-      Static HTML previews with sample content. Open a card for a full-page view, or scroll
-      for side-by-side iframes. Print from any preview to check page breaks.
+      Static HTML previews at A4. Live applications use the same CSS; PDFs are printed from this HTML via Chromium.
     </p>
     <div class="grid">
     <a class="card" href="./classic.html">
       <strong>Classic</strong>
-      <span class="tag">Default · ATS-safe</span>
+      <span class="tag">Default · ATS-safe · A4</span>
       <p>Centered masthead, hairline section rules, role left / dates right. Clean Harvard-style single column for most applications.</p>
       <span class="open">Open preview →</span>
     </a>
     <a class="card" href="./executive.html">
       <strong>Executive</strong>
-      <span class="tag">Senior presence</span>
+      <span class="tag">Senior presence · A4</span>
       <p>Left-aligned name, heavier top rule, italic company line, stronger section dividers. Same ATS geometry with more gravitas.</p>
       <span class="open">Open preview →</span>
     </a>
     <a class="card" href="./compact.html">
       <strong>Compact</strong>
-      <span class="tag">One-page fit</span>
+      <span class="tag">One-page fit · A4</span>
       <p>Classic layout with tighter type and spacing so long Experience + Projects drafts still fit a single page.</p>
       <span class="open">Open preview →</span>
     </a>
     <a class="card" href="./modern.html">
       <strong>Modern</strong>
-      <span class="tag">Accent · open</span>
+      <span class="tag">Accent · open · A4</span>
       <p>Left accent bar, slate-teal section marks, title-case name, open leading. Contemporary product-engineering look without sidebars or icons.</p>
       <span class="open">Open preview →</span>
     </a>

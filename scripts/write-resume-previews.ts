@@ -1,34 +1,24 @@
 import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { classicCss } from "../src/lib/resume-templates/styles/classic";
-import { compactCss } from "../src/lib/resume-templates/styles/compact";
-import { executiveCss } from "../src/lib/resume-templates/styles/executive";
-import { modernCss } from "../src/lib/resume-templates/styles/modern";
 import { SAMPLE_RESUME_BODY } from "../src/lib/resume-templates/sample-body";
-import { RESUME_TEMPLATES } from "../src/lib/resume-templates/registry";
-import type { ResumeTemplateId } from "../src/lib/resume-templates/types";
+import { RESUME_TEMPLATES, resumeTemplateCss } from "../src/lib/resume-templates/registry";
+import { RESUME_TEMPLATE_IDS, type ResumeTemplateId } from "../src/lib/resume-templates/types";
 
 const OUT = join(process.cwd(), "public", "resume-templates");
 
-const STYLES: Record<ResumeTemplateId, string> = {
-  classic: classicCss,
-  executive: executiveCss,
-  compact: compactCss,
-  modern: modernCss,
-};
-
 const screenChrome = /* css */ `
 @media screen {
-  html { background: #d8d8dc; }
+  html { background: #c8c8ce; }
   body {
     margin: 0;
     min-height: 100vh;
-    padding: 28px 16px 48px;
+    padding: 24px 16px 48px;
   }
   .preview-bar {
     font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;
-    max-width: 7.6in;
-    margin: 0 auto 16px;
+    width: 210mm;
+    max-width: 100%;
+    margin: 0 auto 14px;
     display: flex;
     flex-wrap: wrap;
     gap: 8px 14px;
@@ -36,33 +26,32 @@ const screenChrome = /* css */ `
     justify-content: space-between;
     color: #222;
   }
-  .preview-bar a {
-    color: #1a1a1a;
-    font-size: 13px;
-  }
-  .preview-bar nav {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-  }
+  .preview-bar a { color: #1a1a1a; font-size: 13px; }
+  .preview-bar nav { display: flex; flex-wrap: wrap; gap: 10px; }
   .preview-bar .label {
     font-size: 12px;
     font-weight: 600;
     letter-spacing: 0.04em;
     text-transform: uppercase;
   }
-  .resume {
+  .a4-sheet {
+    width: 210mm;
+    min-height: 297mm;
+    max-width: 100%;
+    margin: 0 auto;
     background: #fff;
-    box-shadow: 0 2px 16px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 24px rgba(0,0,0,.12);
+    padding: 14mm 15mm 16mm;
   }
 }
 @media print {
   .preview-bar { display: none !important; }
   html, body { background: #fff; padding: 0; }
+  .a4-sheet { width: auto; min-height: 0; margin: 0; box-shadow: none; padding: 0; }
 }
 `.trim();
 
-function documentHtml(id: ResumeTemplateId, css: string) {
+function documentHtml(id: ResumeTemplateId) {
   const meta = RESUME_TEMPLATES.find((item) => item.id === id)!;
   const links = RESUME_TEMPLATES.map((item) => {
     const current = item.id === id ? ' aria-current="page"' : "";
@@ -74,14 +63,14 @@ function documentHtml(id: ResumeTemplateId, css: string) {
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Resume preview — ${meta.label}</title>
+  <title>Resume preview — ${meta.label} (A4)</title>
   <link rel="stylesheet" href="./${id}.css" />
   <style>${screenChrome}</style>
 </head>
 <body>
   <div class="preview-bar">
     <div>
-      <div class="label">${meta.label} template</div>
+      <div class="label">${meta.label} · A4</div>
       <div style="font-size:12px;color:#555;margin-top:2px">${meta.tagline} · ${meta.bestFor}</div>
     </div>
     <nav>
@@ -89,9 +78,11 @@ function documentHtml(id: ResumeTemplateId, css: string) {
       ${links}
     </nav>
   </div>
-  <article class="resume resume--${id}">
+  <div class="a4-sheet">
+    <article class="resume resume--${id}">
 ${SAMPLE_RESUME_BODY}
-  </article>
+    </article>
+  </div>
 </body>
 </html>
 `;
@@ -101,7 +92,7 @@ function indexHtml() {
   const cards = RESUME_TEMPLATES.map(
     (item) => `    <a class="card" href="./${item.id}.html">
       <strong>${item.label}</strong>
-      <span class="tag">${item.tagline}</span>
+      <span class="tag">${item.tagline} · A4</span>
       <p>${item.description}</p>
       <span class="open">Open preview →</span>
     </a>`,
@@ -112,7 +103,7 @@ function indexHtml() {
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Resume templates — preview</title>
+  <title>Resume templates — A4 preview</title>
   <style>
     * { box-sizing: border-box; }
     body {
@@ -123,13 +114,13 @@ function indexHtml() {
       min-height: 100vh;
       padding: 40px 20px 64px;
     }
-    main { max-width: 920px; margin: 0 auto; }
+    main { max-width: 960px; margin: 0 auto; }
     h1 { font-size: 28px; margin: 0 0 8px; letter-spacing: -0.02em; }
-    .lead { color: #a8a8b0; margin: 0 0 28px; line-height: 1.5; max-width: 540px; }
+    .lead { color: #a8a8b0; margin: 0 0 28px; line-height: 1.5; max-width: 560px; }
     .grid {
       display: grid;
       gap: 14px;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
     }
     .card {
       display: block;
@@ -153,11 +144,7 @@ function indexHtml() {
     }
     .card p { margin: 0; font-size: 13px; line-height: 1.45; color: #b4b4bc; }
     .card .open { display: inline-block; margin-top: 14px; font-size: 13px; color: #d0d0d8; }
-    .frames {
-      margin-top: 36px;
-      display: grid;
-      gap: 20px;
-    }
+    .frames { margin-top: 36px; display: grid; gap: 20px; }
     .frame-wrap h2 {
       font-size: 13px;
       letter-spacing: 0.12em;
@@ -168,19 +155,18 @@ function indexHtml() {
     }
     iframe {
       width: 100%;
-      height: 920px;
+      height: 1000px;
       border: 1px solid #2e2e34;
       border-radius: 12px;
-      background: #d8d8dc;
+      background: #c8c8ce;
     }
   </style>
 </head>
 <body>
   <main>
-    <h1>Resume templates</h1>
+    <h1>Resume templates (A4)</h1>
     <p class="lead">
-      Static HTML previews with sample content. Open a card for a full-page view, or scroll
-      for side-by-side iframes. Print from any preview to check page breaks.
+      Static HTML previews at A4. Live applications use the same CSS; PDFs are printed from this HTML via Chromium.
     </p>
     <div class="grid">
 ${cards}
@@ -201,13 +187,12 @@ ${RESUME_TEMPLATES.map(
 
 mkdirSync(OUT, { recursive: true });
 
-for (const id of Object.keys(STYLES) as ResumeTemplateId[]) {
-  writeFileSync(join(OUT, `${id}.css`), `${STYLES[id]}\n`, "utf8");
-  writeFileSync(join(OUT, `${id}.html`), documentHtml(id, STYLES[id]), "utf8");
+for (const id of RESUME_TEMPLATE_IDS) {
+  writeFileSync(join(OUT, `${id}.css`), `${resumeTemplateCss(id)}\n`, "utf8");
+  writeFileSync(join(OUT, `${id}.html`), documentHtml(id), "utf8");
   console.log(`wrote ${id}.html + ${id}.css`);
 }
 
 writeFileSync(join(OUT, "index.html"), indexHtml(), "utf8");
 console.log("wrote index.html");
 console.log(`\nPreviews: ${OUT}`);
-console.log("Open /resume-templates/ while the app is running, or open the HTML files directly.");

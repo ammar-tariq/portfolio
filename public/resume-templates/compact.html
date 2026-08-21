@@ -3,19 +3,20 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Resume preview — Compact</title>
+  <title>Resume preview — Compact (A4)</title>
   <link rel="stylesheet" href="./compact.css" />
   <style>@media screen {
-  html { background: #d8d8dc; }
+  html { background: #c8c8ce; }
   body {
     margin: 0;
     min-height: 100vh;
-    padding: 28px 16px 48px;
+    padding: 24px 16px 48px;
   }
   .preview-bar {
     font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;
-    max-width: 7.6in;
-    margin: 0 auto 16px;
+    width: 210mm;
+    max-width: 100%;
+    margin: 0 auto 14px;
     display: flex;
     flex-wrap: wrap;
     gap: 8px 14px;
@@ -23,35 +24,34 @@
     justify-content: space-between;
     color: #222;
   }
-  .preview-bar a {
-    color: #1a1a1a;
-    font-size: 13px;
-  }
-  .preview-bar nav {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-  }
+  .preview-bar a { color: #1a1a1a; font-size: 13px; }
+  .preview-bar nav { display: flex; flex-wrap: wrap; gap: 10px; }
   .preview-bar .label {
     font-size: 12px;
     font-weight: 600;
     letter-spacing: 0.04em;
     text-transform: uppercase;
   }
-  .resume {
+  .a4-sheet {
+    width: 210mm;
+    min-height: 297mm;
+    max-width: 100%;
+    margin: 0 auto;
     background: #fff;
-    box-shadow: 0 2px 16px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 24px rgba(0,0,0,.12);
+    padding: 14mm 15mm 16mm;
   }
 }
 @media print {
   .preview-bar { display: none !important; }
   html, body { background: #fff; padding: 0; }
+  .a4-sheet { width: auto; min-height: 0; margin: 0; box-shadow: none; padding: 0; }
 }</style>
 </head>
 <body>
   <div class="preview-bar">
     <div>
-      <div class="label">Compact template</div>
+      <div class="label">Compact · A4</div>
       <div style="font-size:12px;color:#555;margin-top:2px">One-page fit · Long AI drafts without regenerating</div>
     </div>
     <nav>
@@ -62,7 +62,8 @@
         <a href="./modern.html">Modern</a>
     </nav>
   </div>
-  <article class="resume resume--compact">
+  <div class="a4-sheet">
+    <article class="resume resume--compact">
 <header class="r-head">
   <h1>Ammar Tariq</h1>
   <p class="r-title">Senior Software Engineer</p>
@@ -88,11 +89,13 @@
   <h2>Experience</h2>
 
   <article class="r-job">
-    <div class="r-job-top">
-      <h3>Senior Full-Stack Engineer</h3>
-      <span class="r-dates">2023 — Present</span>
+    <div class="r-block-start">
+      <div class="r-job-top">
+        <h3>Senior Full-Stack Engineer</h3>
+        <span class="r-dates">2023 — Present</span>
+      </div>
+      <p class="r-org">Pixel Genesys · Remote / United States</p>
     </div>
-    <p class="r-org">Pixel Genesys · Remote / United States</p>
     <ul>
       <li>Architected and scaled SaaS platforms with Node.js, NestJS, and mixed SQL/NoSQL data stores.</li>
       <li>Shipped SoundSeen and Zeus Lights full-stack — React Native, NestJS, Stripe, and MQTT device control.</li>
@@ -102,11 +105,13 @@
   </article>
 
   <article class="r-job">
-    <div class="r-job-top">
-      <h3>Head of Department / Senior Engineer</h3>
-      <span class="r-dates">2023</span>
+    <div class="r-block-start">
+      <div class="r-job-top">
+        <h3>Head of Department / Senior Engineer</h3>
+        <span class="r-dates">2023</span>
+      </div>
+      <p class="r-org">Meta Frolic Labs · Karachi, Pakistan</p>
     </div>
-    <p class="r-org">Meta Frolic Labs · Karachi, Pakistan</p>
     <ul>
       <li>Led technical reviews and mentored engineers on mobile architecture and frontend performance.</li>
       <li>Standardized TypeScript patterns and introduced CI/CD and automated testing.</li>
@@ -115,11 +120,13 @@
   </article>
 
   <article class="r-job">
-    <div class="r-job-top">
-      <h3>Senior Mobile Developer</h3>
-      <span class="r-dates">2019 — 2023</span>
+    <div class="r-block-start">
+      <div class="r-job-top">
+        <h3>Senior Mobile Developer</h3>
+        <span class="r-dates">2019 — 2023</span>
+      </div>
+      <p class="r-org">Salsoft Technologies · Karachi, Pakistan</p>
     </div>
-    <p class="r-org">Salsoft Technologies · Karachi, Pakistan</p>
     <ul>
       <li>Delivered 10+ production mobile applications with React Native CLI, TypeScript, and Redux.</li>
       <li>Implemented WebRTC calling with Janus Gateway — signaling, media routing, and NAT traversal.</li>
@@ -128,11 +135,13 @@
   </article>
 
   <article class="r-job">
-    <div class="r-job-top">
-      <h3>Software Engineer</h3>
-      <span class="r-dates">2018 — 2019</span>
+    <div class="r-block-start">
+      <div class="r-job-top">
+        <h3>Software Engineer</h3>
+        <span class="r-dates">2018 — 2019</span>
+      </div>
+      <p class="r-org">Salsoft Technologies · Karachi, Pakistan</p>
     </div>
-    <p class="r-org">Salsoft Technologies · Karachi, Pakistan</p>
     <ul>
       <li>Built and maintained mobile and web product surfaces across React Native, React, and Node.js.</li>
       <li>Supported backend teams with Node.js services and REST APIs.</li>
@@ -144,20 +153,24 @@
   <h2>Projects</h2>
 
   <article class="r-project">
-    <div class="r-project-top">
-      <h3>SoundSeen</h3>
+    <div class="r-block-start">
+      <div class="r-project-top">
+        <h3>SoundSeen</h3>
+      </div>
+      <p class="r-line">Full-stack consumer audio app — React Native, Express, Stripe, and store delivery.</p>
     </div>
-    <p class="r-line">Full-stack consumer audio app — React Native, Express, Stripe, and store delivery.</p>
     <ul>
       <li>Owned mobile UI, cached API access, Express services, and payment webhooks end to end.</li>
     </ul>
   </article>
 
   <article class="r-project">
-    <div class="r-project-top">
-      <h3>Zeus Lights</h3>
+    <div class="r-block-start">
+      <div class="r-project-top">
+        <h3>Zeus Lights</h3>
+      </div>
+      <p class="r-line">Permanent LED lighting control — React Native, Next.js dashboard, NestJS, MQTT.</p>
     </div>
-    <p class="r-line">Permanent LED lighting control — React Native, Next.js dashboard, NestJS, MQTT.</p>
     <ul>
       <li>Device bus and cloud contract shared by the homeowner app and operations dashboard.</li>
     </ul>
@@ -172,6 +185,7 @@
   <p class="r-skill"><strong>Data</strong> PostgreSQL, MongoDB, Redis</p>
   <p class="r-skill"><strong>Cloud</strong> Docker, GCP, Nginx, CI/CD</p>
 </section>
-  </article>
+    </article>
+  </div>
 </body>
 </html>

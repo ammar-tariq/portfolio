@@ -204,8 +204,8 @@ export function ApplicationDetail({
             Answers PDF
           </a>
         ) : null}
-        <a href={`/admin/applications/${application.id}/print`} className="text-muted hover:text-fg">
-          Print view
+        <a href={`/admin/applications/${application.id}/print`} className="text-accent" target="_blank" rel="noreferrer">
+          A4 preview
         </a>
         <select
           value={application.status}
@@ -278,7 +278,7 @@ export function ApplicationDetail({
           <div>
             <p className="font-mono text-[11px] tracking-[0.16em] text-subtle uppercase">Resume template</p>
             <p className="mt-1 text-sm text-muted">
-              Controls print view and PDF layout. Does not regenerate content.
+              Controls A4 preview and PDF (same HTML). Open A4 preview to check page breaks, then Confirm → PDF.
               {!application.resumeTemplate ? ` Using site default (${siteDefaultTemplate}).` : null}
             </p>
           </div>

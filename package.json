@@ -21,7 +21,8 @@
     "typecheck": "tsc --noEmit",
     "export-content": "tsx scripts/export-content.ts",
     "seed": "tsx scripts/seed.ts",
-    "resume-previews": "tsx scripts/write-resume-previews.ts"
+    "resume-previews": "tsx scripts/write-resume-previews.ts",
+    "playwright:install": "playwright install chromium"
   },
   "engines": {
     "node": ">=20.9.0",
@@ -45,6 +46,7 @@
     "next-auth": "^5.0.0-beta.32",
     "nodemailer": "9.0.5",
     "pdf-lib": "^1.17.1",
+    "playwright": "^1.62.1",
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "tailwind-merge": "^3.6.0",

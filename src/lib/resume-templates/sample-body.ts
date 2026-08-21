@@ -28,11 +28,13 @@ export const SAMPLE_RESUME_BODY = /* html */ `
   <h2>Experience</h2>
 
   <article class="r-job">
-    <div class="r-job-top">
-      <h3>Senior Full-Stack Engineer</h3>
-      <span class="r-dates">2023 — Present</span>
+    <div class="r-block-start">
+      <div class="r-job-top">
+        <h3>Senior Full-Stack Engineer</h3>
+        <span class="r-dates">2023 — Present</span>
+      </div>
+      <p class="r-org">Pixel Genesys · Remote / United States</p>
     </div>
-    <p class="r-org">Pixel Genesys · Remote / United States</p>
     <ul>
       <li>Architected and scaled SaaS platforms with Node.js, NestJS, and mixed SQL/NoSQL data stores.</li>
       <li>Shipped SoundSeen and Zeus Lights full-stack — React Native, NestJS, Stripe, and MQTT device control.</li>
@@ -42,11 +44,13 @@ export const SAMPLE_RESUME_BODY = /* html */ `
   </article>
 
   <article class="r-job">
-    <div class="r-job-top">
-      <h3>Head of Department / Senior Engineer</h3>
-      <span class="r-dates">2023</span>
+    <div class="r-block-start">
+      <div class="r-job-top">
+        <h3>Head of Department / Senior Engineer</h3>
+        <span class="r-dates">2023</span>
+      </div>
+      <p class="r-org">Meta Frolic Labs · Karachi, Pakistan</p>
     </div>
-    <p class="r-org">Meta Frolic Labs · Karachi, Pakistan</p>
     <ul>
       <li>Led technical reviews and mentored engineers on mobile architecture and frontend performance.</li>
       <li>Standardized TypeScript patterns and introduced CI/CD and automated testing.</li>
@@ -55,11 +59,13 @@ export const SAMPLE_RESUME_BODY = /* html */ `
   </article>
 
   <article class="r-job">
-    <div class="r-job-top">
-      <h3>Senior Mobile Developer</h3>
-      <span class="r-dates">2019 — 2023</span>
+    <div class="r-block-start">
+      <div class="r-job-top">
+        <h3>Senior Mobile Developer</h3>
+        <span class="r-dates">2019 — 2023</span>
+      </div>
+      <p class="r-org">Salsoft Technologies · Karachi, Pakistan</p>
     </div>
-    <p class="r-org">Salsoft Technologies · Karachi, Pakistan</p>
     <ul>
       <li>Delivered 10+ production mobile applications with React Native CLI, TypeScript, and Redux.</li>
       <li>Implemented WebRTC calling with Janus Gateway — signaling, media routing, and NAT traversal.</li>
@@ -68,11 +74,13 @@ export const SAMPLE_RESUME_BODY = /* html */ `
   </article>
 
   <article class="r-job">
-    <div class="r-job-top">
-      <h3>Software Engineer</h3>
-      <span class="r-dates">2018 — 2019</span>
+    <div class="r-block-start">
+      <div class="r-job-top">
+        <h3>Software Engineer</h3>
+        <span class="r-dates">2018 — 2019</span>
+      </div>
+      <p class="r-org">Salsoft Technologies · Karachi, Pakistan</p>
     </div>
-    <p class="r-org">Salsoft Technologies · Karachi, Pakistan</p>
     <ul>
       <li>Built and maintained mobile and web product surfaces across React Native, React, and Node.js.</li>
       <li>Supported backend teams with Node.js services and REST APIs.</li>
@@ -84,20 +92,24 @@ export const SAMPLE_RESUME_BODY = /* html */ `
   <h2>Projects</h2>
 
   <article class="r-project">
-    <div class="r-project-top">
-      <h3>SoundSeen</h3>
+    <div class="r-block-start">
+      <div class="r-project-top">
+        <h3>SoundSeen</h3>
+      </div>
+      <p class="r-line">Full-stack consumer audio app — React Native, Express, Stripe, and store delivery.</p>
     </div>
-    <p class="r-line">Full-stack consumer audio app — React Native, Express, Stripe, and store delivery.</p>
     <ul>
       <li>Owned mobile UI, cached API access, Express services, and payment webhooks end to end.</li>
     </ul>
   </article>
 
   <article class="r-project">
-    <div class="r-project-top">
-      <h3>Zeus Lights</h3>
+    <div class="r-block-start">
+      <div class="r-project-top">
+        <h3>Zeus Lights</h3>
+      </div>
+      <p class="r-line">Permanent LED lighting control — React Native, Next.js dashboard, NestJS, MQTT.</p>
     </div>
-    <p class="r-line">Permanent LED lighting control — React Native, Next.js dashboard, NestJS, MQTT.</p>
     <ul>
       <li>Device bus and cloud contract shared by the homeowner app and operations dashboard.</li>
     </ul>

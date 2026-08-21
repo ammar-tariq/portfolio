@@ -2,6 +2,7 @@ import { classicCss } from "./styles/classic";
 import { compactCss } from "./styles/compact";
 import { executiveCss } from "./styles/executive";
 import { modernCss } from "./styles/modern";
+import { resumePageCss } from "./page";
 import {
   DEFAULT_RESUME_TEMPLATE,
   type ResumeTemplateId,
@@ -47,7 +48,7 @@ export const RESUME_TEMPLATES: ResumeTemplateMeta[] = [
   },
 ];
 
-const STYLES: Record<ResumeTemplateId, string> = {
+const SKINS: Record<ResumeTemplateId, string> = {
   classic: classicCss,
   executive: executiveCss,
   compact: compactCss,
@@ -58,6 +59,8 @@ export function resumeTemplateMeta(id: ResumeTemplateId): ResumeTemplateMeta {
   return RESUME_TEMPLATES.find((item) => item.id === id) ?? RESUME_TEMPLATES[0]!;
 }
 
+/** Full stylesheet: shared A4/pagination + skin. */
 export function resumeTemplateCss(id: ResumeTemplateId = DEFAULT_RESUME_TEMPLATE): string {
-  return STYLES[id] ?? STYLES[DEFAULT_RESUME_TEMPLATE];
+  const skin = SKINS[id] ?? SKINS[DEFAULT_RESUME_TEMPLATE];
+  return `${resumePageCss}\n\n${skin}`;
 }

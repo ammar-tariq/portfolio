@@ -1,24 +1,9 @@
 /**
- * Modern — contemporary single-column CV.
- *
- * Design intent: clean product-engineering look. Left-aligned name (title case),
- * slate-teal accent on section titles with a short underline (not a full rule),
- * open leading, and a thin left accent bar on the header. Still one column —
- * no sidebars, icons, skill bars, or purple gradients.
- *
- * After editing, run `npm run resume-previews` to refresh public HTML/CSS previews.
+ * Modern — contemporary single-column CV (A4).
+ * Shared A4 + pagination live in page.ts.
+ * After editing, run `npm run resume-previews`.
  */
 export const modernCss = /* css */ `
-@page { margin: 0.55in 0.6in; }
-* { box-sizing: border-box; }
-html, body {
-  margin: 0;
-  padding: 0;
-  background: #fff;
-  color: #12141a;
-  -webkit-print-color-adjust: exact;
-  print-color-adjust: exact;
-}
 .resume {
   --accent: #1e4a5c;
   --ink: #12141a;
@@ -26,14 +11,11 @@ html, body {
   font-family: "Helvetica Neue", Helvetica, Arial, "Liberation Sans", sans-serif;
   font-size: 10.25pt;
   line-height: 1.42;
-  max-width: 7.5in;
-  margin: 0 auto;
-  padding: 0.38in 0.18in 0.42in;
   color: var(--ink);
+  padding: 0;
 }
 .resume a { color: inherit; text-decoration: none; }
 
-/* —— Header —— */
 .resume .r-head {
   text-align: left;
   padding: 2pt 0 14pt 14pt;
@@ -89,11 +71,6 @@ html, body {
   opacity: 0.55;
 }
 
-/* —— Sections —— */
-.resume section {
-  margin: 0;
-  padding: 0;
-}
 .resume h2 {
   margin: 15pt 0 8pt;
   padding: 0 0 5pt;
@@ -123,13 +100,10 @@ html, body {
   max-width: 95%;
 }
 
-/* —— Experience / Projects —— */
 .resume .r-job,
 .resume .r-project {
   margin: 0 0 11pt;
   padding-left: 0;
-  page-break-inside: avoid;
-  break-inside: avoid;
 }
 .resume .r-job:last-child,
 .resume .r-project:last-child {
@@ -194,7 +168,6 @@ html, body {
   margin-bottom: 0;
 }
 
-/* —— Skills —— */
 .resume .r-skill {
   margin: 0 0 4pt;
   font-size: 9.75pt;
@@ -210,11 +183,5 @@ html, body {
   display: inline-block;
   min-width: 5em;
   margin-right: 6pt;
-}
-
-@media print {
-  .resume { padding: 0; max-width: none; }
-  .resume .r-job,
-  .resume .r-project { page-break-inside: avoid; break-inside: avoid; }
 }
 `.trim();

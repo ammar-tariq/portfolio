@@ -1,35 +1,18 @@
 /**
- * Compact — Classic geometry, tighter rhythm.
- *
- * Design intent: same scan path as Classic (centered header, role/dates split)
- * with smaller type and reduced gaps so a long AI draft still fits one page
- * without regenerating content. Use when Experience + Projects overflow.
- *
- * After editing, run `npm run resume-previews` to refresh public HTML/CSS previews.
+ * Compact — Classic geometry, tighter rhythm (A4).
+ * Shared A4 + pagination live in page.ts.
+ * After editing, run `npm run resume-previews`.
  */
 export const compactCss = /* css */ `
-@page { margin: 0.45in 0.5in; }
-* { box-sizing: border-box; }
-html, body {
-  margin: 0;
-  padding: 0;
-  background: #fff;
-  color: #111114;
-  -webkit-print-color-adjust: exact;
-  print-color-adjust: exact;
-}
 .resume {
   font-family: Helvetica, Arial, "Liberation Sans", sans-serif;
   font-size: 9.25pt;
   line-height: 1.3;
-  max-width: 7.6in;
-  margin: 0 auto;
-  padding: 0.25in 0.1in 0.3in;
   color: #111114;
+  padding: 0;
 }
 .resume a { color: inherit; text-decoration: none; }
 
-/* —— Header —— */
 .resume .r-head {
   text-align: center;
   padding: 0 0 7pt;
@@ -76,7 +59,6 @@ html, body {
   color: #9a9aa0;
 }
 
-/* —— Sections —— */
 .resume h2 {
   margin: 9pt 0 4.5pt;
   padding: 0 0 1.5pt;
@@ -95,12 +77,9 @@ html, body {
   color: #1c1c20;
 }
 
-/* —— Experience / Projects —— */
 .resume .r-job,
 .resume .r-project {
   margin: 0 0 6pt;
-  page-break-inside: avoid;
-  break-inside: avoid;
 }
 .resume .r-job:last-child,
 .resume .r-project:last-child {
@@ -159,7 +138,6 @@ html, body {
   margin-bottom: 0;
 }
 
-/* —— Skills —— */
 .resume .r-skill {
   margin: 0 0 2pt;
   font-size: 8.75pt;
@@ -175,11 +153,5 @@ html, body {
   display: inline-block;
   min-width: 4.2em;
   margin-right: 3pt;
-}
-
-@media print {
-  .resume { padding: 0; max-width: none; }
-  .resume .r-job,
-  .resume .r-project { page-break-inside: avoid; break-inside: avoid; }
 }
 `.trim();

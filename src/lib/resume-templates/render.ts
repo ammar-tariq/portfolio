@@ -46,11 +46,13 @@ function experienceHtml(application: JobApplication) {
       const org = [item.company, item.location].filter(Boolean).join(" · ");
       const bullets = item.bullets.map((bullet) => `<li>${escapeHtml(bullet)}</li>`).join("");
       return `<article class="r-job">
-        <div class="r-job-top">
-          <h3>${escapeHtml(item.role)}</h3>
-          ${item.period ? `<span class="r-dates">${escapeHtml(item.period)}</span>` : ""}
+        <div class="r-block-start">
+          <div class="r-job-top">
+            <h3>${escapeHtml(item.role)}</h3>
+            ${item.period ? `<span class="r-dates">${escapeHtml(item.period)}</span>` : ""}
+          </div>
+          ${org ? `<p class="r-org">${escapeHtml(org)}</p>` : ""}
         </div>
-        ${org ? `<p class="r-org">${escapeHtml(org)}</p>` : ""}
         ${bullets ? `<ul>${bullets}</ul>` : ""}
       </article>`;
     })
@@ -68,10 +70,12 @@ function projectsHtml(application: JobApplication) {
     .map((project) => {
       const bullets = (project.bullets ?? []).map((bullet) => `<li>${escapeHtml(bullet)}</li>`).join("");
       return `<article class="r-project">
-        <div class="r-project-top">
-          <h3>${escapeHtml(project.title)}</h3>
+        <div class="r-block-start">
+          <div class="r-project-top">
+            <h3>${escapeHtml(project.title)}</h3>
+          </div>
+          ${project.line ? `<p class="r-line">${escapeHtml(project.line)}</p>` : ""}
         </div>
-        ${project.line ? `<p class="r-line">${escapeHtml(project.line)}</p>` : ""}
         ${bullets ? `<ul>${bullets}</ul>` : ""}
       </article>`;
     })
@@ -97,7 +101,7 @@ function skillsHtml(application: JobApplication) {
   </section>`;
 }
 
-/** Body fragment (header + sections) for print views. */
+/** Body fragment (header + sections) for print / iframe previews. */
 export function resumeBodyHtml(
   content: SiteContent,
   application: JobApplication,

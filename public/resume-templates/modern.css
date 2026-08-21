@@ -1,13 +1,63 @@
-@page { margin: 0.55in 0.6in; }
+@page {
+  size: A4;
+  margin: 14mm 15mm 16mm;
+}
+
 * { box-sizing: border-box; }
+
 html, body {
   margin: 0;
   padding: 0;
   background: #fff;
-  color: #12141a;
   -webkit-print-color-adjust: exact;
   print-color-adjust: exact;
 }
+
+.resume {
+  width: 100%;
+  max-width: 180mm;
+  margin: 0 auto;
+}
+
+/* —— Pagination —— */
+.resume h2 {
+  break-after: avoid;
+  page-break-after: avoid;
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+.resume .r-block-start {
+  break-inside: avoid;
+  page-break-inside: avoid;
+  break-after: avoid;
+  page-break-after: avoid;
+}
+
+.resume .r-job,
+.resume .r-project {
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+.resume .r-summary,
+.resume li,
+.resume .r-skill {
+  orphans: 3;
+  widows: 3;
+}
+
+.resume section {
+  break-inside: auto;
+}
+
+@media print {
+  .resume {
+    max-width: none;
+    padding: 0 !important;
+  }
+}
+
 .resume {
   --accent: #1e4a5c;
   --ink: #12141a;
@@ -15,14 +65,11 @@ html, body {
   font-family: "Helvetica Neue", Helvetica, Arial, "Liberation Sans", sans-serif;
   font-size: 10.25pt;
   line-height: 1.42;
-  max-width: 7.5in;
-  margin: 0 auto;
-  padding: 0.38in 0.18in 0.42in;
   color: var(--ink);
+  padding: 0;
 }
 .resume a { color: inherit; text-decoration: none; }
 
-/* —— Header —— */
 .resume .r-head {
   text-align: left;
   padding: 2pt 0 14pt 14pt;
@@ -78,11 +125,6 @@ html, body {
   opacity: 0.55;
 }
 
-/* —— Sections —— */
-.resume section {
-  margin: 0;
-  padding: 0;
-}
 .resume h2 {
   margin: 15pt 0 8pt;
   padding: 0 0 5pt;
@@ -112,13 +154,10 @@ html, body {
   max-width: 95%;
 }
 
-/* —— Experience / Projects —— */
 .resume .r-job,
 .resume .r-project {
   margin: 0 0 11pt;
   padding-left: 0;
-  page-break-inside: avoid;
-  break-inside: avoid;
 }
 .resume .r-job:last-child,
 .resume .r-project:last-child {
@@ -183,7 +222,6 @@ html, body {
   margin-bottom: 0;
 }
 
-/* —— Skills —— */
 .resume .r-skill {
   margin: 0 0 4pt;
   font-size: 9.75pt;
@@ -199,10 +237,4 @@ html, body {
   display: inline-block;
   min-width: 5em;
   margin-right: 6pt;
-}
-
-@media print {
-  .resume { padding: 0; max-width: none; }
-  .resume .r-job,
-  .resume .r-project { page-break-inside: avoid; break-inside: avoid; }
 }

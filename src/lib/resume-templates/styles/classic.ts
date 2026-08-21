@@ -1,31 +1,20 @@
 /**
- * Classic — default ATS resume.
+ * Classic — default ATS resume (A4).
  *
  * Design intent: Harvard / FAANG single-column CV. Centered masthead, hairline
  * section rules, role left / dates right on one baseline. Dense but readable.
  * One column only — no tables, sidebars, icons, or skill bars.
  *
- * After editing, run `npm run resume-previews` to refresh public HTML/CSS previews.
+ * Shared A4 + pagination live in page.ts (prepended by resumeTemplateCss).
+ * After editing, run `npm run resume-previews` to refresh public HTML previews.
  */
 export const classicCss = /* css */ `
-@page { margin: 0.55in 0.6in; }
-* { box-sizing: border-box; }
-html, body {
-  margin: 0;
-  padding: 0;
-  background: #fff;
-  color: #111114;
-  -webkit-print-color-adjust: exact;
-  print-color-adjust: exact;
-}
 .resume {
   font-family: Helvetica, Arial, "Liberation Sans", sans-serif;
   font-size: 10.25pt;
   line-height: 1.38;
-  max-width: 7.5in;
-  margin: 0 auto;
-  padding: 0.35in 0.15in 0.4in;
   color: #111114;
+  padding: 0;
 }
 .resume a { color: inherit; text-decoration: none; }
 
@@ -84,9 +73,6 @@ html, body {
   margin: 0;
   padding: 0;
 }
-.resume section + section {
-  margin-top: 0;
-}
 .resume h2 {
   margin: 13pt 0 7pt;
   padding: 0 0 2.5pt;
@@ -110,8 +96,6 @@ html, body {
 .resume .r-job,
 .resume .r-project {
   margin: 0 0 9pt;
-  page-break-inside: avoid;
-  break-inside: avoid;
 }
 .resume .r-job:last-child,
 .resume .r-project:last-child {
@@ -188,11 +172,5 @@ html, body {
   display: inline-block;
   min-width: 4.6em;
   margin-right: 4pt;
-}
-
-@media print {
-  .resume { padding: 0; max-width: none; }
-  .resume .r-job,
-  .resume .r-project { page-break-inside: avoid; break-inside: avoid; }
 }
 `.trim();

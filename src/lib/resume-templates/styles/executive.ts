@@ -1,36 +1,18 @@
 /**
- * Executive — left-aligned, heavier hierarchy.
- *
- * Design intent: senior / staff CV. Name is left and large (no all-caps),
- * thicker top rule, stronger section dividers. Same single-column ATS
- * geometry (role left / dates right) as Classic — more presence, not more
- * decoration.
- *
- * After editing, run `npm run resume-previews` to refresh public HTML/CSS previews.
+ * Executive — left-aligned, heavier hierarchy (A4).
+ * Shared A4 + pagination live in page.ts.
+ * After editing, run `npm run resume-previews`.
  */
 export const executiveCss = /* css */ `
-@page { margin: 0.55in 0.65in; }
-* { box-sizing: border-box; }
-html, body {
-  margin: 0;
-  padding: 0;
-  background: #fff;
-  color: #0e0e10;
-  -webkit-print-color-adjust: exact;
-  print-color-adjust: exact;
-}
 .resume {
   font-family: Helvetica, Arial, "Liberation Sans", sans-serif;
   font-size: 10.5pt;
   line-height: 1.4;
-  max-width: 7.6in;
-  margin: 0 auto;
-  padding: 0.4in 0.2in 0.45in;
   color: #0e0e10;
+  padding: 0;
 }
 .resume a { color: inherit; text-decoration: none; }
 
-/* —— Header —— */
 .resume .r-head {
   text-align: left;
   padding: 10pt 0 12pt;
@@ -81,7 +63,6 @@ html, body {
   font-weight: 400;
 }
 
-/* —— Sections —— */
 .resume h2 {
   margin: 16pt 0 8pt;
   padding: 0 0 3.5pt;
@@ -100,12 +81,9 @@ html, body {
   color: #1a1a1e;
 }
 
-/* —— Experience / Projects —— */
 .resume .r-job,
 .resume .r-project {
   margin: 0 0 11pt;
-  page-break-inside: avoid;
-  break-inside: avoid;
 }
 .resume .r-job:last-child,
 .resume .r-project:last-child {
@@ -166,7 +144,6 @@ html, body {
   margin-bottom: 0;
 }
 
-/* —— Skills —— */
 .resume .r-skill {
   margin: 0 0 4pt;
   font-size: 10pt;
@@ -182,11 +159,5 @@ html, body {
   display: inline-block;
   min-width: 5.2em;
   margin-right: 6pt;
-}
-
-@media print {
-  .resume { padding: 0; max-width: none; }
-  .resume .r-job,
-  .resume .r-project { page-break-inside: avoid; break-inside: avoid; }
 }
 `.trim();
