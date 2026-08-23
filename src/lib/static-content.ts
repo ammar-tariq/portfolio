@@ -40,6 +40,8 @@ export function staticSettings(): SiteSettings {
       focus: [...profileData.focus],
       aboutHeadline: profileData.aboutHeadline,
       aboutBody: profileData.aboutBody,
+      photoUrl: profileData.photoUrl,
+      photoPublicId: profileData.photoPublicId,
     },
     social: { ...socialData },
     navItems: navData.map((item) => ({

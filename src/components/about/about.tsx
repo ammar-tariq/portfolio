@@ -32,7 +32,7 @@ export function About() {
                   alt={profile.name}
                   fill
                   sizes="(max-width: 1024px) 20rem, 17rem"
-                  className="object-cover object-[center_20%] grayscale contrast-[1.08]"
+                  className="object-cover object-[center_20%]"
                 />
               </figure>
             </Reveal>

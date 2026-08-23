@@ -20,5 +20,7 @@ export const profile = {
     "AI-enabled applications"
   ],
   "aboutHeadline": "8+ years building products that have to last.",
-  "aboutBody": "I work across React Native, TypeScript frontends, Node/NestJS backends, and AI-enabled surfaces. The through-line is architecture: clear boundaries, honest performance, and systems a team can actually own."
+  "aboutBody": "I work across React Native, TypeScript frontends, Node/NestJS backends, and AI-enabled surfaces. The through-line is architecture: clear boundaries, honest performance, and systems a team can actually own.",
+  "photoUrl": "https://res.cloudinary.com/dcrgvijkc/image/upload/v1787134601/portfolio/profile/Gemini_Generated_Image_14v34i14v34i14v3_jigzxf.jpg",
+  "photoPublicId": "portfolio/profile/Gemini_Generated_Image_14v34i14v34i14v3_jigzxf"
 } as const;
