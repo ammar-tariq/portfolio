@@ -1,6 +1,6 @@
 "use client";
 
-import { Component, useEffect, useMemo, useRef, useState, useSyncExternalStore, type ErrorInfo, type ReactNode } from "react";
+import { Component, useEffect, useMemo, useRef, useSyncExternalStore, type ErrorInfo, type ReactNode } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Stars } from "@react-three/drei";
 import * as THREE from "three";
@@ -152,20 +152,14 @@ function getServerWebGL() {
   return false;
 }
 
-// The ambient background used to render every frame forever (`frameloop="always"`).
-// On a software-rendered / throttled device (PageSpeed's emulated desktop has no
-// GPU) that's tens of seconds of main-thread work. Instead the loop is demand-driven
-// and *self-extinguishing*: it renders a capped burst only while motion is still
-// converging after a real interaction (pointer, scroll, theme), then stops dead.
+// Cap the ambient loop well below display refresh. Software GPUs never reach this
+// code (SpatialLayer bails before importing the bundle). On real hardware a 30fps
+// demand loop is cheap, and the atom / dust / stars are designed to keep moving.
 const MAX_FPS = 30;
 const FRAME_MS = 1000 / MAX_FPS;
-// Extra frames rendered after the last input so springs/lerps settle to rest.
-const SETTLE_FRAMES = 90;
 
 function RenderLoop({ active }: { active: boolean }) {
   const invalidate = useThree((state) => state.invalidate);
-  // Frame counter that keeps ticking while there's pending motion. Bumped by input.
-  const pending = useRef(SETTLE_FRAMES);
 
   useEffect(() => {
     if (!active) return;
@@ -173,63 +167,31 @@ function RenderLoop({ active }: { active: boolean }) {
     let last = 0;
     const tick = (now: number) => {
       raf = requestAnimationFrame(tick);
-      if (pending.current <= 0) return; // converged — stop drawing entirely
-      if (now - last < FRAME_MS) return; // framerate cap
+      if (now - last < FRAME_MS) return;
       last = now;
-      pending.current -= 1;
       invalidate();
     };
     raf = requestAnimationFrame(tick);
-    const wake = () => {
-      pending.current = SETTLE_FRAMES;
-    };
-    window.addEventListener("pointermove", wake, { passive: true });
-    window.addEventListener("scroll", wake, { passive: true });
-    window.addEventListener("pointerdown", wake, { passive: true });
-    return () => {
-      cancelAnimationFrame(raf);
-      window.removeEventListener("pointermove", wake);
-      window.removeEventListener("scroll", wake);
-      window.removeEventListener("pointerdown", wake);
-    };
+    return () => cancelAnimationFrame(raf);
   }, [active, invalidate]);
 
-  // Wake on theme / visibility change too.
-  useEffect(() => {
-    pending.current = SETTLE_FRAMES;
-  }, [active]);
   return null;
 }
 
 export default function SpatialScene() {
   const { theme, commandOpen } = useSite();
   const compact = !useIsDesktop();
-  const playing = !commandOpen;
+  const active = !commandOpen;
   const ok = useSyncExternalStore(subscribeWebGL, hasWebGL, getServerWebGL);
-  const hostRef = useRef<HTMLDivElement>(null);
-  const [inView, setInView] = useState(true);
-
-  // Never animate when the canvas is scrolled out of the viewport.
-  useEffect(() => {
-    const el = hostRef.current;
-    if (!el) return;
-    const observer = new IntersectionObserver(([entry]) => setInView(entry.isIntersecting), {
-      threshold: 0,
-    });
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, []);
-
-  const active = playing && inView;
 
   if (!ok) return null;
 
   return (
-    <div ref={hostRef} className="h-full w-full bg-transparent" data-cursor="hidden">
+    <div className="h-full w-full bg-transparent" data-cursor="hidden">
       <WebGLGuard>
         <Canvas
           dpr={compact ? [1, 1.15] : [1, 1.25]}
-          frameloop="never"
+          frameloop={active ? "demand" : "never"}
           style={{ background: "transparent" }}
           gl={{
             antialias: !compact,
