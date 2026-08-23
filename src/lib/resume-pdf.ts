@@ -1,10 +1,10 @@
 import { PDFDocument, StandardFonts, rgb, type PDFFont, type PDFPage } from "pdf-lib";
+import { htmlToA4Pdf } from "@/lib/resume-templates/html-to-pdf";
 import {
   DEFAULT_RESUME_TEMPLATE,
   resumeContactItems,
   resumeContactParts,
   resumeDocumentHtml,
-  htmlToA4Pdf,
   resolveResumeTemplateId,
 } from "@/lib/resume-templates";
 import type { JobApplication } from "@/types/application";

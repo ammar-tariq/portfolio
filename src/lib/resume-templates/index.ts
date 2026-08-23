@@ -10,5 +10,4 @@ export {
 export { displayUrl, resumeContactItems, resumeContactLine, resumeContactParts } from "./contact";
 export { RESUME_TEMPLATES, resumeTemplateCss, resumeTemplateMeta } from "./registry";
 export { resumeBodyHtml, resumeDocumentHtml } from "./render";
-export { htmlToA4Pdf } from "./html-to-pdf";
 export { resumePageCss } from "./page";
