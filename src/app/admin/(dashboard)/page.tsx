@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getAnalytics } from "@/lib/analytics";
 import { VisitorMap } from "@/components/admin/visitor-map";
+import { PortfolioJsonExport } from "@/components/admin/portfolio-json-export";
 import { googleMapsApiKey } from "@/lib/env";
 import { AdminPageHeader, AdminPanel } from "@/components/admin/admin-ui";
 
@@ -26,6 +27,8 @@ export default async function AdminHomePage() {
         <QuickLink href="/admin/applications" title="Applications" hint="Resumes you prepared" />
         <QuickLink href="/admin/projects" title="Projects" hint="Case studies" />
       </div>
+
+      <PortfolioJsonExport />
 
       <AdminPanel className="p-5">
         <h2 className="text-sm font-medium">Visitor map</h2>
