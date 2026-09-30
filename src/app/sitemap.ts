@@ -3,6 +3,8 @@ import { connection } from "next/server";
 import { getSiteContent } from "@/lib/content";
 import { siteUrlFrom } from "@/lib/seo";
 import { publicProjects } from "@/lib/project-helpers";
+import { coverImage } from "@/lib/project-media";
+import { absoluteUrl } from "@/lib/og";
 import { LEGAL_UPDATED_ISO } from "@/lib/legal";
 import { homeSectionSlugs } from "@/lib/home-sections";
 
@@ -24,12 +26,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     : undefined;
   const legalUpdated = new Date(`${LEGAL_UPDATED_ISO}T00:00:00.000Z`);
 
-  const work = projects.map((project) => ({
-    url: `${siteUrl}/work/${project.slug}`,
-    ...(project.updatedAt ? { lastModified: new Date(project.updatedAt) } : {}),
-    changeFrequency: "monthly" as const,
-    priority: project.featured ? 0.8 : 0.6,
-  }));
+  const work = projects.map((project) => {
+    const image = absoluteUrl(coverImage(project), siteUrl);
+    return {
+      url: `${siteUrl}/work/${project.slug}`,
+      ...(project.updatedAt ? { lastModified: new Date(project.updatedAt) } : {}),
+      changeFrequency: "monthly" as const,
+      priority: project.featured ? 0.8 : 0.6,
+      ...(image ? { images: [image] } : {}),
+    };
+  });
 
   return [
     {

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Calendar, FileText, PenLine, Scale } from "lucide-react";
+import { Calendar, FileText, FolderKanban, PenLine, Scale } from "lucide-react";
 import { GitHubIcon, LinkedInIcon, UpworkIcon, WhatsAppIcon } from "@/components/ui/brand-icons";
 import { Navigation } from "@/components/nav/navigation";
 import { CommandPalette } from "@/components/command/command-palette";
@@ -92,6 +92,10 @@ export function SiteShell({
                     <GitHubIcon className="h-3.5 w-3.5" />
                     GitHub
                   </a>
+                  <Link href="/work" className="inline-flex items-center gap-1.5 link-underline">
+                    <FolderKanban className="h-3.5 w-3.5" aria-hidden />
+                    Projects
+                  </Link>
                   <Link href="/resume" className="inline-flex items-center gap-1.5 link-underline">
                     <FileText className="h-3.5 w-3.5" aria-hidden />
                     Resume

@@ -34,17 +34,11 @@ export function llmsText(content: SiteContent) {
       ]
         .filter(Boolean)
         .join(" · ");
-      return `- [${project.seoLabel}](${siteUrl}/work/${project.slug}): ${project.seoDescription}${
+      return `- [${project.seoLabel}](${siteUrl}/work/${project.slug}): ${project.seoDescription} Technologies: ${project.technologies.join(", ")}.${
         project.outcome ? ` Outcome: ${project.outcome}` : ""
       }${links ? ` (${links})` : ""}`;
     })
     .join("\n");
-
-  const topProjects = projects
-    .filter((project) => project.featured)
-    .slice(0, 5)
-    .map((project) => project.title)
-    .join(", ");
 
   return `# ${profile.name}
 
@@ -74,6 +68,11 @@ ${current ? `- Current role: ${current.role} at ${current.company} (${current.pe
 - Experience: ${siteUrl}/experience
 - Skills: ${siteUrl}/skills
 - Portfolio (case studies): ${siteUrl}/work
+- Architecture: ${siteUrl}/architecture
+- AI: ${siteUrl}/ai
+- Philosophy: ${siteUrl}/philosophy
+- Contact: ${siteUrl}/contact
+- Full text: ${siteUrl}/llms-full.txt
 - GitHub: ${social.github}
 - LinkedIn: ${social.linkedin}
 - Blog: ${siteUrl}/blog
@@ -112,34 +111,69 @@ ${openSourceProjects
 
 GitHub: ${social.github}
 
-## FAQ
-
-### Who is ${profile.name}?
-
-${seo.description}
-
-Visible FAQ on the homepage: ${siteUrl}/faq
-
-### What is ${profile.name} known for?
-
-Shipping production mobile and full-stack products end to end: React Native apps delivered to the App Store and Google Play, backends in Node.js/NestJS/Express, admin dashboards in React/Next.js, realtime systems (Socket.io, WebRTC, MQTT), payments (Stripe, in-app subscriptions), and LLM-integrated product features. Case studies with outcomes: ${siteUrl}/work
-
-### What are ${profile.name}'s top projects?
-
-${topProjects ? `${topProjects}. ` : ""}Full list with store links and write-ups: ${siteUrl}/work
-
-### What tech stack does ${profile.name} use?
-
-React Native, Expo, React, Next.js, TypeScript, Node.js, NestJS, Express, GraphQL, MongoDB, PostgreSQL, Redis, Socket.io, MQTT, WebRTC, Stripe, Firebase, Docker, and GCP. Details: ${siteUrl}/resume
-
-### Is ${profile.name} available for senior engineering roles?
-
-${profile.availability}. ${profile.yearsExperience}+ years of experience across mobile, web, backend, and AI-enabled products${
-    current ? `; currently ${current.role} at ${current.company}` : ""
-  }. Contact: ${profile.email}
-
 ## Contact
 
 Email ${profile.email}, message on WhatsApp (${social.whatsapp}), book time at ${social.calendly}, or hire via Upwork (${social.upwork}).
+`;
+}
+
+export function llmsFullText(content: SiteContent) {
+  const { profile, experience, skillCategories } = content;
+  const siteUrl = siteUrlFrom(content);
+  const projects = publicProjects(content.projects);
+
+  const studies = projects
+    .map((project) => {
+      const parts = [
+        `## ${project.seoLabel}`,
+        `URL: ${siteUrl}/work/${project.slug}`,
+        project.year ? `Year: ${project.year}` : "",
+        `Role: ${project.role}`,
+        project.seoDescription,
+        project.description,
+        project.challenge ? `Challenge: ${project.challenge}` : "",
+        project.solution ? `Solution: ${project.solution}` : "",
+        project.architecture.length ? `Architecture:\n${project.architecture.map((item) => `- ${item}`).join("\n")}` : "",
+        project.engineering?.length
+          ? `Engineering:\n${project.engineering.map((item) => `- ${item}`).join("\n")}`
+          : "",
+        project.outcome ? `Outcome: ${project.outcome}` : "",
+        `Technologies: ${project.technologies.join(", ")}`,
+      ];
+      return parts.filter(Boolean).join("\n\n");
+    })
+    .join("\n\n");
+
+  const jobs = experience
+    .map(
+      (item) =>
+        `## ${item.role} — ${item.company} (${item.period})\n${item.summary}\n${item.responsibilities.map((line) => `- ${line}`).join("\n")}\nTechnologies: ${item.technologies.join(", ")}`,
+    )
+    .join("\n\n");
+
+  const skills = skillCategories
+    .map(
+      (category) =>
+        `## ${category.label}\n${category.summary}\n${category.items.map((item) => `- ${item.name}`).join("\n")}`,
+    )
+    .join("\n\n");
+
+  return `# ${profile.name} — full text
+
+> Factual record of ${profile.name}, ${profile.title}, ${profile.location}. Index: ${siteUrl}/llms.txt
+
+${profile.summary}
+
+## Experience
+
+${jobs}
+
+## Skills
+
+${skills}
+
+## Case studies
+
+${studies}
 `;
 }

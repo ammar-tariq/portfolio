@@ -4,7 +4,6 @@ import { ogImages } from "@/lib/og";
 import { profilePhotoSrc } from "@/lib/media-url";
 import { coverImage, allScreenshots } from "@/lib/project-media";
 import { publicProjects } from "@/lib/project-helpers";
-import { siteFaq } from "@/lib/faq";
 import { homeSectionById, type HomeSectionId } from "@/lib/home-sections";
 import { siteOrigin } from "@/lib/env";
 
@@ -24,6 +23,38 @@ function uniqueKnowsAbout(content: SiteContent) {
 
 function currentEmployer(content: SiteContent) {
   return content.experience[0]?.company;
+}
+
+function postalAddress(location: string) {
+  const [locality, ...rest] = location.split(",").map((part) => part.trim()).filter(Boolean);
+  return {
+    "@type": "PostalAddress",
+    ...(locality ? { addressLocality: locality } : {}),
+    ...(rest.length ? { addressCountry: rest.join(", ") } : {}),
+  };
+}
+
+function operatingSystems(project: Project) {
+  const live = `${project.liveLabel ?? ""} ${project.liveUrl ?? ""}`.toLowerCase();
+  const systems = [
+    project.appStoreUrl || project.iosScreenshots?.length ? "iOS" : "",
+    project.androidScreenshots?.length || /play\.google|android/.test(live) ? "Android" : "",
+    project.webUrl ? "Web" : "",
+  ].filter(Boolean);
+  return systems.length ? systems.join(", ") : "iOS, Android";
+}
+
+function articleBody(project: Project) {
+  return [
+    project.description,
+    project.challenge ? `Challenge: ${project.challenge}` : "",
+    project.solution ? `Solution: ${project.solution}` : "",
+    project.architecture.length ? `Architecture: ${project.architecture.join(" ")}` : "",
+    project.engineering?.length ? `Engineering: ${project.engineering.join(" ")}` : "",
+    project.outcome ? `Outcome: ${project.outcome}` : "",
+  ]
+    .filter(Boolean)
+    .join("\n\n");
 }
 
 export function personJsonLd(content: SiteContent) {
@@ -55,6 +86,7 @@ export function personJsonLd(content: SiteContent) {
       "@type": "Place",
       name: profile.location,
     },
+    address: postalAddress(profile.location),
     ...(employer
       ? {
           worksFor: {
@@ -126,12 +158,43 @@ export function resumeProfilePageJsonLd(content: SiteContent) {
   const siteUrl = siteUrlFrom(content);
   return {
     "@context": "https://schema.org",
-    "@type": "ProfilePage",
-    "@id": `${siteUrl}/resume#profile`,
-    url: `${siteUrl}/resume`,
-    name: `Resume — ${content.profile.name}`,
-    about: { "@id": `${siteUrl}/#person` },
-    mainEntity: { "@id": `${siteUrl}/#person` },
+    "@graph": [
+      {
+        "@type": "ProfilePage",
+        "@id": `${siteUrl}/resume#profile`,
+        url: `${siteUrl}/resume`,
+        name: `Resume — ${content.profile.name}`,
+        description: `Resume of ${content.profile.name}, ${content.profile.title} based in ${content.profile.location}.`,
+        isPartOf: { "@id": `${siteUrl}/#website` },
+        about: { "@id": `${siteUrl}/#person` },
+        mainEntity: { "@id": `${siteUrl}/#person` },
+      },
+      breadcrumbJsonLd(siteUrl, [
+        { name: content.profile.name, url: siteUrl },
+        { name: "Resume", url: `${siteUrl}/resume` },
+      ]),
+    ],
+  };
+}
+
+export function caseStudyArticleJsonLd(content: SiteContent, project: Project) {
+  const siteUrl = siteUrlFrom(content);
+  const image = coverImage(project);
+  return {
+    "@type": "TechArticle",
+    "@id": `${siteUrl}/work/${project.slug}#article`,
+    headline: project.seoLabel,
+    name: project.seoLabel,
+    description: project.seoDescription,
+    articleBody: articleBody(project),
+    inLanguage: "en",
+    url: `${siteUrl}/work/${project.slug}`,
+    author: { "@id": `${siteUrl}/#person` },
+    about: { "@id": `${siteUrl}/work/${project.slug}#app` },
+    isPartOf: { "@id": `${siteUrl}/#website` },
+    keywords: project.technologies.join(", "),
+    ...(project.updatedAt ? { dateModified: project.updatedAt } : {}),
+    ...(image ? { image } : {}),
   };
 }
 
@@ -140,24 +203,6 @@ export function siteGraphJsonLd(content: SiteContent) {
   return {
     "@context": "https://schema.org",
     "@graph": [personJsonLd(content), websiteJsonLd(content), professionalServiceJsonLd(content)],
-  };
-}
-
-/** Homepage-specific entities: profile page, project list, and visible FAQ. */
-export function faqPageJsonLd(content: SiteContent) {
-  const siteUrl = siteUrlFrom(content);
-  return {
-    "@type": "FAQPage",
-    "@id": `${siteUrl}/faq#faq`,
-    url: `${siteUrl}/faq`,
-    mainEntity: siteFaq(content).map((item) => ({
-      "@type": "Question",
-      name: item.question,
-      acceptedAnswer: {
-        "@type": "Answer",
-        text: item.answer,
-      },
-    })),
   };
 }
 
@@ -180,12 +225,11 @@ export function homeGraphJsonLd(content: SiteContent, sectionId: HomeSectionId =
   if (sectionId === "hero") {
     return {
       "@context": "https://schema.org",
-      "@graph": [profilePageJsonLd(content), workIndexJsonLd(content), faqPageJsonLd(content)],
+      "@graph": [profilePageJsonLd(content), workIndexJsonLd(content)],
     };
   }
   const graph: Record<string, unknown>[] = [homeSectionPageJsonLd(content, sectionId)];
   if (sectionId === "portfolio") graph.push(workIndexJsonLd(content));
-  if (sectionId === "faq" || sectionId === "about") graph.push(faqPageJsonLd(content));
   return {
     "@context": "https://schema.org",
     "@graph": graph,
@@ -206,7 +250,9 @@ export function projectJsonLd(content: SiteContent, project: Project) {
     description: project.seoDescription,
     url: `${siteUrl}/work/${project.slug}`,
     applicationCategory: project.applicationCategory ?? "DeveloperApplication",
-    operatingSystem: "iOS, Android, Web",
+    operatingSystem: operatingSystems(project),
+    inLanguage: "en",
+    isPartOf: { "@id": `${siteUrl}/#website` },
     creator: { "@id": `${siteUrl}/#person` },
     author: { "@id": `${siteUrl}/#person` },
     keywords: project.technologies.join(", "),
@@ -269,6 +315,7 @@ export function projectGraphJsonLd(content: SiteContent, project: Project) {
     "@context": "https://schema.org",
     "@graph": [
       projectJsonLd(content, project),
+      caseStudyArticleJsonLd(content, project),
       breadcrumbJsonLd(siteUrl, [
         { name: content.profile.name, url: siteUrl },
         { name: "Projects", url: `${siteUrl}/work` },
@@ -361,6 +408,7 @@ export function rootMetadata(content: SiteContent): Metadata {
     alternates: {
       types: {
         "text/plain": `${siteUrl}/llms.txt`,
+        "text/markdown": `${siteUrl}/llms-full.txt`,
       },
     },
     authors: [{ name: content.profile.name, url: siteUrl }],

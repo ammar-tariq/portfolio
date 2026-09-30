@@ -3,7 +3,6 @@ import type { SiteContent } from "@/types/content";
 export type HomeSectionId =
   | "hero"
   | "about"
-  | "faq"
   | "portfolio"
   | "open-source"
   | "experience"
@@ -36,13 +35,6 @@ export const HOME_SECTIONS: HomeSection[] = [
     label: "About",
     title: "About",
     description: (content) => content.profile.aboutBody || content.profile.summary,
-  },
-  {
-    id: "faq",
-    path: "/faq",
-    label: "FAQ",
-    title: "FAQ",
-    description: (content) => `Questions about ${content.profile.name}, availability, and how to get in touch.`,
   },
   {
     id: "portfolio",

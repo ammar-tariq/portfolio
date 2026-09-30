@@ -8,6 +8,7 @@ export function revalidateSite(slug?: string) {
   revalidatePath("/privacy");
   revalidatePath("/terms");
   revalidatePath("/llms.txt");
+  revalidatePath("/llms-full.txt");
   revalidatePath("/sitemap.xml");
   if (slug) revalidatePath(`/work/${slug}`);
 }

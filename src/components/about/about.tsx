@@ -1,11 +1,10 @@
 "use client";
 
-import { CircleQuestionMark, FileText, MapPin, PenLine, Radio, Target } from "lucide-react";
+import { FileText, MapPin, PenLine, Radio, Target } from "lucide-react";
 import { Container, Section } from "@/components/ui/section";
 import { GitHubIcon, LinkedInIcon } from "@/components/ui/brand-icons";
 import { RemoteImage } from "@/components/ui/remote-image";
 import { useContent } from "@/components/providers/content-provider";
-import { siteFaq } from "@/lib/faq";
 import { profilePhotoSrc } from "@/lib/media-url";
 import { dossierEntry } from "@/lib/dossier";
 import { Reveal } from "@/components/ui/reveal";
@@ -14,7 +13,6 @@ import Link from "next/link";
 export function About() {
   const content = useContent();
   const { profile, social, navItems } = content;
-  const faq = siteFaq(content);
   const photo = profilePhotoSrc(profile, social);
   const entry = dossierEntry("about");
   const label = navItems.find((item) => item.id === "about")?.label ?? entry?.label ?? "About";
@@ -93,27 +91,6 @@ export function About() {
             </p>
           </div>
           </Reveal>
-        </div>
-        <div className="axis-grid mt-16" id="faq">
-          <div className="axis-main">
-          <p className="meta-label mb-4 inline-flex items-center gap-1.5 text-accent">
-            <CircleQuestionMark className="h-3.5 w-3.5" aria-hidden />
-            FAQ
-          </p>
-          <dl className="border-t border-line">
-          {faq.map((item, index) => (
-              <Reveal key={item.question} delay={index * 0.04}>
-              <div className="grid gap-2 border-b border-line py-5 min-[800px]:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] min-[800px]:gap-8">
-                <dt className="flex items-start gap-2 text-sm text-fg">
-                  <CircleQuestionMark className="mt-0.5 h-3.5 w-3.5 shrink-0 text-accent" aria-hidden />
-                  {item.question}
-                </dt>
-                <dd className="text-sm leading-relaxed text-muted">{item.answer}</dd>
-              </div>
-              </Reveal>
-            ))}
-          </dl>
-          </div>
         </div>
       </Container>
     </Section>

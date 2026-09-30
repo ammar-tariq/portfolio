@@ -15,7 +15,6 @@ import { handleHomeSectionClick, syncHomeSectionUrl } from "@/lib/section-nav";
 import { cn } from "@/lib/cn";
 
 const HIGHLIGHT: Record<string, string> = {
-  faq: "about",
   cursor: "open-source",
 };
 
