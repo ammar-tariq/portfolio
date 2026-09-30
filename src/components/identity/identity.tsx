@@ -6,6 +6,7 @@ import { Container, Section, SectionIntro } from "@/components/ui/section";
 import { useContent } from "@/components/providers/content-provider";
 import { dossierEntry } from "@/lib/dossier";
 import { cn } from "@/lib/cn";
+import { Reveal } from "@/components/ui/reveal";
 
 const BRANCH_ICONS: Record<string, LucideIcon> = {
   engineer: User,
@@ -41,6 +42,7 @@ export function Identity() {
           title="One spine. Four surfaces."
           kicker="Mobile, web, backend, and AI — held together by architecture."
         />
+        <Reveal>
         <div className="axis-grid">
           <div className="axis-side max-[719px]:hidden" />
           <div className="axis-main">
@@ -99,6 +101,7 @@ export function Identity() {
             ) : null}
           </div>
         </div>
+        </Reveal>
       </Container>
     </Section>
   );

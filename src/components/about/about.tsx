@@ -8,6 +8,7 @@ import { useContent } from "@/components/providers/content-provider";
 import { siteFaq } from "@/lib/faq";
 import { profilePhotoSrc } from "@/lib/media-url";
 import { dossierEntry } from "@/lib/dossier";
+import { Reveal } from "@/components/ui/reveal";
 import Link from "next/link";
 
 export function About() {
@@ -26,6 +27,7 @@ export function About() {
             <span className="block text-accent">{entry?.marker}</span>
             <span className="mt-1 block">{label}</span>
           </p>
+          <Reveal>
           <div className="axis-main">
             <div className="grid gap-8 min-[900px]:grid-cols-[minmax(0,1fr)_13rem] min-[900px]:items-start">
               <div>
@@ -37,7 +39,7 @@ export function About() {
                 </p>
               </div>
               {photo ? (
-                <figure className="relative aspect-[3/4] w-36 overflow-hidden border border-line min-[900px]:w-full">
+                <figure className="relative aspect-[3/4] w-36 overflow-hidden rounded-2xl border border-line min-[900px]:w-full">
                   <RemoteImage
                     src={photo}
                     alt={profile.name}
@@ -81,15 +83,18 @@ export function About() {
               </Link>
             </p>
           </div>
+          </Reveal>
         </div>
         <div className="axis-grid mt-16" id="faq">
           <p className="meta-label axis-side mb-4 text-accent min-[1100px]:mb-0">FAQ</p>
           <dl className="axis-main border-t border-line">
-            {faq.map((item) => (
-              <div key={item.question} className="grid gap-2 border-b border-line py-5 min-[800px]:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] min-[800px]:gap-8">
+          {faq.map((item, index) => (
+              <Reveal key={item.question} delay={index * 0.04}>
+              <div className="grid gap-2 border-b border-line py-5 min-[800px]:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] min-[800px]:gap-8">
                 <dt className="text-sm text-fg">{item.question}</dt>
                 <dd className="text-sm leading-relaxed text-muted">{item.answer}</dd>
               </div>
+              </Reveal>
             ))}
           </dl>
         </div>

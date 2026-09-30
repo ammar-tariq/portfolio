@@ -19,7 +19,7 @@
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
   --dur-micro: 150ms;
   --dur: 280ms;
-  --dur-reveal: 520ms;
+  --dur-reveal: 760ms;
   --page-x: clamp(1.15rem, 2.4vw, 3rem);
   --read: 40rem;
   --section-y: clamp(4.25rem, 8vw, 7.25rem);
@@ -175,6 +175,19 @@ a,
   pointer-events: auto;
 }
 
+.glass-quiet {
+  background: rgba(11, 16, 24, 0.62);
+  border-color: rgba(243, 246, 250, 0.12);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  @apply backdrop-blur-xl;
+}
+
+html.light .glass-quiet {
+  background: rgba(243, 247, 251, 0.72);
+  border-color: rgba(12, 18, 32, 0.08);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.65);
+}
+
 .nav-link {
   border-radius: 999px;
   padding: 0.32rem 0.62rem;
@@ -246,20 +259,47 @@ html.light .hero-name {
   animation: settle var(--dur-reveal) var(--ease) both;
 }
 
-.settle-2 { animation-delay: 70ms; }
-.settle-3 { animation-delay: 140ms; }
-.settle-4 { animation-delay: 210ms; }
-.settle-5 { animation-delay: 280ms; }
+.settle-2 { animation-delay: 90ms; }
+.settle-3 { animation-delay: 180ms; }
+.settle-4 { animation-delay: 270ms; }
+.settle-5 { animation-delay: 360ms; }
 
 @keyframes settle {
   from {
     opacity: 0;
-    transform: translateY(6px);
+    transform: translateY(22px);
   }
   to {
     opacity: 1;
     transform: none;
   }
+}
+
+@keyframes float-y {
+  0%,
+  100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.float-shot {
+  display: block;
+  height: 100%;
+  animation: float-y 6s ease-in-out infinite;
+}
+
+.shot-frame {
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 0.9rem;
+}
+
+img.zoom-shot {
+  transition: transform 600ms var(--ease);
+}
+
+.group:hover img.zoom-shot,
+.shot-frame:hover img.zoom-shot {
+  transform: scale(1.045);
 }
 
 .fine-only {

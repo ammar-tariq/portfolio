@@ -6,6 +6,7 @@ import { Container, Section, SectionIntro } from "@/components/ui/section";
 import { useContent } from "@/components/providers/content-provider";
 import { dossierEntry } from "@/lib/dossier";
 import { cn } from "@/lib/cn";
+import { Reveal } from "@/components/ui/reveal";
 
 export function AiSection() {
   const { architecture } = useContent();
@@ -29,6 +30,7 @@ export function AiSection() {
           title="Models are components. Products are the system."
           kicker="A real pipeline — user, product, orchestration, model, tools, result."
         />
+        <Reveal>
         <div className="axis-grid">
           <div className="axis-side max-[719px]:hidden" />
           <div className="axis-main">
@@ -97,6 +99,7 @@ export function AiSection() {
             </div>
           </div>
         </div>
+        </Reveal>
       </Container>
     </Section>
   );

@@ -8,6 +8,7 @@ import { useSkillFocus } from "@/components/skills/skill-focus";
 import { dossierEntry } from "@/lib/dossier";
 import { listedProjects } from "@/lib/project-helpers";
 import { cn } from "@/lib/cn";
+import { Reveal } from "@/components/ui/reveal";
 
 const CATEGORY_ICONS: Record<string, LucideIcon> = {
   frontend: Monitor,
@@ -37,9 +38,9 @@ export function Skills() {
           {skillCategories.map((category) => {
             const Icon = CATEGORY_ICONS[category.id] ?? Sparkles;
             return (
+            <Reveal key={category.id} delay={0.04}>
             <article
               id={`skill-${category.id}`}
-              key={category.id}
               className="axis-grid scroll-mt-[calc(3.4rem+env(safe-area-inset-top,0px))] border-b border-line py-6 min-[1100px]:scroll-mt-8 md:py-8"
             >
               <h3 className="meta-label mb-4 inline-flex items-center gap-2 text-fg">
@@ -86,6 +87,7 @@ export function Skills() {
                 </div>
               </div>
             </article>
+            </Reveal>
             );
           })}
         </div>

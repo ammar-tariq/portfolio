@@ -9,6 +9,7 @@ import { useContent } from "@/components/providers/content-provider";
 import { projectHeroEyebrow } from "@/lib/project-helpers";
 import { coverImage } from "@/lib/project-media";
 import { dossierEntry } from "@/lib/dossier";
+import { Reveal } from "@/components/ui/reveal";
 import { shouldPassProjectClick, useProjectOpen } from "@/components/work/project-open";
 
 export function Experience() {
@@ -29,10 +30,11 @@ export function Experience() {
           kicker="From shipping React Native products to leading systems and AI-enabled platforms."
         />
         <ol className="border-t border-line">
-          {experience.map((item) => {
+          {experience.map((item, index) => {
             const open = item.id === openId;
             return (
               <li key={item.id} className="axis-grid border-b border-line py-7 md:py-9">
+                <Reveal delay={index * 0.06}>
                 <p className="axis-side text-sm tabular-nums tracking-tight text-fg">{item.year}</p>
                 <div className="axis-main">
                   <h3 className="flex items-center gap-2 text-xl tracking-tight md:text-2xl">
@@ -119,6 +121,7 @@ export function Experience() {
                         </div>
                       ) : null}
                 </div>
+                </Reveal>
               </li>
               );
             })}

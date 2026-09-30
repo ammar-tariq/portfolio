@@ -21,6 +21,7 @@ import { Contact } from "@/components/contact/contact";
 import { ConnectFab } from "@/components/contact/connect-fab";
 import { SmoothScroll } from "@/components/providers/smooth-scroll";
 import { useContent } from "@/components/providers/content-provider";
+import { Reveal } from "@/components/ui/reveal";
 import { HomeSectionSync } from "@/components/nav/home-section-sync";
 import { handleHomeSectionClick } from "@/lib/section-nav";
 
@@ -55,8 +56,8 @@ export function SiteShell({
             <Identity />
             <Architecture />
             <AiSection />
-            {github}
-            {cursor}
+            <Reveal>{github}</Reveal>
+            <Reveal delay={0.08}>{cursor}</Reveal>
             <About />
             <Philosophy />
             <Contact />

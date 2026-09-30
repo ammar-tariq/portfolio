@@ -6,6 +6,7 @@ import { Container, Section, SectionIntro } from "@/components/ui/section";
 import { useContent } from "@/components/providers/content-provider";
 import { dossierEntry } from "@/lib/dossier";
 import { cn } from "@/lib/cn";
+import { Reveal } from "@/components/ui/reveal";
 
 type Node = { id: string; label: string; detail: string };
 
@@ -38,6 +39,7 @@ export function Architecture() {
           title="The whole path — not only the screens."
           kicker="Clients, API, data, and infrastructure as one map you can inspect."
         />
+        <Reveal>
         <div className="axis-grid">
           <div className="axis-side max-[719px]:hidden" />
           <div className="axis-main">
@@ -105,6 +107,7 @@ export function Architecture() {
             <p className="meta-label mt-3">{layers.length} layers</p>
           </div>
         </div>
+        </Reveal>
       </Container>
     </Section>
   );

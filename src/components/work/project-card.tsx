@@ -10,6 +10,7 @@ import { RemoteImage } from "@/components/ui/remote-image";
 import { useSkillFocus } from "@/components/skills/skill-focus";
 import { shouldPassProjectClick, useProjectOpen } from "./project-open";
 import { cn } from "@/lib/cn";
+import { Reveal } from "@/components/ui/reveal";
 
 export function ProjectCard({
   project,
@@ -39,6 +40,7 @@ export function ProjectCard({
     : false;
 
   return (
+    <Reveal delay={index * 0.06}>
     <article
       className={cn(
         "group axis-grid py-3 transition-opacity duration-[var(--dur)]",
@@ -57,7 +59,7 @@ export function ProjectCard({
           href={target}
           data-cursor="view"
           className={cn(
-            "grid items-start gap-6 border border-line p-4 min-[1100px]:grid-cols-[minmax(0,1fr)_minmax(0,22rem)] md:p-6",
+            "glass-quiet grid items-start gap-6 rounded-2xl border p-4 min-[1100px]:grid-cols-[minmax(0,1fr)_minmax(0,22rem)] md:p-6",
             related && "border-accent",
           )}
           onClick={(event) => {
@@ -76,7 +78,7 @@ export function ProjectCard({
           <div className="min-w-0">
             <div className="flex items-center gap-3">
               {project.logo ? (
-                <span className="relative h-10 w-10 shrink-0 overflow-hidden border border-line">
+                <span className="relative h-10 w-10 shrink-0 overflow-hidden rounded-lg border border-line">
                   <RemoteImage src={project.logo} alt="" fill sizes="40px" className="object-cover" />
                 </span>
               ) : null}
@@ -99,14 +101,14 @@ export function ProjectCard({
               {frames.map((shot) => (
                 <span
                   key={shot.src}
-                  className="relative h-48 w-[6.4rem] shrink-0 overflow-hidden border border-line sm:h-56 sm:w-[7.25rem]"
+                  className="shot-frame relative h-48 w-[6.4rem] shrink-0 sm:h-56 sm:w-[7.25rem]"
                 >
                   <RemoteImage
                       src={shot.src}
                       alt={shot.alt || `${project.title} screenshot`}
                       fill
                       sizes="116px"
-                      className="object-cover object-top"
+                      className="zoom-shot object-cover object-top"
                     />
                 </span>
               ))}
@@ -117,5 +119,6 @@ export function ProjectCard({
         </Link>
       </div>
     </article>
+    </Reveal>
   );
 }

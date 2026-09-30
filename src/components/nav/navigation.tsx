@@ -94,7 +94,7 @@ export function Navigation() {
 
   return (
     <header className="site-header">
-      <div className="site-bar rounded-full border border-line bg-bg">
+      <div className="site-bar glass-quiet settle rounded-full border">
         <Link
           href="/"
           scroll={false}
@@ -132,7 +132,7 @@ export function Navigation() {
         <nav
           id="site-index"
           aria-label="Primary"
-          className="pointer-events-auto mt-2 max-h-[70dvh] overflow-y-auto rounded-3xl border border-line bg-bg px-4 py-3 min-[1000px]:hidden"
+          className="glass-quiet pointer-events-auto mt-2 max-h-[70dvh] overflow-y-auto rounded-3xl border px-4 py-3 min-[1000px]:hidden"
         >
           <IndexList items={items} current={current} onNavigate={() => setOpen(false)} />
           <button

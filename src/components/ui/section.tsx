@@ -1,4 +1,7 @@
+"use client";
+
 import { cn } from "@/lib/cn";
+import { Reveal } from "@/components/ui/reveal";
 
 export function Container({
   children,
@@ -50,7 +53,8 @@ export function SectionIntro({
   aside?: React.ReactNode;
 }) {
   return (
-    <header className="axis-grid mb-10 md:mb-14">
+    <Reveal>
+      <header className="axis-grid mb-10 md:mb-14">
       <p className="meta-label axis-side mb-3 sm:mb-0 sm:pt-1">
         <span className="block text-accent">{marker}</span>
         <span className="mt-1 block">{label}</span>
@@ -65,6 +69,7 @@ export function SectionIntro({
         {aside ? <p className="meta-label mt-4">{aside}</p> : null}
       </div>
     </header>
+    </Reveal>
   );
 }
 

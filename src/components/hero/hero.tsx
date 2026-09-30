@@ -62,21 +62,22 @@ export function Hero() {
                     <Link
                       key={project.slug}
                       href={`/work/${project.slug}`}
-                      className="absolute top-2 h-48 w-[5.75rem] overflow-hidden border border-line sm:h-56 sm:w-28"
+                      className="absolute top-2 h-48 w-[5.75rem] sm:h-56 sm:w-28"
                       style={{
                         left: `${index * 22}%`,
-                        transform: `rotate(${[-3, -1, 1, 3][index] ?? 0}deg)`,
                         zIndex: index === 1 ? 3 : index,
                       }}
                     >
-                      <span className="relative block h-full w-full">
-                        <RemoteImage
-                          src={src}
-                          alt=""
-                          fill
-                          sizes="112px"
-                          className="object-cover object-top"
-                        />
+                      <span className="float-shot" style={{ animationDelay: `${index * 0.35}s` }}>
+                        <span className="shot-frame relative block h-full w-full" style={{ transform: `rotate(${[-3, -1, 1, 3][index] ?? 0}deg)` }}>
+                          <RemoteImage
+                            src={src}
+                            alt=""
+                            fill
+                            sizes="112px"
+                            className="zoom-shot object-cover object-top"
+                          />
+                        </span>
                       </span>
                       <span className="sr-only">{project.title}</span>
                     </Link>

@@ -6,6 +6,7 @@ import { Container, Section } from "@/components/ui/section";
 import { GitHubIcon, LinkedInIcon, UpworkIcon, WhatsAppIcon } from "@/components/ui/brand-icons";
 import { useContent } from "@/components/providers/content-provider";
 import { dossierEntry } from "@/lib/dossier";
+import { Reveal } from "@/components/ui/reveal";
 
 function hostLabel(url: string) {
   return url.replace(/^https?:\/\//, "").replace(/\/$/, "");
@@ -44,6 +45,7 @@ export function Contact() {
             <span className="block text-accent">{entry?.marker}</span>
             <span className="mt-1 block">{entry?.label}</span>
           </p>
+          <Reveal>
           <div className="axis-main">
             <h2 className="max-w-[16ch] text-[clamp(2rem,4.2vw,3.6rem)] leading-[1.02] font-medium tracking-[-0.035em]">
               Have a difficult engineering problem?
@@ -55,15 +57,16 @@ export function Contact() {
               {profile.availability}
             </p>
           </div>
+          </Reveal>
         </div>
         <div className="axis-grid mt-12">
           <div className="axis-side max-[719px]:hidden" />
           <div className="axis-main border-t border-line">
-            {channels.map((channel) => {
+            {channels.map((channel, index) => {
               const external = channel.href.startsWith("http");
               return (
+                <Reveal key={channel.id} delay={index * 0.04}>
                 <a
-                  key={channel.id}
                   href={channel.href}
                   target={external ? "_blank" : undefined}
                   rel={external ? "noopener noreferrer" : undefined}
@@ -79,6 +82,7 @@ export function Contact() {
                     →
                   </span>
                 </a>
+                </Reveal>
               );
             })}
             <button type="button" onClick={copyEmail} className="ctrl mt-6 inline-flex items-center gap-1.5 text-muted">

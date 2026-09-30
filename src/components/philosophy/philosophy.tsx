@@ -3,6 +3,7 @@
 import { Container, Section } from "@/components/ui/section";
 import { useContent } from "@/components/providers/content-provider";
 import { dossierEntry } from "@/lib/dossier";
+import { Reveal } from "@/components/ui/reveal";
 
 export function Philosophy() {
   const { principles } = useContent();
@@ -15,14 +16,16 @@ export function Philosophy() {
             <span className="block text-accent">{entry?.marker}</span>
             <span className="mt-1 block">{entry?.label}</span>
           </p>
+          <Reveal>
           <h2 className="axis-main max-w-[20ch] text-[clamp(1.7rem,3vw,2.7rem)] leading-[1.05] font-medium tracking-[-0.03em]">
             How I decide what to build — and what to refuse.
           </h2>
+          </Reveal>
         </div>
         <div className="border-t border-line">
           {principles.map((item, index) => (
+            <Reveal key={item.id} delay={index * 0.05}>
             <article
-              key={item.id}
               className="axis-grid border-b border-line py-8 md:py-10"
             >
               <p className="meta-label axis-side mb-3 text-accent min-[1100px]:mb-0">
@@ -36,6 +39,7 @@ export function Philosophy() {
                 <p className="max-w-[var(--read)] text-sm leading-relaxed text-muted md:text-base">{item.body}</p>
               </div>
             </article>
+            </Reveal>
           ))}
         </div>
       </Container>
