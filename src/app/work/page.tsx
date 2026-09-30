@@ -11,7 +11,7 @@ import { ContentProvider } from "@/components/providers/content-provider";
 
 export async function generateMetadata(): Promise<Metadata> {
   const content = await getSiteContent();
-  const description = `React Native full-stack case studies by ${content.profile.name}: production mobile apps, TypeScript, NestJS, Node.js, realtime systems, and AI.`;
+  const description = `Case studies by ${content.profile.name}: React Native, React, TypeScript, and Node.js products, including backends and AI features where the project used them.`;
   return routeMetadata(content, {
     title: "React Native Full-Stack Projects",
     description,

@@ -27,6 +27,8 @@ export function CrawlerFallback({
               {" · "}
             </span>
           ))}
+          <Link href="/services">Services</Link>
+          {" · "}
           <Link href="/work">Projects</Link>
           {" · "}
           <Link href="/resume">Resume</Link>
@@ -44,7 +46,7 @@ export function CrawlerFallback({
           <a href={social.linkedin}>LinkedIn</a> ·{" "}
           <a href={social.calendly}>Calendly</a> · <a href={social.whatsapp}>WhatsApp</a> ·{" "}
           <a href={social.upwork}>Upwork</a> · <Link href="/resume">Resume</Link> ·{" "}
-          <Link href="/work">Projects</Link>
+          <Link href="/services">Services</Link> · <Link href="/work">Projects</Link>
         </p>
         <h2>Skills</h2>
         {skillCategories.map((category) => (

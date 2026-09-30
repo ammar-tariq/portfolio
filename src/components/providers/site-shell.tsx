@@ -22,6 +22,7 @@ import { useContent } from "@/components/providers/content-provider";
 import { Reveal } from "@/components/ui/reveal";
 import { HomeSectionSync } from "@/components/nav/home-section-sync";
 import { handleHomeSectionClick } from "@/lib/section-nav";
+import { trackEvent } from "@/lib/analytics-events";
 
 export function SiteShell({
   github,
@@ -65,18 +66,18 @@ export function SiteShell({
                 <p className="text-sm tracking-tight">{profile.name}</p>
                 <p className="mt-1 text-sm text-muted">{profile.title}</p>
                 <div className="mt-4 flex flex-wrap gap-x-5 gap-y-3 text-sm">
-                  <a href={`mailto:${profile.email}`} className="link-underline" data-cursor="external">
+                  <a href={`mailto:${profile.email}`} className="link-underline" data-cursor="external" onClick={() => trackEvent("email_click", { method: "footer" })}>
                     {profile.email}
                   </a>
-                  <a href={social.calendly} className="inline-flex items-center gap-1.5 link-underline" target="_blank" rel="noopener noreferrer">
+                  <a href={social.calendly} className="inline-flex items-center gap-1.5 link-underline" target="_blank" rel="noopener noreferrer" onClick={() => trackEvent("contact_click", { method: "calendly" })}>
                     <Calendar className="h-3.5 w-3.5" aria-hidden />
                     Calendly
                   </a>
-                  <a href={social.whatsapp} className="inline-flex items-center gap-1.5 link-underline" target="_blank" rel="noopener noreferrer">
+                  <a href={social.whatsapp} className="inline-flex items-center gap-1.5 link-underline" target="_blank" rel="noopener noreferrer" onClick={() => trackEvent("contact_click", { method: "whatsapp" })}>
                     <WhatsAppIcon className="h-3.5 w-3.5" />
                     WhatsApp
                   </a>
-                  <a href={social.linkedin} className="inline-flex items-center gap-1.5 link-underline" target="_blank" rel="noopener noreferrer">
+                  <a href={social.linkedin} className="inline-flex items-center gap-1.5 link-underline" target="_blank" rel="noopener noreferrer" onClick={() => trackEvent("linkedin_click", { method: "footer" })}>
                     <LinkedInIcon className="h-3.5 w-3.5" />
                     LinkedIn
                   </a>
@@ -84,19 +85,22 @@ export function SiteShell({
                     <PenLine className="h-3.5 w-3.5" aria-hidden />
                     Blogs
                   </Link>
-                  <a href={social.upwork} className="inline-flex items-center gap-1.5 link-underline" target="_blank" rel="noopener noreferrer">
+                  <a href={social.upwork} className="inline-flex items-center gap-1.5 link-underline" target="_blank" rel="noopener noreferrer" onClick={() => trackEvent("contact_click", { method: "upwork" })}>
                     <UpworkIcon className="h-3.5 w-3.5" />
                     Upwork
                   </a>
-                  <a href={social.github} className="inline-flex items-center gap-1.5 link-underline" target="_blank" rel="noopener noreferrer">
+                  <a href={social.github} className="inline-flex items-center gap-1.5 link-underline" target="_blank" rel="noopener noreferrer" onClick={() => trackEvent("github_click", { method: "footer" })}>
                     <GitHubIcon className="h-3.5 w-3.5" />
                     GitHub
                   </a>
+                  <Link href="/services" className="link-underline">
+                    Services
+                  </Link>
                   <Link href="/work" className="inline-flex items-center gap-1.5 link-underline">
                     <FolderKanban className="h-3.5 w-3.5" aria-hidden />
                     Projects
                   </Link>
-                  <Link href="/resume" className="inline-flex items-center gap-1.5 link-underline">
+                  <Link href="/resume" className="inline-flex items-center gap-1.5 link-underline" onClick={() => trackEvent("resume_click", { method: "footer" })}>
                     <FileText className="h-3.5 w-3.5" aria-hidden />
                     Resume
                   </Link>

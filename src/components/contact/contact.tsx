@@ -1,12 +1,15 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { Calendar, Copy, FileText, Mail, PenLine } from "lucide-react";
 import { Container, Section } from "@/components/ui/section";
 import { GitHubIcon, LinkedInIcon, UpworkIcon, WhatsAppIcon } from "@/components/ui/brand-icons";
 import { useContent } from "@/components/providers/content-provider";
 import { dossierEntry } from "@/lib/dossier";
 import { Reveal } from "@/components/ui/reveal";
+import { eventForContactChannel, trackEvent } from "@/lib/analytics-events";
+import { hiringFaq } from "@/lib/faq";
 
 function hostLabel(url: string) {
   return url.replace(/^https?:\/\//, "").replace(/\/$/, "");
@@ -14,6 +17,7 @@ function hostLabel(url: string) {
 
 export function Contact() {
   const { profile, social } = useContent();
+  const faq = hiringFaq(profile);
   const entry = dossierEntry("contact");
   const [copied, setCopied] = useState(false);
   const channels = [
@@ -56,6 +60,12 @@ export function Contact() {
               <span className="mx-2">·</span>
               {profile.availability}
             </p>
+            <p className="mt-4 max-w-xl text-sm text-muted">
+              <Link href="/services" className="link-underline text-fg">
+                Services
+              </Link>{" "}
+              covers React Native, React, Node.js, and AI work, with the projects behind each.
+            </p>
           </div>
           </Reveal>
         </div>
@@ -72,6 +82,7 @@ export function Contact() {
                   rel={external ? "noopener noreferrer" : undefined}
                   data-cursor={external ? "external" : "link"}
                   className="group grid grid-cols-[1.25rem_6.25rem_minmax(0,1fr)_auto] items-center gap-3 border-b border-line py-4"
+                  onClick={() => trackEvent(eventForContactChannel(channel.id), { method: channel.id })}
                 >
                   <channel.icon className="h-4 w-4 text-accent" />
                   <span className="meta-label">{channel.label}</span>
@@ -85,10 +96,33 @@ export function Contact() {
                 </Reveal>
               );
             })}
-            <button type="button" onClick={copyEmail} className="ctrl mt-6 inline-flex items-center gap-1.5 text-muted">
+            <button
+              type="button"
+              onClick={() => {
+                trackEvent("email_click", { method: "copy" });
+                void copyEmail();
+              }}
+              className="ctrl mt-6 inline-flex items-center gap-1.5 text-muted"
+            >
               <Copy className="h-3.5 w-3.5" aria-hidden />
               {copied ? "Email copied" : "Copy email"}
             </button>
+          </div>
+        </div>
+        <div className="axis-grid mt-16" id="faq">
+          <p className="meta-label axis-side mb-4 sm:mb-0 sm:pt-1">Questions</p>
+          <div className="axis-main">
+            <h2 className="text-[clamp(1.6rem,3vw,2.4rem)] leading-tight font-medium tracking-[-0.03em]">
+              Straight answers
+            </h2>
+            <dl className="mt-8 divide-y divide-line border-y border-line">
+              {faq.map((item) => (
+                <div key={item.question} className="py-5">
+                  <dt className="text-fg">{item.question}</dt>
+                  <dd className="mt-2 max-w-2xl text-sm leading-relaxed text-muted">{item.answer}</dd>
+                </div>
+              ))}
+            </dl>
           </div>
         </div>
       </Container>

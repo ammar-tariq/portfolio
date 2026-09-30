@@ -16,6 +16,8 @@ import { getPublicProject, getSiteContentForParams } from "@/lib/content";
 import { industryLabels, projectLiveLabel, publicProjects, relatedProjects } from "@/lib/project-helpers";
 import { coverImage } from "@/lib/project-media";
 import { ContentProvider } from "@/components/providers/content-provider";
+import { ProjectView } from "@/components/analytics/project-view";
+import { serviceAnchorForTechnology } from "@/lib/services";
 
 export const dynamicParams = true;
 
@@ -70,6 +72,7 @@ export default async function WorkPage({
     <ContentProvider content={content}>
       <div className="min-h-svh bg-bg pb-20">
         <JsonLd data={projectGraphJsonLd(content, project)} />
+        <ProjectView slug={project.slug} />
         <ProjectHero
           project={project}
           backHref="/portfolio"
@@ -175,13 +178,33 @@ export default async function WorkPage({
             <p className="mt-5 flex max-w-[var(--read)] flex-wrap gap-x-3 gap-y-2 text-sm text-fg/85">
               {project.technologies.map((tech) => {
                 const Icon = techIcon(tech);
-                return (
-                  <span key={tech} className="inline-flex items-center gap-1.5">
+                const anchor = serviceAnchorForTechnology(tech);
+                const body = (
+                  <>
                     <Icon className="h-3.5 w-3.5 text-accent" aria-hidden />
                     {tech}
+                  </>
+                );
+                return anchor ? (
+                  <Link key={tech} href={`/services#${anchor}`} className="inline-flex items-center gap-1.5 link-underline">
+                    {body}
+                  </Link>
+                ) : (
+                  <span key={tech} className="inline-flex items-center gap-1.5">
+                    {body}
                   </span>
                 );
               })}
+            </p>
+            <p className="mt-4 text-sm text-muted">
+              <Link href="/services" className="link-underline text-fg">
+                Services
+              </Link>{" "}
+              groups React Native, React, Node.js, and AI work.{" "}
+              <Link href="/contact" className="link-underline text-fg">
+                Contact {content.profile.firstName}
+              </Link>{" "}
+              about a similar project.
             </p>
           </section>
           {project.outcome ? (

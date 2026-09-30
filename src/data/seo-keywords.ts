@@ -2,10 +2,10 @@ function unique(items: string[]) {
   return [...new Set(items.map((item) => item.trim()).filter(Boolean))];
 }
 
-export const seoTitle = "Ammar Tariq | Senior React Native Full-Stack, Karachi";
+export const seoTitle = "Ammar Tariq | Software Engineer | React Native, React & Node.js";
 
 export const seoDescription =
-  "Senior React Native full-stack engineer in Karachi, Pakistan. Ammar Tariq ships production mobile apps with TypeScript and NestJS. Open to remote and freelance.";
+  "Ammar Tariq is a software engineer in Karachi, Pakistan. He builds React Native, React, TypeScript, and Node.js products, and is available for remote work worldwide, freelance projects, and on-site roles.";
 
 // Fallback SEO fields used when MongoDB is unavailable. Keep the lists short:
 // Google ignores the keywords meta tag, Bing treats oversized keyword lists as

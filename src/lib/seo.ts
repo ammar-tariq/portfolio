@@ -6,6 +6,7 @@ import { coverImage, allScreenshots } from "@/lib/project-media";
 import { publicProjects } from "@/lib/project-helpers";
 import { homeSectionById, type HomeSectionId } from "@/lib/home-sections";
 import { siteOrigin } from "@/lib/env";
+import { hiringFaq } from "@/lib/faq";
 
 export function siteUrlFrom(content: SiteContent) {
   return siteOrigin(content.profile.website);
@@ -136,22 +137,22 @@ export function professionalServiceJsonLd(content: SiteContent) {
   return {
     "@type": "ProfessionalService",
     "@id": `${siteUrl}/#services`,
-    name: `${content.profile.name} — React Native Full-Stack Engineering`,
+    name: `${content.profile.name} — Software Engineering`,
     url: siteUrl,
     description: content.seo.description,
     image: content.seo.defaultOgImage ?? `${siteUrl}/opengraph-image`,
-    areaServed: ["Worldwide", "Pakistan", "United Arab Emirates", "Saudi Arabia", "United States"],
+    areaServed: "Worldwide",
     serviceType: [
-      "React Native full-stack development",
       "React Native development",
-      "Remote React Native development",
-      "Freelance mobile app development",
-      "Full-stack engineering",
-      "TypeScript application development",
-      "NestJS backend development",
-      "IoT and MQTT systems",
-      "Mobile app architecture",
-      "AI and LLM product engineering",
+      "React development",
+      "Node.js development",
+      "TypeScript development",
+      "Full-stack development",
+      "Mobile app development",
+      "Backend and API development",
+      "AI and LLM integration",
+      "Remote software engineering",
+      "Freelance software engineering",
     ],
     provider: { "@id": `${siteUrl}/#person` },
   };
@@ -236,15 +237,55 @@ export function homeSectionPageJsonLd(content: SiteContent, sectionId: HomeSecti
   };
 }
 
+export function faqPageJsonLd(content: SiteContent) {
+  const siteUrl = siteUrlFrom(content);
+  return {
+    "@type": "FAQPage",
+    "@id": `${siteUrl}/contact#faq`,
+    url: `${siteUrl}/contact`,
+    isPartOf: { "@id": `${siteUrl}/#website` },
+    about: { "@id": `${siteUrl}/#person` },
+    mainEntity: hiringFaq(content.profile).map((item) => ({
+      "@type": "Question",
+      name: item.question,
+      acceptedAnswer: { "@type": "Answer", text: item.answer },
+    })),
+  };
+}
+
+export function servicesPageJsonLd(content: SiteContent) {
+  const siteUrl = siteUrlFrom(content);
+  return {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebPage",
+        "@id": `${siteUrl}/services#webpage`,
+        url: `${siteUrl}/services`,
+        name: `Services — ${content.profile.name}`,
+        description: `Software engineering services from ${content.profile.name}: React Native, React, Node.js, TypeScript, and AI integrations. Based in ${content.profile.location}. ${content.profile.availability}.`,
+        isPartOf: { "@id": `${siteUrl}/#website` },
+        about: { "@id": `${siteUrl}/#person` },
+        mainEntity: { "@id": `${siteUrl}/#services` },
+      },
+      breadcrumbJsonLd(siteUrl, [
+        { name: content.profile.name, url: siteUrl },
+        { name: "Services", url: `${siteUrl}/services` },
+      ]),
+    ],
+  };
+}
+
 export function homeGraphJsonLd(content: SiteContent, sectionId: HomeSectionId = "hero") {
   if (sectionId === "hero") {
     return {
       "@context": "https://schema.org",
-      "@graph": [profilePageJsonLd(content), workIndexJsonLd(content)],
+      "@graph": [profilePageJsonLd(content), workIndexJsonLd(content), faqPageJsonLd(content)],
     };
   }
   const graph: Record<string, unknown>[] = [homeSectionPageJsonLd(content, sectionId)];
   if (sectionId === "portfolio") graph.push(workIndexJsonLd(content));
+  if (sectionId === "contact") graph.push(faqPageJsonLd(content));
   return {
     "@context": "https://schema.org",
     "@graph": graph,

@@ -44,7 +44,7 @@ export function llmsText(content: SiteContent) {
 
 > ${profile.name} is a ${profile.title.toLowerCase()} based in ${profile.location} with ${profile.yearsExperience}+ years of experience${
     current ? `, currently ${current.role} at ${current.company} (${current.period})` : ""
-  }. ${profile.availability}. Core stack: React Native, TypeScript, React, Next.js, Node.js, NestJS, MongoDB, PostgreSQL, MQTT/IoT, WebRTC, Stripe, and LLM-integrated products.
+  }. ${profile.availability}. Core stack: React Native, React, TypeScript, JavaScript, Node.js, NestJS, and LLM integrations inside products.
 
 ${seo.description}
 
@@ -52,7 +52,7 @@ ${seo.description}
 
 - Name: ${profile.name}
 - Title: ${profile.title}
-- Specialty: React Native full-stack engineering — production mobile apps, TypeScript, NestJS, and Node.js backends, for remote and freelance clients
+- Specialty: Software engineering — React Native, React, TypeScript, Node.js, full-stack product work, and AI/LLM integrations. Based in ${profile.location}. Remote worldwide, freelance, on-site in Pakistan, relocation only with employer visa support.
 ${current ? `- Current role: ${current.role} at ${current.company} (${current.period})\n` : ""}- Location: ${profile.location}
 - Availability: ${profile.availability}
 - Experience: ${profile.yearsExperience}+ years
@@ -64,6 +64,7 @@ ${current ? `- Current role: ${current.role} at ${current.company} (${current.pe
 ## Links
 
 - Resume: ${siteUrl}/resume
+- Services: ${siteUrl}/services
 - About: ${siteUrl}/about
 - Portfolio: ${siteUrl}/portfolio
 - Experience: ${siteUrl}/experience

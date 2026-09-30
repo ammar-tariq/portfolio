@@ -15,6 +15,7 @@ import {
 import { staticContent } from "@/lib/static-content";
 import { canonicalizeSectionHref } from "@/lib/home-sections";
 import { BLOG_PATH } from "@/lib/blog";
+import { publicHttpUrl } from "@/lib/public-url";
 import { resolveMediaUrl, rewriteProjectMedia } from "@/lib/media-url";
 import { isResumeTemplateId } from "@/lib/resume-templates/types";
 import type {
@@ -80,12 +81,12 @@ function projectFromDoc(doc: unknown): Project {
     featured: Boolean(data.featured),
     listed: data.listed !== false,
     technologies: strList(data.technologies),
-    github: data.github ? str(data.github) : undefined,
-    liveUrl: data.liveUrl ? str(data.liveUrl) : undefined,
-    liveLabel: data.liveLabel ? str(data.liveLabel) : undefined,
-    appStoreUrl: data.appStoreUrl ? str(data.appStoreUrl) : undefined,
-    webUrl: data.webUrl ? str(data.webUrl) : undefined,
-    webLabel: data.webLabel ? str(data.webLabel) : undefined,
+    github: publicHttpUrl(str(data.github)),
+    liveUrl: publicHttpUrl(str(data.liveUrl)),
+    liveLabel: publicHttpUrl(str(data.liveUrl)) && data.liveLabel ? str(data.liveLabel) : undefined,
+    appStoreUrl: publicHttpUrl(str(data.appStoreUrl)),
+    webUrl: publicHttpUrl(str(data.webUrl)),
+    webLabel: publicHttpUrl(str(data.webUrl)) && data.webLabel ? str(data.webLabel) : undefined,
     challenge: data.challenge ? str(data.challenge) : undefined,
     solution: data.solution ? str(data.solution) : undefined,
     architecture: strList(data.architecture),
@@ -214,6 +215,7 @@ function architectureFromDoc(doc: unknown | null): ArchitectureContent {
 function buildCommands(settings: SiteSettings): CommandItem[] {
   const { profile, social } = settings;
   return [
+    { id: "services", label: "Services", hint: "React Native, React, Node.js", href: "/services" },
     { id: "portfolio", label: "View portfolio", hint: "Case studies", href: "/portfolio" },
     { id: "open-source", label: "Open source", hint: "Public repositories", href: "/open-source" },
     { id: "experience", label: "View Experience", hint: "Career timeline", href: "/experience" },

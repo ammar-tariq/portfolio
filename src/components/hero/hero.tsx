@@ -11,6 +11,7 @@ import { dossierEntry } from "@/lib/dossier";
 import { featuredProjects } from "@/lib/project-helpers";
 import { coverImage } from "@/lib/project-media";
 import { handleHomeSectionClick } from "@/lib/section-nav";
+import { trackEvent } from "@/lib/analytics-events";
 
 export function Hero() {
   const { profile, projects } = useContent();
@@ -59,11 +60,19 @@ export function Hero() {
                     Selected work
                     <ArrowUpRight className="h-3.5 w-3.5" aria-hidden />
                   </Link>
-                  <Link href="/contact" scroll={false} className="ctrl" onClick={(event) => handleHomeSectionClick(event, "/contact")}>
+                  <Link
+                    href="/contact"
+                    scroll={false}
+                    className="ctrl"
+                    onClick={(event) => {
+                      trackEvent("hire_me_click", { method: "hero" });
+                      handleHomeSectionClick(event, "/contact");
+                    }}
+                  >
                     <Mail className="h-3.5 w-3.5" aria-hidden />
                     Contact
                   </Link>
-                  <a href={profile.resumeUrl} className="ctrl">
+                  <a href={profile.resumeUrl} className="ctrl" onClick={() => trackEvent("resume_click", { method: "hero" })}>
                     <FileText className="h-3.5 w-3.5" aria-hidden />
                     Resume
                   </a>

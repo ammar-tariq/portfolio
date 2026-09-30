@@ -13,9 +13,20 @@ export default function NotFound() {
         This route is not in the system.
       </h1>
       <p className="mt-4 max-w-md text-muted">The page you requested is not part of this archive.</p>
-      <Link href="/" className="ctrl mt-8 w-fit">
-        Return home
-      </Link>
+      <div className="mt-8 flex flex-wrap gap-x-6 gap-y-3">
+        <Link href="/" className="ctrl">
+          Return home
+        </Link>
+        <Link href="/work" className="ctrl">
+          Projects
+        </Link>
+        <Link href="/services" className="ctrl">
+          Services
+        </Link>
+        <Link href="/contact" className="ctrl">
+          Contact
+        </Link>
+      </div>
     </div>
   );
 }

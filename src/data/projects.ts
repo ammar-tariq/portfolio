@@ -567,8 +567,6 @@ export const projects: Project[] =
     "liveUrl": "https://play.google.com/store/apps/details?id=com.genesysglobal.flagship",
     "liveLabel": "Play Store",
     "appStoreUrl": "https://apps.apple.com/us/app/flagship-towing/id6747052086",
-    "webUrl": "https://flagship-towing-member.projectstagingzone.com/signin.html",
-    "webLabel": "Member web",
     "challenge": "A disabled vessel doesn’t wait on a call center. Members need coverage they can prove on the phone, a captain they can reach, and a way to join before they’re already in the water — without three disconnected systems.",
     "solution": "Built the product across three surfaces on one MERN backend: React Native for members (home, memberships, services, location, emergency), a React admin for operations, and a web flow for new customers to sign in and become members.",
     "architecture": [

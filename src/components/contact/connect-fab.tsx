@@ -7,6 +7,7 @@ import { useSite } from "@/components/providers/site-provider";
 import { useContent } from "@/components/providers/content-provider";
 import { LinkedInIcon, UpworkIcon, WhatsAppIcon } from "@/components/ui/brand-icons";
 import { easeOutExpo } from "@/lib/motion";
+import { eventForContactChannel, trackEvent } from "@/lib/analytics-events";
 
 export function ConnectFab() {
   const { commandOpen, terminalOpen } = useSite();
@@ -98,7 +99,10 @@ export function ConnectFab() {
                       rel={external ? "noopener noreferrer" : undefined}
                       data-cursor={external ? "external" : "link"}
                       className="group flex items-center gap-2.5 sm:gap-3"
-                      onClick={() => setOpen(false)}
+                      onClick={() => {
+                        trackEvent(eventForContactChannel(action.id), { method: action.id });
+                        setOpen(false);
+                      }}
                     >
                       <span className="border-b border-line bg-bg px-2 py-1 text-sm text-fg">
                         {action.label}
