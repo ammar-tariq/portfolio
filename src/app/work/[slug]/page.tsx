@@ -44,6 +44,9 @@ export async function generateMetadata({
     keywords: [
       content.profile.name,
       "case study",
+      ...(project.technologies.some((tech) => /react native/i.test(tech))
+        ? ["React Native full-stack", "React Native case study"]
+        : []),
       ...industryLabels(project, content.industries),
       project.seoLabel,
       ...project.technologies,

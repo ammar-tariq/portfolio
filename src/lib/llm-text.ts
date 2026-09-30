@@ -52,6 +52,7 @@ ${seo.description}
 
 - Name: ${profile.name}
 - Title: ${profile.title}
+- Specialty: React Native full-stack engineering — production mobile apps, TypeScript, NestJS, and Node.js backends
 ${current ? `- Current role: ${current.role} at ${current.company} (${current.period})\n` : ""}- Location: ${profile.location}
 - Availability: ${profile.availability}
 - Experience: ${profile.yearsExperience}+ years

@@ -3,9 +3,9 @@ export const profile = {
   "name": "Ammar Tariq",
   "firstName": "Ammar",
   "lastName": "Tariq",
-  "title": "Senior Software Engineer",
-  "headline": "Building scalable products across mobile, web, backend, and AI.",
-  "summary": "I design and ship production systems — React Native products, TypeScript frontends, NestJS services, and AI-enabled workflows — with the architectural judgment to keep complexity intentional.",
+  "title": "Senior React Native Full-Stack Engineer",
+  "headline": "React Native full-stack products across mobile, web, backend, and AI.",
+  "summary": "I design and ship production React Native full-stack systems — TypeScript frontends, NestJS services, and AI-enabled workflows — with the architectural judgment to keep complexity intentional.",
   "location": "Karachi, Pakistan",
   "availability": "Open to remote · Gulf · worldwide",
   "yearsExperience": 8,
@@ -20,7 +20,7 @@ export const profile = {
     "AI-enabled applications"
   ],
   "aboutHeadline": "8+ years building products that have to last.",
-  "aboutBody": "I work across React Native, TypeScript frontends, Node/NestJS backends, and AI-enabled surfaces. The through-line is architecture: clear boundaries, honest performance, and systems a team can actually own.",
+  "aboutBody": "I work across React Native full-stack products: TypeScript frontends, Node/NestJS backends, and AI-enabled surfaces. The through-line is architecture: clear boundaries, honest performance, and systems a team can actually own.",
   "photoUrl": "https://res.cloudinary.com/dcrgvijkc/image/upload/v1787134601/portfolio/profile/Gemini_Generated_Image_14v34i14v34i14v3_jigzxf.jpg",
   "photoPublicId": "portfolio/profile/Gemini_Generated_Image_14v34i14v34i14v3_jigzxf"
 } as const;

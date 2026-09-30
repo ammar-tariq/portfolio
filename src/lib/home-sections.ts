@@ -42,7 +42,7 @@ export const HOME_SECTIONS: HomeSection[] = [
     label: "Portfolio",
     title: "Portfolio",
     description: (content) =>
-      `Selected engineering work by ${content.profile.name} — case studies across mobile, web, backend, and AI.`,
+      `React Native full-stack case studies by ${content.profile.name} — production mobile apps, backends, and AI products.`,
   },
   {
     id: "open-source",
@@ -65,7 +65,7 @@ export const HOME_SECTIONS: HomeSection[] = [
     label: "Skills",
     title: "Skills",
     description: (content) =>
-      `Technical expertise of ${content.profile.name}: ${content.skillCategories
+      `React Native, TypeScript, NestJS, and full-stack skills of ${content.profile.name}: ${content.skillCategories
         .map((category) => category.label)
         .join(", ")}.`,
   },

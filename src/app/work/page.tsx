@@ -11,12 +11,21 @@ import { ContentProvider } from "@/components/providers/content-provider";
 
 export async function generateMetadata(): Promise<Metadata> {
   const content = await getSiteContent();
-  const description = `Selected engineering work by ${content.profile.name} — React Native, TypeScript, NestJS, Node.js, IoT, realtime systems, payments, marketplaces, and AI.`;
+  const description = `React Native full-stack case studies by ${content.profile.name}: production mobile apps, TypeScript, NestJS, Node.js, realtime systems, and AI.`;
   return routeMetadata(content, {
-    title: "Projects",
+    title: "React Native Full-Stack Projects",
     description,
     path: "/work",
-    ogTitle: `Projects — ${content.profile.name}`,
+    ogTitle: `React Native Full-Stack Projects — ${content.profile.name}`,
+    keywords: [
+      "React Native full-stack",
+      "React Native projects",
+      "React Native case studies",
+      `${content.profile.name} React Native`,
+      "NestJS",
+      "TypeScript",
+      "full-stack mobile engineer",
+    ],
   });
 }
 

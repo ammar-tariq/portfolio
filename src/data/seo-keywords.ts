@@ -2,22 +2,29 @@ function unique(items: string[]) {
   return [...new Set(items.map((item) => item.trim()).filter(Boolean))];
 }
 
-export const seoTitle = "Ammar Tariq | Senior Full-Stack & React Native Engineer";
+export const seoTitle = "Ammar Tariq | Senior React Native Full-Stack Engineer";
 
 export const seoDescription =
-  "Ammar Tariq is a senior software engineer with 8+ years shipping production React Native apps, TypeScript frontends, NestJS and Node.js backends, IoT (MQTT), realtime chat, payments, marketplaces, and AI-enabled products. Based in Karachi, Pakistan. Available remotely worldwide, Gulf, UAE, and the United States.";
+  "Senior React Native full-stack engineer. Ammar Tariq ships production mobile apps with TypeScript and NestJS. Based in Karachi, open to remote work.";
 
 // Fallback SEO fields used when MongoDB is unavailable. Keep the lists short:
 // Google ignores the keywords meta tag, Bing treats oversized keyword lists as
 // a spam signal, and LLM crawlers read raw HTML.
 export const seoKeywords = unique([
+  "React Native full-stack",
+  "React Native fullstack",
+  "React Native full stack developer",
+  "React Native full-stack engineer",
+  "senior React Native developer",
+  "full-stack mobile engineer",
   "Ammar Tariq",
-  "Ammar Tariq software engineer",
   "Ammar Tariq React Native developer",
+  "Ammar Tariq full-stack engineer",
   "Ammar Tariq Karachi",
-  "Senior Software Engineer",
+  "Senior React Native Full-Stack Engineer",
   "Senior Full-Stack Engineer",
-  "Senior React Native Developer",
+  "Expo developer",
+  "NestJS developer",
   "React Native",
   "Expo",
   "React",
@@ -45,7 +52,10 @@ export const seoKeywords = unique([
 
 // Feeds Person.knowsAbout in JSON-LD — core, defensible expertise only.
 export const seoTopics = unique([
+  "React Native full-stack engineering",
   "React Native",
+  "full-stack development",
+  "mobile app development",
   "Expo",
   "React",
   "Next.js",

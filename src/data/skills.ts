@@ -36,7 +36,7 @@ export const skillCategories: SkillCategory[] =
   {
     "id": "mobile",
     "label": "Mobile",
-    "summary": "Cross-platform apps with native integrations, navigation architecture, and shipping to the stores.",
+    "summary": "React Native full-stack apps: native integrations, navigation, and shipping to the App Store and Google Play.",
     "items": [
       {
         "name": "React Native"

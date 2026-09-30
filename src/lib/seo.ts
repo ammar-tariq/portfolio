@@ -17,8 +17,19 @@ export function skillNames(content: SiteContent) {
 
 // Capped so a stale/oversized topic list in the database can never balloon
 // the Person entity back into keyword-stuffing territory.
+const primaryTopics = [
+  "React Native full-stack engineering",
+  "React Native",
+  "full-stack development",
+  "TypeScript",
+  "NestJS",
+  "Node.js",
+  "Expo",
+  "mobile app development",
+];
+
 function uniqueKnowsAbout(content: SiteContent) {
-  return [...new Set([...skillNames(content), ...content.seo.topics])].slice(0, 48);
+  return [...new Set([...primaryTopics, ...skillNames(content), ...content.seo.topics])].slice(0, 48);
 }
 
 function currentEmployer(content: SiteContent) {
@@ -125,14 +136,16 @@ export function professionalServiceJsonLd(content: SiteContent) {
   return {
     "@type": "ProfessionalService",
     "@id": `${siteUrl}/#services`,
-    name: `${content.profile.name} — Software Engineering`,
+    name: `${content.profile.name} — React Native Full-Stack Engineering`,
     url: siteUrl,
     description: content.seo.description,
     image: content.seo.defaultOgImage ?? `${siteUrl}/opengraph-image`,
     areaServed: ["Worldwide", "Pakistan", "United Arab Emirates", "Saudi Arabia", "United States"],
     serviceType: [
+      "React Native full-stack development",
       "React Native development",
       "Full-stack engineering",
+      "TypeScript application development",
       "NestJS backend development",
       "IoT and MQTT systems",
       "Mobile app architecture",

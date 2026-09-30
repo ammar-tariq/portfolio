@@ -308,7 +308,7 @@ async function loadContent(): Promise<SiteContent> {
   }
 }
 
-const loadCachedContent = unstable_cache(loadContent, ["site-content"], {
+const loadCachedContent = unstable_cache(loadContent, ["site"], {
   revalidate: 120,
   tags: ["site-content"],
 });
