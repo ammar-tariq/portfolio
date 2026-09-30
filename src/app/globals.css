@@ -1,17 +1,17 @@
 @import "tailwindcss";
 
 :root {
-  --bg: #12110f;
-  --bg-elevated: #1b1916;
-  --bg-soft: #24211c;
-  --fg: #ece8e1;
-  --muted: #b7b0a6;
-  --subtle: #8f887e;
-  --line: rgba(236, 232, 225, 0.14);
-  --line-strong: rgba(236, 232, 225, 0.32);
-  --accent: #8eb6f5;
-  --accent-2: #3d74d6;
-  --accent-soft: rgba(142, 182, 245, 0.12);
+  --bg: #05070c;
+  --bg-elevated: #0b1018;
+  --bg-soft: #101826;
+  --fg: #f3f6fa;
+  --muted: #a8b3c2;
+  --subtle: #7d8a9a;
+  --line: rgba(243, 246, 250, 0.1);
+  --line-strong: rgba(79, 187, 242, 0.35);
+  --accent: #4fbbf2;
+  --accent-2: #1558d2;
+  --accent-soft: rgba(79, 187, 242, 0.14);
   --glow: transparent;
   --wash-1: transparent;
   --wash-2: transparent;
@@ -29,17 +29,17 @@
 }
 
 html.light {
-  --bg: #f3f0e8;
-  --bg-elevated: #f7f4ee;
-  --bg-soft: #e6e1d6;
-  --fg: #1c1a16;
-  --muted: #4a453e;
-  --subtle: #5f5952;
-  --line: rgba(28, 26, 22, 0.14);
-  --line-strong: rgba(28, 26, 22, 0.32);
-  --accent: #1546b8;
-  --accent-2: #0e327f;
-  --accent-soft: rgba(21, 70, 184, 0.08);
+  --bg: #f3f7fb;
+  --bg-elevated: #ffffff;
+  --bg-soft: #e7eef6;
+  --fg: #0c1220;
+  --muted: #4d5b6d;
+  --subtle: #6b7a8c;
+  --line: rgba(12, 18, 32, 0.1);
+  --line-strong: rgba(21, 88, 210, 0.32);
+  --accent: #1566d2;
+  --accent-2: #1a8ee8;
+  --accent-soft: rgba(21, 102, 210, 0.12);
   --glow: transparent;
   --wash-1: transparent;
   --wash-2: transparent;
@@ -178,7 +178,7 @@ a,
   bottom: 0;
   left: var(--page-x);
   width: 1px;
-  background: var(--line);
+  background: var(--accent);
   pointer-events: none;
 }
 

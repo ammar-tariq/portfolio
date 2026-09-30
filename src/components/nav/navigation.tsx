@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useContent } from "@/components/providers/content-provider";
 import { useSite } from "@/components/providers/site-provider";
 import { ThemeToggle } from "./theme-toggle";
+import { BrandMark } from "@/components/ui/brand-mark";
 import { DOSSIER } from "@/lib/dossier";
 import { HOME_SECTIONS } from "@/lib/home-sections";
 import { handleHomeSectionClick, syncHomeSectionUrl } from "@/lib/section-nav";
@@ -100,9 +101,10 @@ export function Navigation() {
             handleHomeSectionClick(event, "/");
             setOpen(false);
           }}
-          className="shrink-0 text-sm tracking-tight"
+          className="inline-flex shrink-0 items-center gap-2.5 text-sm tracking-tight"
         >
-          {profile.name}
+          <BrandMark className="h-7 w-7" name={profile.name} />
+          <span className="hidden sm:inline">{profile.name}</span>
         </Link>
         <nav aria-label="Primary" className="hidden min-w-0 flex-1 overflow-x-auto min-[1000px]:block [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           <IndexList items={items} current={current} className="flex-row gap-x-4" />
@@ -179,7 +181,7 @@ function IndexList({
               }}
               className={cn(
                 "block py-1.5 text-[13px] tracking-tight whitespace-nowrap transition-colors duration-[var(--dur)] min-[1000px]:py-0",
-                selected ? "text-fg" : "text-subtle hover:text-fg",
+                selected ? "text-accent" : "text-subtle hover:text-fg",
               )}
             >
               {item.label}
