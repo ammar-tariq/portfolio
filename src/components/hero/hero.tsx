@@ -1,7 +1,9 @@
 "use client";
 
+import { useRef } from "react";
 import Link from "next/link";
-import { ArrowUpRight, FileText, Mail, MapPin, Radio, Timer } from "lucide-react";
+import { motion, useReducedMotion, useScroll, useTransform } from "motion/react";
+import { ArrowUpRight, Code, FileText, Mail, MapPin, Radio, Timer } from "lucide-react";
 import { useContent } from "@/components/providers/content-provider";
 import { Container } from "@/components/ui/section";
 import { RemoteImage } from "@/components/ui/remote-image";
@@ -13,6 +15,13 @@ import { handleHomeSectionClick } from "@/lib/section-nav";
 export function Hero() {
   const { profile, projects } = useContent();
   const marker = dossierEntry("hero");
+  const sectionRef = useRef<HTMLElement>(null);
+  const reduced = useReducedMotion();
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ["start start", "end start"],
+  });
+  const fanY = useTransform(scrollYProgress, [0, 1], [0, reduced ? 0 : -64]);
   const frames = featuredProjects(projects)
     .map((project) => ({ project, src: coverImage(project) }))
     .filter((item): item is { project: (typeof projects)[number]; src: string } => Boolean(item.src))
@@ -21,6 +30,7 @@ export function Hero() {
   return (
     <section
       id="hero"
+      ref={sectionRef}
       className="relative flex min-h-[calc(100dvh-var(--header)-env(safe-area-inset-top,0px))] flex-col justify-center overflow-hidden"
     >
       <div className="hero-wash" aria-hidden />
@@ -37,7 +47,10 @@ export function Hero() {
                   <span className="block">{profile.firstName}</span>
                   <span className="block">{profile.lastName}</span>
                 </h1>
-                <p className="meta-label settle settle-3 mt-5 text-fg">{profile.title}</p>
+                <p className="meta-label settle settle-3 mt-5 inline-flex items-center gap-1.5 text-fg">
+                  <Code className="h-3.5 w-3.5 text-accent" aria-hidden />
+                  {profile.title}
+                </p>
                 <p className="settle settle-4 mt-5 max-w-md text-base leading-relaxed text-muted md:text-lg">
                   {profile.headline}
                 </p>
@@ -57,7 +70,7 @@ export function Hero() {
                 </div>
               </div>
               {frames.length ? (
-                <div className="settle settle-4 relative mx-auto h-56 w-full max-w-[22rem] shrink-0 sm:h-64 xl:mx-0 xl:w-[22rem]">
+                <motion.div style={{ y: fanY }} className="settle settle-4 relative mx-auto h-56 w-full max-w-[22rem] shrink-0 sm:h-64 xl:mx-0 xl:w-[22rem]">
                   {frames.map(({ project, src }, index) => (
                     <Link
                       key={project.slug}
@@ -82,7 +95,7 @@ export function Hero() {
                       <span className="sr-only">{project.title}</span>
                     </Link>
                   ))}
-                </div>
+                </motion.div>
               ) : null}
             </div>
             <dl className="settle settle-5 mt-10 grid gap-x-8 gap-y-5 border-t border-line pt-6 sm:grid-cols-2 lg:grid-cols-4">

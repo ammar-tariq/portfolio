@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { Calendar, FileText, PenLine, Scale } from "lucide-react";
 import { GitHubIcon, LinkedInIcon, UpworkIcon, WhatsAppIcon } from "@/components/ui/brand-icons";
-import { SiteProvider } from "./site-provider";
 import { Navigation } from "@/components/nav/navigation";
 import { CommandPalette } from "@/components/command/command-palette";
 import { EasterEggs } from "@/components/easter/easter-eggs";
@@ -19,7 +18,6 @@ import { AiSection } from "@/components/ai/ai-section";
 import { About } from "@/components/about/about";
 import { Contact } from "@/components/contact/contact";
 import { ConnectFab } from "@/components/contact/connect-fab";
-import { SmoothScroll } from "@/components/providers/smooth-scroll";
 import { useContent } from "@/components/providers/content-provider";
 import { Reveal } from "@/components/ui/reveal";
 import { HomeSectionSync } from "@/components/nav/home-section-sync";
@@ -34,9 +32,7 @@ export function SiteShell({
 }) {
   const { profile, social } = useContent();
   return (
-    <SiteProvider>
-      <SkillFocusProvider>
-        <SmoothScroll />
+    <SkillFocusProvider>
         <HomeSectionSync />
         <Link
           href="/portfolio"
@@ -63,6 +59,7 @@ export function SiteShell({
             <Contact />
           </main>
           <footer className="relative border-t border-line px-[var(--page-x)] py-10 pb-[calc(6.5rem+env(safe-area-inset-bottom))]">
+            <Reveal>
             <div className="axis-grid gap-4">
               <div className="axis-main">
                 <p className="text-sm tracking-tight">{profile.name}</p>
@@ -109,12 +106,12 @@ export function SiteShell({
                 </div>
               </div>
             </div>
+            </Reveal>
           </footer>
         </div>
         <CommandPalette />
         <ConnectFab />
         <EasterEggs />
       </SkillFocusProvider>
-    </SiteProvider>
   );
 }

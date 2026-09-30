@@ -1,6 +1,7 @@
 "use client";
 
 import { Container, Section } from "@/components/ui/section";
+import { principleIcons } from "@/lib/marks";
 import { useContent } from "@/components/providers/content-provider";
 import { dossierEntry } from "@/lib/dossier";
 import { Reveal } from "@/components/ui/reveal";
@@ -23,7 +24,9 @@ export function Philosophy() {
           </Reveal>
         </div>
         <div className="border-t border-line">
-          {principles.map((item, index) => (
+          {principles.map((item, index) => {
+            const Icon = principleIcons[index % principleIcons.length];
+            return (
             <Reveal key={item.id} delay={index * 0.05}>
             <article
               className="axis-grid border-b border-line py-8 md:py-10"
@@ -33,14 +36,18 @@ export function Philosophy() {
               </p>
               <div className="axis-main grid gap-4 min-[900px]:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] min-[900px]:gap-10">
                 <div>
-                  <h3 className="text-xl tracking-tight md:text-2xl">{item.title}</h3>
+                  <h3 className="flex items-center gap-2 text-xl tracking-tight md:text-2xl">
+                    <Icon className="h-4 w-4 shrink-0 text-accent" aria-hidden />
+                    {item.title}
+                  </h3>
                   <p className="mt-3 font-serif text-lg leading-snug text-fg md:text-xl">{item.statement}</p>
                 </div>
                 <p className="max-w-[var(--read)] text-sm leading-relaxed text-muted md:text-base">{item.body}</p>
               </div>
             </article>
             </Reveal>
-          ))}
+            );
+          })}
         </div>
       </Container>
     </Section>

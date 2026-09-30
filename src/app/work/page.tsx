@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Container, Eyebrow } from "@/components/ui/section";
+import { LayoutGrid } from "lucide-react";
+import { Container } from "@/components/ui/section";
 import { BrandMark } from "@/components/ui/brand-mark";
 import { JsonLd } from "@/components/seo/json-ld";
 import { routeMetadata, workPageGraphJsonLd } from "@/lib/seo";
@@ -25,19 +26,25 @@ export default async function WorkIndexPage() {
     <ContentProvider content={content}>
       <div className="min-h-svh bg-bg pb-24 text-fg">
         <JsonLd data={workPageGraphJsonLd(content)} />
-        <Container className="pt-[max(4rem,calc(env(safe-area-inset-top)+1.25rem))]">
-          <Link href="/" className="glass-quiet inline-flex items-center gap-2.5 rounded-full border py-1 pr-3.5 pl-1 text-sm text-muted hover:text-fg">
+        <Container className="relative pt-[max(4rem,calc(env(safe-area-inset-top)+1.25rem))]">
+          <div className="hero-wash" aria-hidden />
+          <Link href="/" className="glass-quiet relative z-[1] inline-flex items-center gap-2.5 rounded-full border py-1 pr-3.5 pl-1 text-sm text-muted hover:text-fg">
             <BrandMark className="h-8 w-8" name={content.profile.name} />
             <span>{content.profile.name}</span>
           </Link>
-          <div className="mt-10">
-            <Eyebrow>Work</Eyebrow>
-            <h1 className="mt-4 max-w-[16ch] text-[clamp(1.85rem,4vw,3.4rem)] leading-[1.02] font-medium tracking-[-0.03em]">
+          <div className="relative z-[1] mt-10">
+            <p className="meta-label inline-flex items-center gap-1.5">
+              <LayoutGrid className="h-3.5 w-3.5 text-accent" aria-hidden />
+              Work
+            </p>
+            <h1 className="settle mt-4 max-w-[16ch] text-[clamp(1.85rem,4vw,3.4rem)] leading-[1.02] font-medium tracking-[-0.03em]">
               Projects by {content.profile.name}
             </h1>
-            <p className="mt-4 max-w-2xl text-muted">{content.seo.description}</p>
+            <p className="settle settle-3 mt-4 max-w-2xl text-muted">{content.seo.description}</p>
           </div>
-          <WorkDirectory />
+          <div className="relative z-[1]">
+            <WorkDirectory />
+          </div>
         </Container>
       </div>
     </ContentProvider>

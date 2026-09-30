@@ -1,23 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import { Cloud, Database, Monitor, Server, Smartphone, Sparkles, type LucideIcon } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import { Container, Section, SectionIntro } from "@/components/ui/section";
 import { useContent } from "@/components/providers/content-provider";
 import { useSkillFocus } from "@/components/skills/skill-focus";
 import { dossierEntry } from "@/lib/dossier";
 import { listedProjects } from "@/lib/project-helpers";
 import { cn } from "@/lib/cn";
+import { skillIcon } from "@/lib/marks";
 import { Reveal } from "@/components/ui/reveal";
-
-const CATEGORY_ICONS: Record<string, LucideIcon> = {
-  frontend: Monitor,
-  mobile: Smartphone,
-  backend: Server,
-  databases: Database,
-  cloud: Cloud,
-  ai: Sparkles,
-};
 
 export function Skills() {
   const { skillCategories, projects, navItems } = useContent();
@@ -36,7 +28,7 @@ export function Skills() {
         />
         <div className="border-t border-line">
           {skillCategories.map((category) => {
-            const Icon = CATEGORY_ICONS[category.id] ?? Sparkles;
+            const Icon: LucideIcon = skillIcon(category.id);
             return (
             <Reveal key={category.id} delay={0.04}>
             <article

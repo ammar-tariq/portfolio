@@ -1,6 +1,6 @@
 "use client";
 
-import { FileText, PenLine } from "lucide-react";
+import { CircleQuestionMark, FileText, MapPin, PenLine, Radio, Target } from "lucide-react";
 import { Container, Section } from "@/components/ui/section";
 import { GitHubIcon, LinkedInIcon } from "@/components/ui/brand-icons";
 import { RemoteImage } from "@/components/ui/remote-image";
@@ -52,15 +52,24 @@ export function About() {
             </div>
             <dl className="mt-10 grid gap-6 border-t border-line pt-6 sm:grid-cols-3">
               <div>
-                <dt className="meta-label">Based</dt>
+                <dt className="meta-label inline-flex items-center gap-1.5">
+                  <MapPin className="h-3 w-3 text-accent" aria-hidden />
+                  Based
+                </dt>
                 <dd className="mt-2 text-sm text-fg">{profile.location}</dd>
               </div>
               <div>
-                <dt className="meta-label">Available</dt>
+                <dt className="meta-label inline-flex items-center gap-1.5">
+                  <Radio className="h-3 w-3 text-accent" aria-hidden />
+                  Available
+                </dt>
                 <dd className="mt-2 text-sm text-fg">{profile.availability}</dd>
               </div>
               <div>
-                <dt className="meta-label">Focus</dt>
+                <dt className="meta-label inline-flex items-center gap-1.5">
+                  <Target className="h-3 w-3 text-accent" aria-hidden />
+                  Focus
+                </dt>
                 <dd className="mt-2 text-sm text-fg">{profile.focus[0]}</dd>
               </div>
             </dl>
@@ -86,17 +95,25 @@ export function About() {
           </Reveal>
         </div>
         <div className="axis-grid mt-16" id="faq">
-          <p className="meta-label axis-side mb-4 text-accent min-[1100px]:mb-0">FAQ</p>
-          <dl className="axis-main border-t border-line">
+          <div className="axis-main">
+          <p className="meta-label mb-4 inline-flex items-center gap-1.5 text-accent">
+            <CircleQuestionMark className="h-3.5 w-3.5" aria-hidden />
+            FAQ
+          </p>
+          <dl className="border-t border-line">
           {faq.map((item, index) => (
               <Reveal key={item.question} delay={index * 0.04}>
               <div className="grid gap-2 border-b border-line py-5 min-[800px]:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] min-[800px]:gap-8">
-                <dt className="text-sm text-fg">{item.question}</dt>
+                <dt className="flex items-start gap-2 text-sm text-fg">
+                  <CircleQuestionMark className="mt-0.5 h-3.5 w-3.5 shrink-0 text-accent" aria-hidden />
+                  {item.question}
+                </dt>
                 <dd className="text-sm leading-relaxed text-muted">{item.answer}</dd>
               </div>
               </Reveal>
             ))}
           </dl>
+          </div>
         </div>
       </Container>
     </Section>

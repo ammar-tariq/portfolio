@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
+import { Briefcase, Calendar } from "lucide-react";
 import { motion, useReducedMotion } from "motion/react";
-import type { Project } from "@/types/content";
+import type { Industry, Project } from "@/types/content";
 import { useContent } from "@/components/providers/content-provider";
 import { BrandMark } from "@/components/ui/brand-mark";
 import { RemoteImage } from "@/components/ui/remote-image";
@@ -11,6 +12,7 @@ import { Container } from "@/components/ui/section";
 import { projectHeroEyebrow } from "@/lib/project-helpers";
 import { cn } from "@/lib/cn";
 import { easeOutExpo } from "@/lib/motion";
+import { industryIcon } from "@/lib/marks";
 import { ProjectVisual } from "./project-visual";
 
 export const PROJECT_HERO_HEIGHT =
@@ -76,6 +78,7 @@ export function ProjectHeroChrome({
   backLabel,
   delayed = false,
   titleAs = "h1",
+  industries = [],
 }: {
   project: Project;
   eyebrow: string;
@@ -83,9 +86,11 @@ export function ProjectHeroChrome({
   backLabel: string;
   delayed?: boolean;
   titleAs?: "h1" | "p";
+  industries?: Industry[];
 }) {
   const reduced = useReducedMotion();
   const Title = titleAs;
+  const role = project.role.split("·")[0]?.trim();
   return (
     <div className="absolute inset-0 z-10 flex flex-col justify-between">
       <Container className="pt-[max(0.85rem,env(safe-area-inset-top))]">
@@ -121,7 +126,33 @@ export function ProjectHeroChrome({
               />
             </div>
           ) : null}
-          {eyebrow ? (
+          {project.industries.length || project.year || role ? (
+            <p className="flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-[11px] tracking-[0.16em] text-accent uppercase">
+              {project.industries.map((id) => {
+                const Icon = industryIcon(id);
+                const label = industries.find((item) => item.id === id)?.label;
+                if (!label) return null;
+                return (
+                  <span key={id} className="inline-flex items-center gap-1.5">
+                    <Icon className="h-3.5 w-3.5" aria-hidden />
+                    {label}
+                  </span>
+                );
+              })}
+              {project.year ? (
+                <span className="inline-flex items-center gap-1.5">
+                  <Calendar className="h-3.5 w-3.5" aria-hidden />
+                  {project.year}
+                </span>
+              ) : null}
+              {role ? (
+                <span className="inline-flex items-center gap-1.5">
+                  <Briefcase className="h-3.5 w-3.5" aria-hidden />
+                  {role}
+                </span>
+              ) : null}
+            </p>
+          ) : eyebrow ? (
             <p className="font-mono text-[11px] tracking-[0.2em] text-accent uppercase">{eyebrow}</p>
           ) : null}
           <Title className="mt-3 max-w-4xl text-[clamp(1.85rem,4vw,3.6rem)] leading-[1.05] font-medium tracking-[-0.03em] text-fg">
@@ -152,6 +183,7 @@ export function ProjectHero({
           eyebrow={projectHeroEyebrow(project, industries)}
           backHref={backHref}
           backLabel={backLabel}
+          industries={industries}
         />
       </div>
     </header>

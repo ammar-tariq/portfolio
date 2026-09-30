@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { ArrowUpRight, Boxes, Briefcase, Calendar, FolderKanban, Mail, MapPin, PenLine, User } from "lucide-react";
+import { GitHubIcon, LinkedInIcon, UpworkIcon, WhatsAppIcon } from "@/components/ui/brand-icons";
+import { skillIcon } from "@/lib/marks";
 import { PrintButton } from "@/components/ui/print-button";
 import { BrandMark } from "@/components/ui/brand-mark";
 import { JsonLd } from "@/components/seo/json-ld";
@@ -33,7 +36,7 @@ export default async function ResumePage() {
           </Link>
           <PrintButton />
         </p>
-        <header className="glass-quiet rounded-2xl border p-6 print:rounded-none print:border-0 print:p-0">
+        <header className="glass-quiet settle rounded-2xl border p-6 print:animate-none print:rounded-none print:border-0 print:p-0">
           <div className="flex items-start gap-5">
             {photo ? (
               // eslint-disable-next-line @next/next/no-img-element
@@ -47,23 +50,49 @@ export default async function ResumePage() {
             ) : null}
             <div>
               <h1 className="text-3xl font-medium tracking-tight sm:text-4xl">{profile.name}</h1>
-              <p className="mt-2 text-muted">
-                {profile.title} · {profile.location}
+              <p className="mt-2 inline-flex flex-wrap items-center gap-x-3 gap-y-1 text-muted">
+                <span>{profile.title}</span>
+                <span className="inline-flex items-center gap-1">
+                  <MapPin className="h-3.5 w-3.5 text-accent print:text-current" aria-hidden />
+                  {profile.location}
+                </span>
               </p>
             </div>
           </div>
-          <p className="mt-4 flex flex-wrap gap-x-4 gap-y-1 text-sm text-subtle">
-            <a href={`mailto:${profile.email}`}>{profile.email}</a>
-            <a href={social.calendly}>Calendly</a>
-            <a href={social.whatsapp}>WhatsApp</a>
-            <a href={social.github}>GitHub</a>
-            <Link href="/blog">Blogs</Link>
-            <a href={social.linkedin}>LinkedIn</a>
-            <a href={social.upwork}>Upwork</a>
+          <p className="mt-4 flex flex-wrap gap-x-4 gap-y-2 text-sm text-subtle">
+            <a href={`mailto:${profile.email}`} className="inline-flex items-center gap-1.5">
+              <Mail className="h-3.5 w-3.5 text-accent print:text-current" aria-hidden />
+              {profile.email}
+            </a>
+            <a href={social.calendly} className="inline-flex items-center gap-1.5">
+              <Calendar className="h-3.5 w-3.5 text-accent print:text-current" aria-hidden />
+              Calendly
+            </a>
+            <a href={social.whatsapp} className="inline-flex items-center gap-1.5">
+              <WhatsAppIcon className="h-3.5 w-3.5" />
+              WhatsApp
+            </a>
+            <a href={social.github} className="inline-flex items-center gap-1.5">
+              <GitHubIcon className="h-3.5 w-3.5" />
+              GitHub
+            </a>
+            <Link href="/blog" className="inline-flex items-center gap-1.5">
+              <PenLine className="h-3.5 w-3.5 text-accent print:text-current" aria-hidden />
+              Blogs
+            </Link>
+            <a href={social.linkedin} className="inline-flex items-center gap-1.5">
+              <LinkedInIcon className="h-3.5 w-3.5" />
+              LinkedIn
+            </a>
+            <a href={social.upwork} className="inline-flex items-center gap-1.5">
+              <UpworkIcon className="h-3.5 w-3.5" />
+              Upwork
+            </a>
           </p>
         </header>
         <section className="py-8">
-          <h2 className="font-mono text-[11px] tracking-[0.22em] text-accent uppercase">
+          <h2 className="inline-flex items-center gap-2 font-mono text-[11px] tracking-[0.22em] text-accent uppercase">
+            <User className="h-3.5 w-3.5" aria-hidden />
             Summary
           </h2>
           <p className="mt-4 max-w-2xl text-sm leading-relaxed text-muted">{profile.summary}</p>
@@ -72,22 +101,30 @@ export default async function ResumePage() {
           </p>
         </section>
         <section className="border-t border-line py-8">
-          <h2 className="font-mono text-[11px] tracking-[0.22em] text-accent uppercase">
+          <h2 className="inline-flex items-center gap-2 font-mono text-[11px] tracking-[0.22em] text-accent uppercase">
+            <Briefcase className="h-3.5 w-3.5" aria-hidden />
             Experience
           </h2>
           <div className="mt-6 space-y-8">
             {experience.map((item) => (
               <article key={item.id}>
                 <div className="flex flex-wrap justify-between gap-2">
-                  <h3 className="text-lg tracking-tight">
+                  <h3 className="inline-flex items-center gap-2 text-lg tracking-tight">
+                    <Briefcase className="h-4 w-4 shrink-0 text-accent print:text-current" aria-hidden />
                     {item.role} · {item.company}
                   </h3>
-                  <p className="text-sm text-subtle">{item.period}</p>
+                  <p className="inline-flex items-center gap-1.5 text-sm text-subtle">
+                    <Calendar className="h-3.5 w-3.5 text-accent print:text-current" aria-hidden />
+                    {item.period}
+                  </p>
                 </div>
                 <p className="mt-2 text-sm text-muted">{item.summary}</p>
-                <ul className="mt-3 list-disc space-y-1 pl-5 text-sm text-muted">
+                <ul className="mt-3 space-y-1 text-sm text-muted">
                   {item.responsibilities.map((line) => (
-                    <li key={line}>{line}</li>
+                    <li key={line} className="flex gap-2">
+                      <span className="mt-[0.5rem] h-1 w-1 shrink-0 rounded-full bg-accent print:bg-current" aria-hidden />
+                      <span>{line}</span>
+                    </li>
                   ))}
                 </ul>
               </article>
@@ -95,7 +132,8 @@ export default async function ResumePage() {
           </div>
         </section>
         <section className="border-t border-line py-8">
-          <h2 className="font-mono text-[11px] tracking-[0.22em] text-accent uppercase">
+          <h2 className="inline-flex items-center gap-2 font-mono text-[11px] tracking-[0.22em] text-accent uppercase">
+            <FolderKanban className="h-3.5 w-3.5" aria-hidden />
             Selected work
           </h2>
           <ul className="mt-4 space-y-2 text-sm text-muted">
@@ -103,25 +141,33 @@ export default async function ResumePage() {
               .filter((project) => project.featured)
               .map((project) => (
                 <li key={project.slug}>
-                  <Link href={`/work/${project.slug}`} className="link-underline text-fg">
+                  <Link href={`/work/${project.slug}`} className="inline-flex items-center gap-1.5 link-underline text-fg">
                     {project.title}
+                    <ArrowUpRight className="h-3.5 w-3.5 text-accent print:text-current" aria-hidden />
                   </Link>{" "}
-                  — {project.tagline}
+                  <span className="text-muted">— {project.tagline}</span>
                 </li>
               ))}
           </ul>
         </section>
         <section className="border-t border-line py-8">
-          <h2 className="font-mono text-[11px] tracking-[0.22em] text-accent uppercase">
+          <h2 className="inline-flex items-center gap-2 font-mono text-[11px] tracking-[0.22em] text-accent uppercase">
+            <Boxes className="h-3.5 w-3.5" aria-hidden />
             Skills
           </h2>
           <div className="mt-4 space-y-3 text-sm">
-            {skillCategories.map((category) => (
-              <p key={category.id} className="text-muted">
-                <span className="text-fg">{category.label}:</span>{" "}
-                {category.items.map((item) => item.name).join(", ")}
-              </p>
-            ))}
+            {skillCategories.map((category) => {
+              const Icon = skillIcon(category.id);
+              return (
+                <p key={category.id} className="flex gap-2 text-muted">
+                  <Icon className="mt-0.5 h-3.5 w-3.5 shrink-0 text-accent print:text-current" aria-hidden />
+                  <span>
+                    <span className="text-fg">{category.label}:</span>{" "}
+                    {category.items.map((item) => item.name).join(", ")}
+                  </span>
+                </p>
+              );
+            })}
           </div>
         </section>
       </div>

@@ -26,11 +26,11 @@ export function Reveal({
       whileInView="visible"
       viewport={{ once: true, amount: 0.12, margin: "0px 0px -12% 0px" }}
       variants={{
-        hidden: { opacity: 0, y: 28 },
+        hidden: { opacity: 0, y: 42 },
         visible: {
           opacity: 1,
           y: 0,
-          transition: { duration: 1.05, ease: easeOutExpo, delay },
+          transition: { duration: 1.28, ease: easeOutExpo, delay },
         },
       }}
     >

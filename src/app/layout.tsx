@@ -7,6 +7,8 @@ import { JsonLd } from "@/components/seo/json-ld";
 import { AnalyticsTracker } from "@/components/analytics/tracker";
 import { ProjectOpenProvider } from "@/components/work/project-open";
 import { AdminViewerProvider } from "@/components/providers/admin-viewer";
+import { SiteProvider } from "@/components/providers/site-provider";
+import { SmoothScroll } from "@/components/providers/smooth-scroll";
 import { googleAnalyticsId, googleTagManagerId } from "@/lib/env";
 import { GoogleAnalytics } from "@/components/analytics/google-analytics";
 
@@ -74,9 +76,12 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <JsonLd data={siteGraphJsonLd(content)} />
         <GoogleAnalytics gaId={gaId} gtmId={gtmId} />
         <AnalyticsTracker />
-        <AdminViewerProvider>
-          <ProjectOpenProvider>{children}</ProjectOpenProvider>
-        </AdminViewerProvider>
+        <SiteProvider>
+          <SmoothScroll />
+          <AdminViewerProvider>
+            <ProjectOpenProvider>{children}</ProjectOpenProvider>
+          </AdminViewerProvider>
+        </SiteProvider>
       </body>
     </html>
   );

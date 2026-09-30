@@ -3,7 +3,7 @@ import type Lenis from "lenis";
 export const SCROLL_OFFSET = -104;
 
 export function scrollEase(t: number) {
-  return Math.min(1, 1.001 - Math.pow(2, -10 * t));
+  return 1 - Math.pow(1 - t, 4);
 }
 
 let lenis: Lenis | null = null;
@@ -28,7 +28,7 @@ export function scrollToSection(target: string, options?: { instant?: boolean })
     if (lenis) {
       lenis.scrollTo(target, {
         offset: SCROLL_OFFSET,
-        duration: instant ? 0 : 1.35,
+        duration: instant ? 0 : 1.8,
         easing: scrollEase,
         force: true,
       });

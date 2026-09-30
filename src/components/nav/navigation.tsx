@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useContent } from "@/components/providers/content-provider";
 import { useSite } from "@/components/providers/site-provider";
 import { Menu, Search, X } from "lucide-react";
+import { navIcon } from "@/lib/marks";
 import { ThemeToggle } from "./theme-toggle";
 import { BrandMark } from "@/components/ui/brand-mark";
 import { DOSSIER } from "@/lib/dossier";
@@ -172,6 +173,7 @@ function IndexList({
     <ul className={cn("flex flex-col", className)}>
       {items.map((item) => {
         const selected = current === item.id;
+        const Icon = navIcon(item.id);
         return (
           <li key={item.id}>
             <a
@@ -184,10 +186,11 @@ function IndexList({
                 onNavigate?.();
               }}
               className={cn(
-                "nav-link block py-1.5 text-[13px] tracking-tight whitespace-nowrap transition-colors duration-[var(--dur)]",
+                "nav-link inline-flex items-center gap-1.5 py-1.5 text-[13px] tracking-tight whitespace-nowrap transition-colors duration-[var(--dur)]",
                 selected ? "text-fg" : "text-subtle hover:text-fg",
               )}
             >
+              <Icon className="h-3.5 w-3.5 text-accent" aria-hidden />
               {item.label}
             </a>
           </li>

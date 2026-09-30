@@ -57,10 +57,10 @@ export function Experience() {
                               <Link
                                 key={slug}
                                 href={`/work/${slug}`}
-                                className="relative h-16 w-11 overflow-hidden border border-line bg-bg-elevated"
+                                className="shot-frame relative h-16 w-11 bg-bg-elevated"
                                 aria-label={project.title}
                               >
-                                <RemoteImage src={src} alt="" fill sizes="44px" className="object-cover object-top" />
+                                <RemoteImage src={src} alt="" fill sizes="44px" className="zoom-shot object-cover object-top" />
                               </Link>
                             );
                           })}
@@ -76,10 +76,11 @@ export function Experience() {
                         {open ? "Hide scope" : "Scope"}
                       </button>
                       {open ? (
-                        <div className="mt-4">
+                        <div className="settle mt-4">
                           <ul className="max-w-[var(--read)] space-y-2">
                             {item.responsibilities.map((line) => (
-                              <li key={line} className="text-sm leading-relaxed text-muted">
+                              <li key={line} className="flex gap-2 text-sm leading-relaxed text-muted">
+                                <span className="mt-[0.55rem] h-1 w-1 shrink-0 rounded-full bg-accent" aria-hidden />
                                 {line}
                               </li>
                             ))}

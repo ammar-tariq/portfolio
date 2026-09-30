@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { usePathname } from "next/navigation";
 import { ReactLenis, useLenis } from "lenis/react";
 import "lenis/dist/lenis.css";
 import { bindLenis, SCROLL_OFFSET, scrollEase } from "@/lib/scroll";
@@ -8,15 +9,13 @@ import { useSite } from "./site-provider";
 
 const options = {
   autoRaf: true,
-  lerp: 0.075,
-  duration: 1.2,
-  easing: scrollEase,
+  lerp: 0.045,
   smoothWheel: true,
-  wheelMultiplier: 0.86,
+  wheelMultiplier: 0.72,
   syncTouch: false,
   anchors: {
     offset: SCROLL_OFFSET,
-    duration: 1.35,
+    duration: 1.8,
     easing: scrollEase,
   },
   stopInertiaOnNavigate: true,
@@ -44,6 +43,9 @@ function LenisBridge() {
 }
 
 export function SmoothScroll() {
+  const pathname = usePathname();
+  if (pathname.startsWith("/admin")) return null;
+
   return (
     <ReactLenis root options={options}>
       <LenisBridge />

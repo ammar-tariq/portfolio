@@ -1,15 +1,16 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowUpRight } from "lucide-react";
+import { ArrowUpRight, Calendar } from "lucide-react";
 import type { Project } from "@/types/content";
-import { industryLabel, projectHeroEyebrow } from "@/lib/project-helpers";
+import { projectHeroEyebrow } from "@/lib/project-helpers";
 import { coverImage, coverScreenshots } from "@/lib/project-media";
 import { useContent } from "@/components/providers/content-provider";
 import { RemoteImage } from "@/components/ui/remote-image";
 import { useSkillFocus } from "@/components/skills/skill-focus";
 import { shouldPassProjectClick, useProjectOpen } from "./project-open";
 import { cn } from "@/lib/cn";
+import { industryIcon, techIcon } from "@/lib/marks";
 import { Reveal } from "@/components/ui/reveal";
 
 export function ProjectCard({
@@ -86,11 +87,37 @@ export function ProjectCard({
                 {project.title}
               </h3>
             </div>
-            <p className="meta-label mt-3 normal-case tracking-[0.12em]">
-              {[industryLabel(project, industries), project.year].filter(Boolean).join("  ·  ")}
+            <p className="meta-label mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 normal-case tracking-[0.12em]">
+              {project.industries.map((id) => {
+                const Icon = industryIcon(id);
+                const label = industries.find((item) => item.id === id)?.label;
+                if (!label) return null;
+                return (
+                  <span key={id} className="inline-flex items-center gap-1">
+                    <Icon className="h-3 w-3 text-accent" aria-hidden />
+                    {label}
+                  </span>
+                );
+              })}
+              {project.year ? (
+                <span className="inline-flex items-center gap-1">
+                  <Calendar className="h-3 w-3 text-accent" aria-hidden />
+                  {project.year}
+                </span>
+              ) : null}
             </p>
             <p className="mt-3 max-w-xl text-sm leading-relaxed text-muted md:text-base">{project.tagline}</p>
-            <p className="mt-3 max-w-xl text-sm text-fg/80">{project.technologies.join("  ·  ")}</p>
+            <p className="mt-3 flex max-w-xl flex-wrap gap-x-3 gap-y-1.5 text-sm text-fg/80">
+              {project.technologies.map((tech) => {
+                const Icon = techIcon(tech);
+                return (
+                  <span key={tech} className="inline-flex items-center gap-1">
+                    <Icon className="h-3.5 w-3.5 text-accent" aria-hidden />
+                    {tech}
+                  </span>
+                );
+              })}
+            </p>
             <span className="ctrl mt-4 inline-flex items-center gap-1.5 text-muted group-hover:text-fg">
               Case study
               <ArrowUpRight className="h-3.5 w-3.5" aria-hidden />

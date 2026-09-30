@@ -1,7 +1,10 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { ArrowUpRight } from "lucide-react";
+import { Apple, ArrowUpRight, Braces, Check, Globe, Layers, Lightbulb, Store, TriangleAlert, Wrench } from "lucide-react";
+import { GitHubIcon } from "@/components/ui/brand-icons";
+import { industryIcon, techIcon } from "@/lib/marks";
+import { RemoteImage } from "@/components/ui/remote-image";
 import { JsonLd } from "@/components/seo/json-ld";
 import { projectGraphJsonLd, routeMetadata } from "@/lib/seo";
 import { ProjectHero } from "@/components/work/project-hero";
@@ -75,22 +78,22 @@ export default async function WorkPage({
           <div className="mt-6 flex flex-wrap gap-3">
             {project.github ? (
               <ButtonLink href={project.github} variant="ghost">
-                GitHub <ArrowUpRight className="h-4 w-4" />
+                <GitHubIcon className="h-3.5 w-3.5" /> GitHub <ArrowUpRight className="h-4 w-4" />
               </ButtonLink>
             ) : null}
             {project.liveUrl ? (
               <ButtonLink href={project.liveUrl} variant="ghost">
-                {projectLiveLabel(project)} <ArrowUpRight className="h-4 w-4" />
+                <Store className="h-3.5 w-3.5" aria-hidden /> {projectLiveLabel(project)} <ArrowUpRight className="h-4 w-4" />
               </ButtonLink>
             ) : null}
             {project.appStoreUrl ? (
               <ButtonLink href={project.appStoreUrl} variant="ghost">
-                App Store <ArrowUpRight className="h-4 w-4" />
+                <Apple className="h-3.5 w-3.5" aria-hidden /> App Store <ArrowUpRight className="h-4 w-4" />
               </ButtonLink>
             ) : null}
             {project.webUrl ? (
               <ButtonLink href={project.webUrl} variant="ghost">
-                {project.webLabel ?? "Web"} <ArrowUpRight className="h-4 w-4" />
+                <Globe className="h-3.5 w-3.5" aria-hidden /> {project.webLabel ?? "Web"} <ArrowUpRight className="h-4 w-4" />
               </ButtonLink>
             ) : null}
           </div>
@@ -101,7 +104,8 @@ export default async function WorkPage({
               {project.challenge ? (
                 <Reveal>
                   <div className="glass-quiet h-full rounded-2xl border p-5 md:p-6">
-                    <h2 className="font-mono text-[11px] tracking-[0.22em] text-accent uppercase">
+                    <h2 className="inline-flex items-center gap-2 font-mono text-[11px] tracking-[0.22em] text-accent uppercase">
+                      <TriangleAlert className="h-3.5 w-3.5" aria-hidden />
                       Challenge
                     </h2>
                     <p className="mt-4 leading-relaxed text-muted">{project.challenge}</p>
@@ -111,7 +115,8 @@ export default async function WorkPage({
               {project.solution ? (
                 <Reveal delay={0.06}>
                   <div className="glass-quiet h-full rounded-2xl border p-5 md:p-6">
-                    <h2 className="font-mono text-[11px] tracking-[0.22em] text-accent uppercase">
+                    <h2 className="inline-flex items-center gap-2 font-mono text-[11px] tracking-[0.22em] text-accent uppercase">
+                      <Lightbulb className="h-3.5 w-3.5" aria-hidden />
                       Solution
                     </h2>
                     <p className="mt-4 leading-relaxed text-muted">{project.solution}</p>
@@ -121,46 +126,66 @@ export default async function WorkPage({
             </div>
           ) : null}
           {project.architecture.length > 0 ? (
-            <section className="mt-14">
-              <h2 className="font-mono text-[11px] tracking-[0.22em] text-accent uppercase">
+            <section className="glass-quiet mt-14 rounded-2xl border p-5 md:p-6">
+              <h2 className="inline-flex items-center gap-2 font-mono text-[11px] tracking-[0.22em] text-accent uppercase">
+                <Layers className="h-3.5 w-3.5" aria-hidden />
                 Architecture
               </h2>
               <ul className="mt-5 border-t border-line">
                 {project.architecture.map((item, i) => (
-                  <li key={item} className="border-b border-line py-3 text-sm text-muted">
-                    <span className="meta-label mr-3 text-accent">
-                      {String(i + 1).padStart(2, "0")}
-                    </span>
-                    {item}
+                  <li key={item} className="border-b border-line">
+                    <Reveal delay={i * 0.045}>
+                      <p className="py-3 text-sm text-muted">
+                        <span className="meta-label mr-3 text-accent">
+                          {String(i + 1).padStart(2, "0")}
+                        </span>
+                        {item}
+                      </p>
+                    </Reveal>
                   </li>
                 ))}
               </ul>
             </section>
           ) : null}
           {project.engineering && project.engineering.length > 0 ? (
-            <section className="mt-14">
-              <h2 className="font-mono text-[11px] tracking-[0.22em] text-accent uppercase">
+            <section className="glass-quiet mt-14 rounded-2xl border p-5 md:p-6">
+              <h2 className="inline-flex items-center gap-2 font-mono text-[11px] tracking-[0.22em] text-accent uppercase">
+                <Wrench className="h-3.5 w-3.5" aria-hidden />
                 Engineering challenges
               </h2>
               <ul className="mt-5 space-y-3">
-                {project.engineering.map((item) => (
-                  <li key={item} className="border-l border-accent/40 pl-4 text-muted">
-                    {item}
+                {project.engineering.map((item, index) => (
+                  <li key={item}>
+                    <Reveal delay={index * 0.05}>
+                      <p className="border-l border-accent/40 pl-4 text-muted">{item}</p>
+                    </Reveal>
                   </li>
                 ))}
               </ul>
             </section>
           ) : null}
-          <section className="mt-14">
-            <h2 className="font-mono text-[11px] tracking-[0.22em] text-accent uppercase">
+          <section className="glass-quiet mt-14 rounded-2xl border p-5 md:p-6">
+            <h2 className="inline-flex items-center gap-2 font-mono text-[11px] tracking-[0.22em] text-accent uppercase">
+              <Braces className="h-3.5 w-3.5" aria-hidden />
               Technologies
             </h2>
-            <p className="mt-5 max-w-[var(--read)] text-sm leading-relaxed text-fg/85">{project.technologies.join(" · ")}</p>
+            <p className="mt-5 flex max-w-[var(--read)] flex-wrap gap-x-3 gap-y-2 text-sm text-fg/85">
+              {project.technologies.map((tech) => {
+                const Icon = techIcon(tech);
+                return (
+                  <span key={tech} className="inline-flex items-center gap-1.5">
+                    <Icon className="h-3.5 w-3.5 text-accent" aria-hidden />
+                    {tech}
+                  </span>
+                );
+              })}
+            </p>
           </section>
           {project.outcome ? (
             <Reveal>
               <section className="glass-quiet mt-14 rounded-2xl border p-5 md:p-6">
-                <h2 className="font-mono text-[11px] tracking-[0.22em] text-accent uppercase">
+                <h2 className="inline-flex items-center gap-2 font-mono text-[11px] tracking-[0.22em] text-accent uppercase">
+                  <Check className="h-3.5 w-3.5" aria-hidden />
                   Outcome
                 </h2>
                 <p className="mt-4 text-lg leading-relaxed">{project.outcome}</p>
@@ -170,18 +195,33 @@ export default async function WorkPage({
           {related.length > 0 ? (
             <Reveal>
               <section className="glass-quiet mt-14 rounded-2xl border p-5 md:p-6">
-                <h2 className="font-mono text-[11px] tracking-[0.22em] text-accent uppercase">
+                <h2 className="inline-flex items-center gap-2 font-mono text-[11px] tracking-[0.22em] text-accent uppercase">
+                  <ArrowUpRight className="h-3.5 w-3.5" aria-hidden />
                   More work
                 </h2>
-                <ul className="mt-5 space-y-3">
-                  {related.map((item) => (
-                    <li key={item.slug}>
-                      <Link href={`/work/${item.slug}`} className="link-underline text-fg">
-                        {item.seoLabel}
-                      </Link>
-                      <span className="text-muted"> — {item.tagline}</span>
-                    </li>
-                  ))}
+                <ul className="mt-5 space-y-2">
+                  {related.map((item) => {
+                    const industryId = item.industries[0];
+                    const Industry = industryId ? industryIcon(industryId) : ArrowUpRight;
+                    return (
+                      <li key={item.slug}>
+                        <Link href={`/work/${item.slug}`} className="flex items-center gap-3 rounded-xl px-2 py-2 transition-colors duration-[var(--dur)] hover:bg-fg/5">
+                          {item.logo ? (
+                            <span className="relative h-10 w-10 shrink-0 overflow-hidden rounded-lg border border-line">
+                              <RemoteImage src={item.logo} alt="" fill sizes="40px" className="object-cover" />
+                            </span>
+                          ) : (
+                            <Industry className="h-4 w-4 shrink-0 text-accent" aria-hidden />
+                          )}
+                          <span className="min-w-0">
+                            <span className="block text-fg">{item.title}</span>
+                            <span className="block truncate text-sm text-muted">{item.tagline}</span>
+                          </span>
+                          <ArrowUpRight className="ml-auto h-4 w-4 shrink-0 text-accent" aria-hidden />
+                        </Link>
+                      </li>
+                    );
+                  })}
                 </ul>
               </section>
             </Reveal>

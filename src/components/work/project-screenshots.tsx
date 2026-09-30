@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Apple, Clapperboard, Images, Smartphone } from "lucide-react";
 import { RemoteImage } from "@/components/ui/remote-image";
 import { MediaDownloadAllButton, MediaDownloadButton } from "@/components/ui/media-download";
 import type { Project, ProjectScreenshot } from "@/types/content";
@@ -12,6 +13,7 @@ import {
   videoEmbedSrc,
 } from "@/lib/project-media";
 import { cn } from "@/lib/cn";
+import { Reveal } from "@/components/ui/reveal";
 
 function shotDownloadName(project: Project, platform: string, index: number, shot: ProjectScreenshot) {
   const label = shot.caption || shot.alt || `shot-${index + 1}`;
@@ -31,6 +33,7 @@ function ScreenshotGrid({
     <ul className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
       {screenshots.map((shot, index) => (
         <li key={shot.src}>
+          <Reveal delay={index * 0.05}>
           <figure className="shot-frame bg-bg-elevated">
             <div className="relative aspect-[9/19.5] bg-bg-soft">
               <RemoteImage
@@ -52,6 +55,7 @@ function ScreenshotGrid({
               </figcaption>
             ) : null}
           </figure>
+          </Reveal>
         </li>
       ))}
     </ul>
@@ -65,7 +69,10 @@ function ProjectVideo({ project, heading = "h3" }: { project: Project; heading?:
   const Heading = heading;
   return (
     <section className="mt-14">
-      <Heading className="font-mono text-[11px] tracking-[0.22em] text-accent uppercase">Video</Heading>
+      <Heading className="inline-flex items-center gap-2 font-mono text-[11px] tracking-[0.22em] text-accent uppercase">
+        <Clapperboard className="h-3.5 w-3.5" aria-hidden />
+        Video
+      </Heading>
       <div className="mt-5 overflow-hidden rounded-2xl border border-line bg-bg-elevated">
         {embed ? (
           <div className="relative aspect-video">
@@ -113,7 +120,10 @@ function ScreenshotPlatforms({
   return (
     <section className="mt-14">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <Heading className="font-mono text-[11px] tracking-[0.22em] text-accent uppercase">Screenshots</Heading>
+        <Heading className="inline-flex items-center gap-2 font-mono text-[11px] tracking-[0.22em] text-accent uppercase">
+          <Images className="h-3.5 w-3.5" aria-hidden />
+          Screenshots
+        </Heading>
         <div className="flex flex-wrap items-center gap-2">
           <MediaDownloadAllButton
             items={downloadItems}
@@ -125,12 +135,14 @@ function ScreenshotPlatforms({
                 selected={platform === "ios"}
                 onClick={() => hasIos && setPlatform("ios")}
                 label="iOS"
+                icon={Apple}
                 disabled={!hasIos}
               />
               <PlatformTab
                 selected={platform === "android"}
                 onClick={() => hasAndroid && setPlatform("android")}
                 label="Android"
+                icon={Smartphone}
                 disabled={!hasAndroid}
               />
             </div>
@@ -146,11 +158,13 @@ function PlatformTab({
   selected,
   onClick,
   label,
+  icon: Icon,
   disabled,
 }: {
   selected: boolean;
   onClick: () => void;
   label: string;
+  icon: typeof Apple;
   disabled?: boolean;
 }) {
   return (
@@ -170,6 +184,7 @@ function PlatformTab({
             : "border-line text-subtle hover:border-line-strong hover:text-fg",
       )}
     >
+      <Icon className="h-3.5 w-3.5" aria-hidden />
       {label}
     </button>
   );

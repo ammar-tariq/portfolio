@@ -1,6 +1,9 @@
 "use client";
 
+import type { LucideIcon } from "lucide-react";
+import { LayoutGrid } from "lucide-react";
 import { cn } from "@/lib/cn";
+import { industryIcon } from "@/lib/marks";
 
 export type IndustryFilterOption = {
   id: string;
@@ -25,7 +28,7 @@ export function IndustryFilter({
       role="tablist"
       aria-label="Filter by industry"
     >
-      <FilterChip selected={value === "all"} onClick={() => onChange("all")} label="All" count={total} />
+      <FilterChip selected={value === "all"} onClick={() => onChange("all")} label="All" count={total} icon={LayoutGrid} />
       {industries.map((industry) => (
         <FilterChip
           key={industry.id}
@@ -33,6 +36,7 @@ export function IndustryFilter({
           onClick={() => onChange(industry.id)}
           label={industry.label}
           count={industry.count}
+          icon={industryIcon(industry.id)}
         />
       ))}
     </div>
@@ -44,11 +48,13 @@ function FilterChip({
   onClick,
   label,
   count,
+  icon: Icon,
 }: {
   selected: boolean;
   onClick: () => void;
   label: string;
   count: number;
+  icon: LucideIcon;
 }) {
   return (
     <button
@@ -58,12 +64,13 @@ function FilterChip({
       onClick={onClick}
       data-cursor="link"
       className={cn(
-        "meta-label shrink-0 border-b pb-1 transition-colors duration-[var(--dur)]",
+        "meta-label inline-flex shrink-0 items-center gap-1.5 border-b pb-1 transition-colors duration-[var(--dur)]",
         selected ? "border-accent text-fg" : "border-transparent text-subtle hover:text-fg",
       )}
     >
+      <Icon className="h-3.5 w-3.5 text-accent" aria-hidden />
       {label}
-      <span className="ml-1.5 tabular-nums">{count}</span>
+      <span className="tabular-nums">{count}</span>
     </button>
   );
 }
