@@ -31,7 +31,7 @@ function ScreenshotGrid({
     <ul className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
       {screenshots.map((shot, index) => (
         <li key={shot.src}>
-          <figure className="overflow-hidden border border-line bg-bg-elevated">
+          <figure className="shot-frame bg-bg-elevated">
             <div className="relative aspect-[9/19.5] bg-bg-soft">
               <RemoteImage
                 src={shot.src}
@@ -66,7 +66,7 @@ function ProjectVideo({ project, heading = "h3" }: { project: Project; heading?:
   return (
     <section className="mt-14">
       <Heading className="font-mono text-[11px] tracking-[0.22em] text-accent uppercase">Video</Heading>
-      <div className="mt-5 overflow-hidden border border-line bg-bg-elevated">
+      <div className="mt-5 overflow-hidden rounded-2xl border border-line bg-bg-elevated">
         {embed ? (
           <div className="relative aspect-video">
             <iframe

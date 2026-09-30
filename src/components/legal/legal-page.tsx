@@ -16,14 +16,14 @@ export function LegalPage({
     <div className="min-h-svh bg-bg text-fg">
       <div className="mx-auto max-w-3xl px-4 py-12 pt-[max(3rem,calc(env(safe-area-inset-top)+1.5rem))] sm:px-6">
         <p className="mb-8 text-sm text-muted">
-          <Link href="/" className="inline-flex items-center gap-3">
+          <Link href="/" className="glass-quiet inline-flex items-center gap-2.5 rounded-full border py-1 pr-3.5 pl-1">
             <BrandMark className="h-8 w-8" name={name} />
-            <span className="link-underline">{name}</span>
+            <span>{name}</span>
           </Link>
         </p>
-        <header className="border-b border-line pb-6">
+        <header className="glass-quiet rounded-2xl border p-6">
           <p className="font-mono text-[11px] tracking-[0.22em] text-accent uppercase">Legal</p>
-          <h1 className="mt-3 font-serif text-3xl tracking-tight sm:text-4xl">{title}</h1>
+          <h1 className="mt-3 text-3xl font-medium tracking-[-0.03em] sm:text-4xl">{title}</h1>
           <p className="mt-3 text-sm text-muted">Last updated {updated}</p>
         </header>
         <div className="legal-copy py-8 text-sm leading-relaxed text-muted">{children}</div>

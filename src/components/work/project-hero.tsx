@@ -96,7 +96,7 @@ export function ProjectHeroChrome({
         >
           <Link
             href={backHref}
-            className="pointer-events-auto inline-flex items-center gap-3 text-sm text-muted hover:text-fg"
+            className="glass-quiet pointer-events-auto inline-flex items-center gap-2.5 rounded-full border py-1 pr-3.5 pl-1 text-sm text-muted hover:text-fg"
           >
             <BrandMark className="h-7 w-7" name={backLabel} />
             {backLabel}
@@ -111,7 +111,7 @@ export function ProjectHeroChrome({
         >
           {project.logo ? (
             <div className="relative mb-4 inline-block">
-              <div className="relative h-14 w-14 overflow-hidden border border-line sm:h-16 sm:w-16">
+              <div className="relative h-14 w-14 overflow-hidden rounded-2xl border border-line sm:h-16 sm:w-16">
                 <RemoteImage src={project.logo} alt={`${project.title} app icon`} fill sizes="64px" className="object-cover" />
               </div>
               <MediaDownloadButton
@@ -124,7 +124,7 @@ export function ProjectHeroChrome({
           {eyebrow ? (
             <p className="font-mono text-[11px] tracking-[0.2em] text-accent uppercase">{eyebrow}</p>
           ) : null}
-          <Title className="mt-3 max-w-4xl font-serif text-[1.85rem] tracking-tight text-fg sm:text-4xl md:text-6xl">
+          <Title className="mt-3 max-w-4xl text-[clamp(1.85rem,4vw,3.6rem)] leading-[1.05] font-medium tracking-[-0.03em] text-fg">
             {project.title}
           </Title>
         </motion.div>

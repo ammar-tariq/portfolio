@@ -7,6 +7,7 @@ import { projectGraphJsonLd, routeMetadata } from "@/lib/seo";
 import { ProjectHero } from "@/components/work/project-hero";
 import { ProjectMedia } from "@/components/work/project-screenshots";
 import { ButtonLink } from "@/components/ui/button";
+import { Reveal } from "@/components/ui/reveal";
 import { Container } from "@/components/ui/section";
 import { getPublicProject, getSiteContentForParams } from "@/lib/content";
 import { industryLabels, projectLiveLabel, publicProjects, relatedProjects } from "@/lib/project-helpers";
@@ -69,6 +70,7 @@ export default async function WorkPage({
           backLabel={`Back to ${content.profile.firstName}`}
         />
         <Container className="pt-10">
+          <Reveal>
           <p className="max-w-2xl text-lg text-muted">{project.description}</p>
           <div className="mt-6 flex flex-wrap gap-3">
             {project.github ? (
@@ -92,24 +94,29 @@ export default async function WorkPage({
               </ButtonLink>
             ) : null}
           </div>
+          </Reveal>
           <ProjectMedia project={project} heading="h2" />
           {project.challenge || project.solution ? (
-            <div className="mt-14 grid gap-10 md:grid-cols-2">
+            <div className="mt-14 grid gap-4 md:grid-cols-2">
               {project.challenge ? (
-                <div>
-                  <h2 className="font-mono text-[11px] tracking-[0.22em] text-accent uppercase">
-                    Challenge
-                  </h2>
-                  <p className="mt-4 leading-relaxed text-muted">{project.challenge}</p>
-                </div>
+                <Reveal>
+                  <div className="glass-quiet h-full rounded-2xl border p-5 md:p-6">
+                    <h2 className="font-mono text-[11px] tracking-[0.22em] text-accent uppercase">
+                      Challenge
+                    </h2>
+                    <p className="mt-4 leading-relaxed text-muted">{project.challenge}</p>
+                  </div>
+                </Reveal>
               ) : null}
               {project.solution ? (
-                <div>
-                  <h2 className="font-mono text-[11px] tracking-[0.22em] text-accent uppercase">
-                    Solution
-                  </h2>
-                  <p className="mt-4 leading-relaxed text-muted">{project.solution}</p>
-                </div>
+                <Reveal delay={0.06}>
+                  <div className="glass-quiet h-full rounded-2xl border p-5 md:p-6">
+                    <h2 className="font-mono text-[11px] tracking-[0.22em] text-accent uppercase">
+                      Solution
+                    </h2>
+                    <p className="mt-4 leading-relaxed text-muted">{project.solution}</p>
+                  </div>
+                </Reveal>
               ) : null}
             </div>
           ) : null}
@@ -151,29 +158,33 @@ export default async function WorkPage({
             <p className="mt-5 max-w-[var(--read)] text-sm leading-relaxed text-fg/85">{project.technologies.join(" · ")}</p>
           </section>
           {project.outcome ? (
-            <section className="mt-14 border-t border-line pt-8">
-              <h2 className="font-mono text-[11px] tracking-[0.22em] text-accent uppercase">
-                Outcome
-              </h2>
-              <p className="mt-4 text-lg leading-relaxed">{project.outcome}</p>
-            </section>
+            <Reveal>
+              <section className="glass-quiet mt-14 rounded-2xl border p-5 md:p-6">
+                <h2 className="font-mono text-[11px] tracking-[0.22em] text-accent uppercase">
+                  Outcome
+                </h2>
+                <p className="mt-4 text-lg leading-relaxed">{project.outcome}</p>
+              </section>
+            </Reveal>
           ) : null}
           {related.length > 0 ? (
-            <section className="mt-14">
-              <h2 className="font-mono text-[11px] tracking-[0.22em] text-accent uppercase">
-                More work
-              </h2>
-              <ul className="mt-5 space-y-3">
-                {related.map((item) => (
-                  <li key={item.slug}>
-                    <Link href={`/work/${item.slug}`} className="link-underline text-fg">
-                      {item.seoLabel}
-                    </Link>
-                    <span className="text-muted"> — {item.tagline}</span>
-                  </li>
-                ))}
-              </ul>
-            </section>
+            <Reveal>
+              <section className="glass-quiet mt-14 rounded-2xl border p-5 md:p-6">
+                <h2 className="font-mono text-[11px] tracking-[0.22em] text-accent uppercase">
+                  More work
+                </h2>
+                <ul className="mt-5 space-y-3">
+                  {related.map((item) => (
+                    <li key={item.slug}>
+                      <Link href={`/work/${item.slug}`} className="link-underline text-fg">
+                        {item.seoLabel}
+                      </Link>
+                      <span className="text-muted"> — {item.tagline}</span>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            </Reveal>
           ) : null}
         </Container>
       </div>

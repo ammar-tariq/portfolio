@@ -26,15 +26,14 @@ export default async function ResumePage() {
     <div className="min-h-svh bg-bg text-fg">
       <JsonLd data={resumeProfilePageJsonLd(content)} />
       <div className="mx-auto max-w-3xl px-4 py-12 pt-[max(3rem,calc(env(safe-area-inset-top)+1.5rem))] sm:px-6 print:max-w-none print:px-0 print:py-0">
-        <p className="mb-8 text-sm text-muted print:hidden">
-          <Link href="/" className="inline-flex items-center gap-3">
+        <p className="mb-8 flex flex-wrap items-center gap-3 text-sm text-muted print:hidden">
+          <Link href="/" className="glass-quiet inline-flex items-center gap-2.5 rounded-full border py-1 pr-3.5 pl-1">
             <BrandMark className="h-8 w-8" name={profile.name} />
-            <span className="link-underline">{profile.name}</span>
+            <span>{profile.name}</span>
           </Link>
-          <span className="mx-3 text-subtle">·</span>
           <PrintButton />
         </p>
-        <header className="border-b border-line pb-6">
+        <header className="glass-quiet rounded-2xl border p-6 print:rounded-none print:border-0 print:p-0">
           <div className="flex items-start gap-5">
             {photo ? (
               // eslint-disable-next-line @next/next/no-img-element

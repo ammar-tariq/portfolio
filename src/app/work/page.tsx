@@ -26,9 +26,9 @@ export default async function WorkIndexPage() {
       <div className="min-h-svh bg-bg pb-24 text-fg">
         <JsonLd data={workPageGraphJsonLd(content)} />
         <Container className="pt-[max(4rem,calc(env(safe-area-inset-top)+1.25rem))]">
-          <Link href="/" className="inline-flex items-center gap-3 text-sm text-muted hover:text-fg">
+          <Link href="/" className="glass-quiet inline-flex items-center gap-2.5 rounded-full border py-1 pr-3.5 pl-1 text-sm text-muted hover:text-fg">
             <BrandMark className="h-8 w-8" name={content.profile.name} />
-            <span>← {content.profile.name}</span>
+            <span>{content.profile.name}</span>
           </Link>
           <div className="mt-10">
             <Eyebrow>Work</Eyebrow>
