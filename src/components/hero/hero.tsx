@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useContent } from "@/components/providers/content-provider";
 import { Container } from "@/components/ui/section";
 import { dossierEntry } from "@/lib/dossier";
@@ -30,12 +31,12 @@ export function Hero() {
               {profile.headline}
             </p>
             <div className="settle settle-5 mt-7 flex flex-wrap gap-x-6 gap-y-3">
-              <a href="/portfolio" className="ctrl" onClick={(event) => handleHomeSectionClick(event, "/portfolio")}>
+              <Link href="/portfolio" scroll={false} className="ctrl" onClick={(event) => handleHomeSectionClick(event, "/portfolio")}>
                 Selected work
-              </a>
-              <a href="/contact" className="ctrl" onClick={(event) => handleHomeSectionClick(event, "/contact")}>
+              </Link>
+              <Link href="/contact" scroll={false} className="ctrl" onClick={(event) => handleHomeSectionClick(event, "/contact")}>
                 Contact
-              </a>
+              </Link>
               <a href={profile.resumeUrl} className="ctrl">
                 Resume
               </a>
