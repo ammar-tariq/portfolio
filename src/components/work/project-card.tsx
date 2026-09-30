@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
+import { ArrowUpRight } from "lucide-react";
 import type { Project } from "@/types/content";
 import { industryLabel, projectHeroEyebrow } from "@/lib/project-helpers";
-import { coverImage } from "@/lib/project-media";
+import { coverImage, coverScreenshots } from "@/lib/project-media";
 import { useContent } from "@/components/providers/content-provider";
 import { RemoteImage } from "@/components/ui/remote-image";
 import { useSkillFocus } from "@/components/skills/skill-focus";
@@ -25,10 +25,15 @@ export function ProjectCard({
   const { industries, profile } = useContent();
   const { openProject, pendingSlug } = useProjectOpen();
   const { skill } = useSkillFocus();
-  const [recordOpen, setRecordOpen] = useState(false);
   const target = href ?? `/work/${project.slug}`;
   const opening = pendingSlug === project.slug;
+  const shots = coverScreenshots(project);
   const image = coverImage(project);
+  const frames = shots.length
+    ? shots
+    : image
+      ? [{ src: image, alt: project.title, caption: project.title }]
+      : [];
   const related = skill
     ? project.technologies.some((tech) => tech.toLowerCase() === skill.toLowerCase())
     : false;
@@ -36,9 +41,8 @@ export function ProjectCard({
   return (
     <article
       className={cn(
-        "group axis-grid border-t border-line py-7 transition-opacity duration-[var(--dur)] last:border-b md:py-8",
+        "group axis-grid py-3 transition-opacity duration-[var(--dur)]",
         skill && !related && "opacity-35",
-        related && "border-accent",
       )}
       onMouseEnter={() => onActivate?.(project)}
       onMouseLeave={() => onActivate?.(null)}
@@ -52,12 +56,10 @@ export function ProjectCard({
         <Link
           href={target}
           data-cursor="view"
-          className="relative block"
-          onPointerEnter={() => {
-            if (!image) return;
-            const preload = new window.Image();
-            preload.src = image;
-          }}
+          className={cn(
+            "grid items-start gap-6 border border-line p-4 min-[1100px]:grid-cols-[minmax(0,1fr)_minmax(0,22rem)] md:p-6",
+            related && "border-accent",
+          )}
           onClick={(event) => {
             if (shouldPassProjectClick(event)) return;
             event.preventDefault();
@@ -71,52 +73,48 @@ export function ProjectCard({
             });
           }}
         >
-          <h3 className="max-w-[16ch] text-[clamp(1.45rem,2.2vw,2rem)] leading-none font-medium tracking-[-0.03em] sm:max-w-none">
-            {project.title}
-          </h3>
-          <p className="meta-label mt-3 normal-case tracking-[0.12em]">
-            {[industryLabel(project, industries), project.year].filter(Boolean).join("  ·  ")}
-          </p>
-          <p className="mt-3 max-w-xl text-sm leading-relaxed text-muted md:text-base">{project.tagline}</p>
-          <p className="mt-3 max-w-xl pr-48 text-sm text-fg/80 max-[719px]:pr-0">{project.technologies.join("  ·  ")}</p>
-          <span className="ctrl mt-4 text-muted group-hover:text-fg">Case study</span>
-          {image ? (
-            <div
-              data-project-origin
-              className={cn(
-                "fine-only pointer-events-none absolute top-0 right-0 z-[1] h-28 w-44 overflow-hidden opacity-0 transition-opacity duration-[var(--dur)] group-hover:opacity-100 group-focus-within:opacity-100",
-                opening && "invisible",
-              )}
-            >
-              <RemoteImage
-                src={image}
-                alt=""
-                fill
-                sizes="224px"
-                className="object-cover object-left-top"
-              />
+          <div className="min-w-0">
+            <div className="flex items-center gap-3">
+              {project.logo ? (
+                <span className="relative h-10 w-10 shrink-0 overflow-hidden border border-line">
+                  <RemoteImage src={project.logo} alt="" fill sizes="40px" className="object-cover" />
+                </span>
+              ) : null}
+              <h3 className="text-[clamp(1.45rem,2.2vw,2rem)] leading-none font-medium tracking-[-0.03em]">
+                {project.title}
+              </h3>
+            </div>
+            <p className="meta-label mt-3 normal-case tracking-[0.12em]">
+              {[industryLabel(project, industries), project.year].filter(Boolean).join("  ·  ")}
+            </p>
+            <p className="mt-3 max-w-xl text-sm leading-relaxed text-muted md:text-base">{project.tagline}</p>
+            <p className="mt-3 max-w-xl text-sm text-fg/80">{project.technologies.join("  ·  ")}</p>
+            <span className="ctrl mt-4 inline-flex items-center gap-1.5 text-muted group-hover:text-fg">
+              Case study
+              <ArrowUpRight className="h-3.5 w-3.5" aria-hidden />
+            </span>
+          </div>
+          {frames.length ? (
+            <div className={cn("flex min-w-0 max-w-full gap-2 overflow-x-auto", opening && "invisible")} data-project-origin>
+              {frames.map((shot) => (
+                <span
+                  key={shot.src}
+                  className="relative h-48 w-[6.4rem] shrink-0 overflow-hidden border border-line sm:h-56 sm:w-[7.25rem]"
+                >
+                  <RemoteImage
+                      src={shot.src}
+                      alt={shot.alt || `${project.title} screenshot`}
+                      fill
+                      sizes="116px"
+                      className="object-cover object-top"
+                    />
+                </span>
+              ))}
             </div>
           ) : (
             <span data-project-origin className="sr-only" />
           )}
         </Link>
-        {image ? (
-          <div className="coarse-only mt-4">
-          <button
-            type="button"
-            className="meta-label text-fg"
-            aria-expanded={recordOpen}
-            onClick={() => setRecordOpen((value) => !value)}
-          >
-            {recordOpen ? "Hide record" : "View record"}
-          </button>
-          {recordOpen ? (
-            <div className="relative mt-3 aspect-[16/10] max-w-md overflow-hidden">
-              <RemoteImage src={image} alt={`${project.title} preview`} fill sizes="(max-width: 768px) 100vw, 28rem" className="object-cover object-left-top" />
-            </div>
-          ) : null}
-        </div>
-      ) : null}
       </div>
     </article>
   );

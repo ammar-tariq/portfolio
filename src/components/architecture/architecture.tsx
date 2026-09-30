@@ -1,12 +1,15 @@
 "use client";
 
 import { useState } from "react";
+import { Cloud, Cpu, Database, Layers, Monitor, Server, type LucideIcon } from "lucide-react";
 import { Container, Section, SectionIntro } from "@/components/ui/section";
 import { useContent } from "@/components/providers/content-provider";
 import { dossierEntry } from "@/lib/dossier";
 import { cn } from "@/lib/cn";
 
 type Node = { id: string; label: string; detail: string };
+
+const LAYER_ICONS: LucideIcon[] = [Monitor, Server, Database, Cloud, Cpu, Layers];
 
 export function Architecture() {
   const { architecture } = useContent();
@@ -52,6 +55,7 @@ export function Architecture() {
                     }))
                   : [{ id: layer.id, label: layer.label, detail: layer.detail ?? "" }];
                 const layerOn = layerNodes.some((node) => node.id === active);
+                const LayerIcon = LAYER_ICONS[layerIndex % LAYER_ICONS.length];
                 return (
                   <div
                     key={layer.id}
@@ -60,7 +64,10 @@ export function Architecture() {
                       layerIndex === 0 && "min-[1100px]:pl-0",
                     )}
                   >
-                    <p className={cn("layer-label meta-label mb-3", layerOn && engaged && "is-on")}>{layer.label}</p>
+                    <p className={cn("layer-label meta-label mb-3 inline-flex items-center gap-1.5", layerOn && engaged && "is-on")}>
+                      <LayerIcon className="h-3.5 w-3.5 text-accent" aria-hidden />
+                      {layer.label}
+                    </p>
                     <div className="border-l border-line pl-4 min-[1100px]:border-l-0 min-[1100px]:pl-0">
                       {layerNodes.map((node) => {
                         const on = active === node.id;

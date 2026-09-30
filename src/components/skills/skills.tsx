@@ -1,12 +1,22 @@
 "use client";
 
 import Link from "next/link";
+import { Cloud, Database, Monitor, Server, Smartphone, Sparkles, type LucideIcon } from "lucide-react";
 import { Container, Section, SectionIntro } from "@/components/ui/section";
 import { useContent } from "@/components/providers/content-provider";
 import { useSkillFocus } from "@/components/skills/skill-focus";
 import { dossierEntry } from "@/lib/dossier";
 import { listedProjects } from "@/lib/project-helpers";
 import { cn } from "@/lib/cn";
+
+const CATEGORY_ICONS: Record<string, LucideIcon> = {
+  frontend: Monitor,
+  mobile: Smartphone,
+  backend: Server,
+  databases: Database,
+  cloud: Cloud,
+  ai: Sparkles,
+};
 
 export function Skills() {
   const { skillCategories, projects, navItems } = useContent();
@@ -24,13 +34,18 @@ export function Skills() {
           title="The materials I actually ship with."
         />
         <div className="border-t border-line">
-          {skillCategories.map((category) => (
+          {skillCategories.map((category) => {
+            const Icon = CATEGORY_ICONS[category.id] ?? Sparkles;
+            return (
             <article
               id={`skill-${category.id}`}
               key={category.id}
               className="axis-grid scroll-mt-[calc(3.4rem+env(safe-area-inset-top,0px))] border-b border-line py-6 min-[1100px]:scroll-mt-8 md:py-8"
             >
-              <h3 className="meta-label axis-side mb-3 text-fg min-[1100px]:mb-0">{category.label}</h3>
+              <h3 className="meta-label mb-4 inline-flex items-center gap-2 text-fg">
+                <Icon className="h-3.5 w-3.5 text-accent" aria-hidden />
+                {category.label}
+              </h3>
               <div className="axis-main grid gap-4 min-[800px]:grid-cols-[minmax(0,0.7fr)_minmax(0,1.3fr)] min-[800px]:gap-10">
                 <p className="text-sm leading-relaxed text-muted">{category.summary}</p>
                 <div>
@@ -71,7 +86,8 @@ export function Skills() {
                 </div>
               </div>
             </article>
-          ))}
+            );
+          })}
         </div>
       </Container>
     </Section>

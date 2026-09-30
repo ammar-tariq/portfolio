@@ -5,6 +5,7 @@ import { useLenis } from "lenis/react";
 import Link from "next/link";
 import { useContent } from "@/components/providers/content-provider";
 import { useSite } from "@/components/providers/site-provider";
+import { Menu, Search, X } from "lucide-react";
 import { ThemeToggle } from "./theme-toggle";
 import { BrandMark } from "@/components/ui/brand-mark";
 import { DOSSIER } from "@/lib/dossier";
@@ -92,8 +93,8 @@ export function Navigation() {
   const current = HIGHLIGHT[active] ?? active;
 
   return (
-    <header className="fixed inset-x-0 top-0 z-40 border-b border-line bg-bg">
-      <div className="site-bar">
+    <header className="site-header">
+      <div className="site-bar rounded-full border border-line bg-bg">
         <Link
           href="/"
           scroll={false}
@@ -101,26 +102,28 @@ export function Navigation() {
             handleHomeSectionClick(event, "/");
             setOpen(false);
           }}
-          className="inline-flex shrink-0 items-center gap-2.5 text-sm tracking-tight"
+          className="inline-flex shrink-0 items-center gap-2.5 pl-1 text-sm tracking-tight"
         >
-          <BrandMark className="h-7 w-7" name={profile.name} />
-          <span className="hidden sm:inline">{profile.name}</span>
+          <BrandMark className="h-8 w-8" name={profile.name} />
+          <span className="hidden font-medium sm:inline">{profile.name}</span>
         </Link>
         <nav aria-label="Primary" className="hidden min-w-0 flex-1 overflow-x-auto min-[1000px]:block [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          <IndexList items={items} current={current} className="flex-row gap-x-4" />
+          <IndexList items={items} current={current} className="flex-row items-center gap-x-0.5" />
         </nav>
-        <div className="ml-auto flex shrink-0 items-center gap-4">
-          <ThemeToggle />
-          <button type="button" onClick={() => setCommandOpen(true)} className="meta-label hidden text-fg min-[1000px]:inline">
+        <div className="ml-auto flex shrink-0 items-center gap-1">
+          <ThemeToggle className="nav-link" />
+          <button type="button" onClick={() => setCommandOpen(true)} className="nav-link meta-label hidden items-center gap-1.5 text-fg min-[1000px]:inline-flex">
+            <Search className="h-3.5 w-3.5 text-accent" aria-hidden />
             Search
           </button>
           <button
             type="button"
-            className="meta-label text-fg min-[1000px]:hidden"
+            className="nav-link meta-label inline-flex items-center gap-1.5 text-fg min-[1000px]:hidden"
             aria-expanded={open}
             aria-controls="site-index"
             onClick={() => setOpen((value) => !value)}
           >
+            {open ? <X className="h-3.5 w-3.5" aria-hidden /> : <Menu className="h-3.5 w-3.5" aria-hidden />}
             {open ? "Close" : "Index"}
           </button>
         </div>
@@ -129,7 +132,7 @@ export function Navigation() {
         <nav
           id="site-index"
           aria-label="Primary"
-          className="max-h-[70dvh] overflow-y-auto border-t border-line px-[var(--page-x)] py-3 min-[1000px]:hidden"
+          className="pointer-events-auto mt-2 max-h-[70dvh] overflow-y-auto rounded-3xl border border-line bg-bg px-4 py-3 min-[1000px]:hidden"
         >
           <IndexList items={items} current={current} onNavigate={() => setOpen(false)} />
           <button
@@ -138,8 +141,9 @@ export function Navigation() {
               setOpen(false);
               setCommandOpen(true);
             }}
-            className="meta-label mt-4 text-fg"
+            className="meta-label mt-4 inline-flex items-center gap-1.5 text-fg"
           >
+            <Search className="h-3.5 w-3.5 text-accent" aria-hidden />
             Search
           </button>
         </nav>
@@ -180,8 +184,8 @@ function IndexList({
                 onNavigate?.();
               }}
               className={cn(
-                "block py-1.5 text-[13px] tracking-tight whitespace-nowrap transition-colors duration-[var(--dur)] min-[1000px]:py-0",
-                selected ? "text-accent" : "text-subtle hover:text-fg",
+                "nav-link block py-1.5 text-[13px] tracking-tight whitespace-nowrap transition-colors duration-[var(--dur)]",
+                selected ? "text-fg" : "text-subtle hover:text-fg",
               )}
             >
               {item.label}

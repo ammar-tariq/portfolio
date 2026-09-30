@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import { Calendar, Copy, FileText, Mail, PenLine } from "lucide-react";
 import { Container, Section } from "@/components/ui/section";
+import { GitHubIcon, LinkedInIcon, UpworkIcon, WhatsAppIcon } from "@/components/ui/brand-icons";
 import { useContent } from "@/components/providers/content-provider";
 import { dossierEntry } from "@/lib/dossier";
 
@@ -14,14 +16,14 @@ export function Contact() {
   const entry = dossierEntry("contact");
   const [copied, setCopied] = useState(false);
   const channels = [
-    { id: "email", label: "Email", value: profile.email, href: `mailto:${profile.email}` },
-    { id: "whatsapp", label: "WhatsApp", value: hostLabel(social.whatsapp), href: social.whatsapp },
-    { id: "calendly", label: "Calendly", value: hostLabel(social.calendly), href: social.calendly },
-    { id: "upwork", label: "Upwork", value: hostLabel(social.upwork), href: social.upwork },
-    { id: "linkedin", label: "LinkedIn", value: hostLabel(social.linkedin), href: social.linkedin },
-    { id: "github", label: "GitHub", value: hostLabel(social.github), href: social.github },
-    { id: "medium", label: "Blogs", value: hostLabel(social.medium), href: "/blog" },
-    { id: "resume", label: "Resume", value: "Resume", href: profile.resumeUrl },
+    { id: "email", label: "Email", value: profile.email, href: `mailto:${profile.email}`, icon: Mail },
+    { id: "whatsapp", label: "WhatsApp", value: hostLabel(social.whatsapp), href: social.whatsapp, icon: WhatsAppIcon },
+    { id: "calendly", label: "Calendly", value: hostLabel(social.calendly), href: social.calendly, icon: Calendar },
+    { id: "upwork", label: "Upwork", value: hostLabel(social.upwork), href: social.upwork, icon: UpworkIcon },
+    { id: "linkedin", label: "LinkedIn", value: hostLabel(social.linkedin), href: social.linkedin, icon: LinkedInIcon },
+    { id: "github", label: "GitHub", value: hostLabel(social.github), href: social.github, icon: GitHubIcon },
+    { id: "medium", label: "Blogs", value: hostLabel(social.medium), href: "/blog", icon: PenLine },
+    { id: "resume", label: "Resume", value: "Resume", href: profile.resumeUrl, icon: FileText },
   ] as const;
 
   async function copyEmail() {
@@ -66,8 +68,9 @@ export function Contact() {
                   target={external ? "_blank" : undefined}
                   rel={external ? "noopener noreferrer" : undefined}
                   data-cursor={external ? "external" : "link"}
-                  className="group grid grid-cols-[6.5rem_minmax(0,1fr)_auto] items-baseline gap-4 border-b border-line py-4"
+                  className="group grid grid-cols-[1.25rem_6.25rem_minmax(0,1fr)_auto] items-center gap-3 border-b border-line py-4"
                 >
+                  <channel.icon className="h-4 w-4 text-accent" />
                   <span className="meta-label">{channel.label}</span>
                   <span className="truncate text-base tracking-tight group-hover:text-accent md:text-lg">
                     {channel.value}
@@ -78,7 +81,8 @@ export function Contact() {
                 </a>
               );
             })}
-            <button type="button" onClick={copyEmail} className="ctrl mt-6 text-muted">
+            <button type="button" onClick={copyEmail} className="ctrl mt-6 inline-flex items-center gap-1.5 text-muted">
+              <Copy className="h-3.5 w-3.5" aria-hidden />
               {copied ? "Email copied" : "Copy email"}
             </button>
           </div>

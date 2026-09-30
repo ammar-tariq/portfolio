@@ -2,9 +2,12 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { Briefcase, ChevronDown } from "lucide-react";
 import { Container, Section, SectionIntro } from "@/components/ui/section";
+import { RemoteImage } from "@/components/ui/remote-image";
 import { useContent } from "@/components/providers/content-provider";
 import { projectHeroEyebrow } from "@/lib/project-helpers";
+import { coverImage } from "@/lib/project-media";
 import { dossierEntry } from "@/lib/dossier";
 import { shouldPassProjectClick, useProjectOpen } from "@/components/work/project-open";
 
@@ -32,19 +35,42 @@ export function Experience() {
               <li key={item.id} className="axis-grid border-b border-line py-7 md:py-9">
                 <p className="axis-side text-sm tabular-nums tracking-tight text-fg">{item.year}</p>
                 <div className="axis-main">
-                  <h3 className="text-xl tracking-tight md:text-2xl">{item.role}</h3>
+                  <h3 className="flex items-center gap-2 text-xl tracking-tight md:text-2xl">
+                    <Briefcase className="h-4 w-4 shrink-0 text-accent" aria-hidden />
+                    {item.role}
+                  </h3>
                       <p className="mt-1 text-sm text-muted">
                         {item.company}
                         {item.location ? ` · ${item.location}` : ""}
                         <span className="text-subtle"> · {item.period}</span>
                       </p>
                       <p className="mt-4 max-w-[var(--read)] leading-relaxed text-muted">{item.summary}</p>
+                      {item.projects.length > 0 ? (
+                        <div className="mt-4 flex gap-2">
+                          {item.projects.map((slug) => {
+                            const project = projects.find((entryItem) => entryItem.slug === slug);
+                            const src = project ? coverImage(project) : undefined;
+                            if (!project || !src) return null;
+                            return (
+                              <Link
+                                key={slug}
+                                href={`/work/${slug}`}
+                                className="relative h-16 w-11 overflow-hidden border border-line bg-bg-elevated"
+                                aria-label={project.title}
+                              >
+                                <RemoteImage src={src} alt="" fill sizes="44px" className="object-cover object-top" />
+                              </Link>
+                            );
+                          })}
+                        </div>
+                      ) : null}
                       <button
                         type="button"
-                        className="meta-label mt-4 text-fg"
+                        className="meta-label mt-4 inline-flex items-center gap-1.5 text-fg"
                         aria-expanded={open}
                         onClick={() => setOpenId(open ? "" : item.id)}
                       >
+                        <ChevronDown className={`h-3.5 w-3.5 transition-transform duration-[var(--dur)] ${open ? "rotate-180" : ""}`} aria-hidden />
                         {open ? "Hide scope" : "Scope"}
                       </button>
                       {open ? (

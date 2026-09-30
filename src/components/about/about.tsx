@@ -1,6 +1,8 @@
 "use client";
 
+import { FileText, PenLine } from "lucide-react";
 import { Container, Section } from "@/components/ui/section";
+import { GitHubIcon, LinkedInIcon } from "@/components/ui/brand-icons";
 import { RemoteImage } from "@/components/ui/remote-image";
 import { useContent } from "@/components/providers/content-provider";
 import { siteFaq } from "@/lib/faq";
@@ -25,7 +27,7 @@ export function About() {
             <span className="mt-1 block">{label}</span>
           </p>
           <div className="axis-main">
-            <div className="grid gap-8 min-[900px]:grid-cols-[minmax(0,1fr)_9rem] min-[900px]:items-start">
+            <div className="grid gap-8 min-[900px]:grid-cols-[minmax(0,1fr)_13rem] min-[900px]:items-start">
               <div>
                 <h2 className="font-serif text-[clamp(1.7rem,3vw,2.6rem)] leading-[1.15] tracking-[-0.02em] text-fg">
                   {profile.aboutHeadline}
@@ -35,12 +37,12 @@ export function About() {
                 </p>
               </div>
               {photo ? (
-                <figure className="relative aspect-[3/4] w-28 overflow-hidden border border-line min-[900px]:w-full">
+                <figure className="relative aspect-[3/4] w-36 overflow-hidden border border-line min-[900px]:w-full">
                   <RemoteImage
                     src={photo}
                     alt={profile.name}
                     fill
-                    sizes="144px"
+                    sizes="208px"
                     className="object-cover object-[center_20%] grayscale"
                   />
                 </figure>
@@ -61,16 +63,20 @@ export function About() {
               </div>
             </dl>
             <p className="mt-8 flex flex-wrap gap-x-5 gap-y-2 text-sm">
-              <a href={social.github} className="link-underline" target="_blank" rel="noopener noreferrer">
+              <a href={social.github} className="inline-flex items-center gap-1.5 link-underline" target="_blank" rel="noopener noreferrer">
+                <GitHubIcon className="h-3.5 w-3.5" />
                 GitHub
               </a>
-              <a href={social.linkedin} className="link-underline" target="_blank" rel="noopener noreferrer">
+              <a href={social.linkedin} className="inline-flex items-center gap-1.5 link-underline" target="_blank" rel="noopener noreferrer">
+                <LinkedInIcon className="h-3.5 w-3.5" />
                 LinkedIn
               </a>
-              <Link href="/blog" className="link-underline">
+              <Link href="/blog" className="inline-flex items-center gap-1.5 link-underline">
+                <PenLine className="h-3.5 w-3.5" aria-hidden />
                 Blogs
               </Link>
-              <Link href="/resume" className="link-underline">
+              <Link href="/resume" className="inline-flex items-center gap-1.5 link-underline">
+                <FileText className="h-3.5 w-3.5" aria-hidden />
                 Resume
               </Link>
             </p>

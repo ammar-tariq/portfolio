@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Bot, Cpu, Sparkles, User, Wrench, Workflow, type LucideIcon } from "lucide-react";
 import { Container, Section, SectionIntro } from "@/components/ui/section";
 import { useContent } from "@/components/providers/content-provider";
 import { dossierEntry } from "@/lib/dossier";
@@ -16,6 +17,7 @@ export function AiSection() {
   const [engaged, setEngaged] = useState(false);
   const currentStep = aiPipeline.find((item) => item.id === step) ?? aiPipeline[0];
   const currentConcept = aiConcepts.find((item) => item.id === concept) ?? aiConcepts[0];
+  const stepIcons: LucideIcon[] = [User, Workflow, Cpu, Bot, Wrench, Sparkles];
   if (!currentStep || !currentConcept) return null;
 
   return (
@@ -36,12 +38,13 @@ export function AiSection() {
             >
               {aiPipeline.map((item, index) => {
                 const on = step === item.id;
+                const StepIcon = stepIcons[index % stepIcons.length];
                 return (
                   <li key={item.id} className="flex items-center">
                     <button
                       type="button"
                       className={cn(
-                        "ai-node py-2 pl-4 text-left text-sm tracking-tight transition-opacity duration-[var(--dur)] min-[800px]:px-3 min-[800px]:py-1",
+                        "ai-node inline-flex items-center gap-1.5 py-2 pl-4 text-left text-sm tracking-tight transition-opacity duration-[var(--dur)] min-[800px]:px-3 min-[800px]:py-1",
                         on ? "is-on text-accent" : "text-fg hover:text-accent",
                       )}
                       aria-pressed={on}
@@ -55,6 +58,7 @@ export function AiSection() {
                       }}
                       onClick={() => setStep(item.id)}
                     >
+                      <StepIcon className="h-3.5 w-3.5 shrink-0" aria-hidden />
                       {item.label}
                     </button>
                     {index < aiPipeline.length - 1 ? (

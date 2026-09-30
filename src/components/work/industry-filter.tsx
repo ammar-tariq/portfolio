@@ -21,7 +21,7 @@ export function IndustryFilter({
 
   return (
     <div
-      className="-mx-1 flex gap-x-5 gap-y-2 overflow-x-auto px-1 pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      className="-mx-1 flex gap-x-5 gap-y-2 overflow-x-auto px-1 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       role="tablist"
       aria-label="Filter by industry"
     >

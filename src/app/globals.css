@@ -23,7 +23,7 @@
   --page-x: clamp(1.15rem, 2.4vw, 3rem);
   --read: 40rem;
   --section-y: clamp(4.25rem, 8vw, 7.25rem);
-  --header: 2.75rem;
+  --header: 4.35rem;
   --axis: 7.25rem;
   color-scheme: dark;
 }
@@ -157,12 +157,61 @@ a,
   color: var(--accent);
 }
 
+.site-header {
+  position: fixed;
+  inset-inline: 0;
+  top: 0;
+  z-index: 40;
+  padding: calc(0.65rem + env(safe-area-inset-top, 0px)) var(--page-x) 0;
+  pointer-events: none;
+}
+
 .site-bar {
   display: flex;
   align-items: center;
-  gap: 1.25rem;
-  height: calc(var(--header) + env(safe-area-inset-top, 0px));
-  padding: env(safe-area-inset-top, 0px) var(--page-x) 0;
+  gap: 0.75rem;
+  height: 3.2rem;
+  padding: 0 0.7rem 0 0.45rem;
+  pointer-events: auto;
+}
+
+.nav-link {
+  border-radius: 999px;
+  padding: 0.32rem 0.62rem;
+}
+
+.nav-link[aria-current="true"] {
+  color: var(--fg);
+  background: rgba(79, 187, 242, 0.08);
+  box-shadow: none;
+}
+
+.hero-wash {
+  position: absolute;
+  z-index: 0;
+  top: calc(-1 * (var(--header) + env(safe-area-inset-top, 0px)));
+  right: -8%;
+  left: -8%;
+  height: min(46rem, 92%);
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 36% 42% at 78% 32%, rgba(79, 187, 242, 0.12), transparent 68%),
+    radial-gradient(ellipse 28% 36% at 18% 72%, rgba(21, 88, 210, 0.16), transparent 70%);
+  filter: blur(6px);
+}
+
+.hero-name {
+  background: linear-gradient(185deg, #f3f6fa 62%, #8ecff6 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+html.light .hero-name {
+  background: linear-gradient(185deg, #0c1220 68%, #1566d2 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
 .site-frame {
@@ -170,55 +219,18 @@ a,
   padding-top: calc(var(--header) + env(safe-area-inset-top, 0px));
 }
 
-.site-frame::before {
-  content: "";
-  position: absolute;
-  z-index: 0;
-  top: 0;
-  bottom: 0;
-  left: var(--page-x);
-  width: 1px;
-  background: var(--accent);
-  pointer-events: none;
-}
-
-@media (min-width: 720px) {
-  .site-frame::before {
-    left: calc(var(--page-x) + var(--axis));
-  }
-}
-
 .axis-grid {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
+  display: block;
 }
 
-.axis-side,
+.axis-side {
+  display: none;
+}
+
 .axis-main {
   position: relative;
   z-index: 1;
   min-width: 0;
-}
-
-@media (max-width: 719px) {
-  .axis-main,
-  .axis-side {
-    padding-left: 0.9rem;
-  }
-}
-
-@media (min-width: 720px) {
-  .axis-grid {
-    grid-template-columns: var(--axis) minmax(0, 1fr);
-  }
-
-  .axis-side {
-    padding-right: 0.85rem;
-  }
-
-  .axis-main {
-    padding-left: 1.25rem;
-  }
 }
 
 .hero-name {
