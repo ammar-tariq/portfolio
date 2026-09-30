@@ -1,19 +1,19 @@
 "use client";
 
 import { useState } from "react";
-import { motion } from "motion/react";
-import { Container, Section, SectionHeader } from "@/components/ui/section";
-import { DiagramFrame, DiagramNode } from "@/components/ui/diagram";
-import { Reveal } from "@/components/ui/reveal";
-import { cn } from "@/lib/cn";
+import { Container, Section, SectionIntro } from "@/components/ui/section";
 import { useContent } from "@/components/providers/content-provider";
+import { dossierEntry } from "@/lib/dossier";
+import { cn } from "@/lib/cn";
 
 export function AiSection() {
   const { architecture } = useContent();
   const aiPipeline = architecture.aiPipeline;
   const aiConcepts = architecture.aiConcepts;
-  const [step, setStep] = useState<string>(aiPipeline[2]?.id ?? aiPipeline[0]?.id ?? "");
-  const [concept, setConcept] = useState<string>(aiConcepts[0]?.id ?? "");
+  const entry = dossierEntry("ai");
+  const [step, setStep] = useState(aiPipeline[2]?.id ?? aiPipeline[0]?.id ?? "");
+  const [concept, setConcept] = useState(aiConcepts[0]?.id ?? "");
+  const [engaged, setEngaged] = useState(false);
   const currentStep = aiPipeline.find((item) => item.id === step) ?? aiPipeline[0];
   const currentConcept = aiConcepts.find((item) => item.id === concept) ?? aiConcepts[0];
   if (!currentStep || !currentConcept) return null;
@@ -21,65 +21,78 @@ export function AiSection() {
   return (
     <Section id="ai">
       <Container>
-        <SectionHeader
-          eyebrow="AI systems"
+        <SectionIntro
+          marker={entry?.marker ?? "07"}
+          label={entry?.label ?? "AI"}
           title="Models are components. Products are the system."
           kicker="A real pipeline — user, product, orchestration, model, tools, result."
         />
-        <Reveal>
-          <DiagramFrame>
-            <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center sm:justify-center sm:gap-2">
-              {aiPipeline.map((item, index) => (
-                <div key={item.id} className="flex min-w-0 w-full items-center gap-2 sm:w-auto">
-                  <DiagramNode
-                    id={item.id}
-                    label={item.label}
-                    active={step === item.id}
-                    onSelect={setStep}
-                    className="w-full sm:w-auto"
-                  />
-                  {index < aiPipeline.length - 1 ? (
-                    <span className="hidden h-px w-6 shrink-0 bg-linear-to-r from-line-strong to-accent/50 sm:block" />
-                  ) : null}
-                </div>
-              ))}
-            </div>
-            <motion.p
-              key={currentStep.id}
-              initial={{ opacity: 0, y: 6 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="mx-auto mt-8 max-w-xl text-center text-sm leading-relaxed text-muted md:text-base"
+        <div className="axis-grid">
+          <div className="axis-side max-[719px]:hidden" />
+          <div className="axis-main">
+            <ol
+              className={cn("ai-flow flex flex-col border-l border-line min-[800px]:flex-row min-[800px]:flex-wrap min-[800px]:items-center min-[800px]:gap-y-3 min-[800px]:border-l-0", engaged && "is-engaged")}
+              onMouseLeave={() => setEngaged(false)}
             >
+              {aiPipeline.map((item, index) => {
+                const on = step === item.id;
+                return (
+                  <li key={item.id} className="flex items-center">
+                    <button
+                      type="button"
+                      className={cn(
+                        "ai-node py-2 pl-4 text-left text-sm tracking-tight transition-opacity duration-[var(--dur)] min-[800px]:px-3 min-[800px]:py-1",
+                        on ? "is-on text-accent" : "text-fg hover:text-accent",
+                      )}
+                      aria-pressed={on}
+                      onMouseEnter={() => {
+                        setStep(item.id);
+                        setEngaged(true);
+                      }}
+                      onFocus={() => {
+                        setStep(item.id);
+                        setEngaged(true);
+                      }}
+                      onClick={() => setStep(item.id)}
+                    >
+                      {item.label}
+                    </button>
+                    {index < aiPipeline.length - 1 ? (
+                      <span className="hidden px-1 text-subtle min-[800px]:inline" aria-hidden>
+                        →
+                      </span>
+                    ) : null}
+                  </li>
+                );
+              })}
+            </ol>
+            <p className="mt-6 max-w-[var(--read)] min-h-[3.25rem] text-sm leading-relaxed text-muted md:text-base" aria-live="polite">
               {currentStep.detail}
-            </motion.p>
-          </DiagramFrame>
-          <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            {aiConcepts.map((item) => (
-              <button
-                key={item.id}
-                type="button"
-                onClick={() => setConcept(item.id)}
-                data-cursor="link"
-                className={cn(
-                  "rounded-2xl border px-4 py-4 text-left text-sm tracking-tight transition-all",
-                  concept === item.id
-                    ? "border-accent bg-accent-soft text-accent"
-                    : "border-line bg-bg-elevated/40 text-muted hover:text-fg",
-                )}
-              >
-                {item.label}
-              </button>
-            ))}
+            </p>
+            <div className="mt-10 border-t border-line">
+              {aiConcepts.map((item) => {
+                const on = concept === item.id;
+                return (
+                  <div key={item.id} className="border-b border-line">
+                    <button
+                      type="button"
+                      className={cn(
+                        "flex w-full items-baseline justify-between gap-6 py-3 text-left text-sm",
+                        on ? "text-accent" : "text-fg",
+                      )}
+                      aria-expanded={on}
+                      onClick={() => setConcept(item.id)}
+                    >
+                      <span>{item.label}</span>
+                      <span className="meta-label">{on ? "Open" : "Note"}</span>
+                    </button>
+                    {on ? <p className="max-w-[var(--read)] pb-4 text-sm leading-relaxed text-muted">{item.body}</p> : null}
+                  </div>
+                );
+              })}
+            </div>
           </div>
-          <motion.p
-            key={currentConcept.id}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="mt-5 max-w-2xl text-sm leading-relaxed text-muted md:text-base"
-          >
-            {currentConcept.body}
-          </motion.p>
-        </Reveal>
+        </div>
       </Container>
     </Section>
   );

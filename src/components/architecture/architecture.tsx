@@ -1,16 +1,18 @@
 "use client";
 
 import { useState } from "react";
-import { motion } from "motion/react";
-import { Container, Section, SectionHeader } from "@/components/ui/section";
-import { DiagramFrame, DiagramNode, Connector } from "@/components/ui/diagram";
-import { Reveal } from "@/components/ui/reveal";
+import { Container, Section, SectionIntro } from "@/components/ui/section";
 import { useContent } from "@/components/providers/content-provider";
+import { dossierEntry } from "@/lib/dossier";
+import { cn } from "@/lib/cn";
+
+type Node = { id: string; label: string; detail: string };
 
 export function Architecture() {
   const { architecture } = useContent();
-  const systemArchitecture = architecture.systemArchitecture;
-  const nodes = systemArchitecture.flatMap((layer) =>
+  const layers = architecture.systemArchitecture;
+  const entry = dossierEntry("architecture");
+  const nodes: Node[] = layers.flatMap((layer) =>
     layer.children?.length
       ? layer.children.map((child) => ({
           id: child.id,
@@ -20,84 +22,82 @@ export function Architecture() {
       : [{ id: layer.id, label: layer.label, detail: layer.detail ?? "" }],
   );
   const [active, setActive] = useState(nodes[2]?.id ?? nodes[0]?.id ?? "");
+  const [engaged, setEngaged] = useState(false);
   const current = nodes.find((node) => node.id === active) ?? nodes[0];
-  if (!current) return null;
+  if (!current || layers.length === 0) return null;
 
   return (
     <Section id="architecture">
       <Container>
-        <SectionHeader
-          eyebrow="Systems"
+        <SectionIntro
+          marker={entry?.marker ?? "06"}
+          label={entry?.label ?? "Architecture"}
           title="The whole path — not only the screens."
           kicker="Clients, API, data, and infrastructure as one map you can inspect."
         />
-        <Reveal>
-          <DiagramFrame>
-            <p className="text-center font-mono text-[11px] tracking-[0.28em] text-subtle uppercase">
-              {systemArchitecture[0]?.label ?? "Clients"}
-            </p>
-            <div className="mx-auto mt-5 grid max-w-2xl grid-cols-2 gap-3">
-              {systemArchitecture[0]?.children?.map((child) => (
-                <DiagramNode
-                  key={child.id}
-                  id={child.id}
-                  label={child.label}
-                  active={active === child.id}
-                  onSelect={setActive}
-                />
-              ))}
-            </div>
-            <Connector />
-            <p className="text-center font-mono text-[11px] tracking-[0.28em] text-subtle uppercase">
-              {systemArchitecture[1]?.label ?? "API layer"}
-            </p>
-            <div className="mx-auto mt-5 max-w-sm">
-              <DiagramNode
-                id={systemArchitecture[1]?.children?.[0]?.id ?? "server"}
-                label={systemArchitecture[1]?.children?.[0]?.label ?? "Node / NestJS"}
-                active={active === (systemArchitecture[1]?.children?.[0]?.id ?? "server")}
-                onSelect={setActive}
-                wide
-              />
-            </div>
-            <Connector />
-            <p className="text-center font-mono text-[11px] tracking-[0.28em] text-subtle uppercase">
-              {systemArchitecture[2]?.label ?? "Data"}
-            </p>
-            <div className="mx-auto mt-5 grid max-w-3xl grid-cols-1 gap-3 sm:grid-cols-3">
-              {systemArchitecture[2]?.children?.map((child) => (
-                <DiagramNode
-                  key={child.id}
-                  id={child.id}
-                  label={child.label}
-                  active={active === child.id}
-                  onSelect={setActive}
-                />
-              ))}
-            </div>
-            <Connector />
-            <div className="mx-auto max-w-sm">
-              <DiagramNode
-                id={systemArchitecture[3]?.id ?? "cloud"}
-                label={systemArchitecture[3]?.label ?? "Cloud / Infra"}
-                active={active === (systemArchitecture[3]?.id ?? "cloud")}
-                onSelect={setActive}
-                wide
-              />
-            </div>
-            <motion.p
-              key={current.id}
-              initial={{ opacity: 0, y: 6 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="mx-auto mt-8 max-w-xl text-center text-sm leading-relaxed text-muted md:text-base"
+        <div className="axis-grid">
+          <div className="axis-side max-[719px]:hidden" />
+          <div className="axis-main">
+            <div
+              className={cn("system-flow flex flex-col gap-8 min-[1100px]:grid min-[1100px]:gap-0", engaged && "is-engaged")}
+              style={{ ["--layers" as string]: String(layers.length) }}
+              onMouseLeave={() => setEngaged(false)}
             >
+              {layers.map((layer, layerIndex) => {
+                const layerNodes: Node[] = layer.children?.length
+                  ? layer.children.map((child) => ({
+                      id: child.id,
+                      label: child.label,
+                      detail: child.detail ?? layer.detail ?? "",
+                    }))
+                  : [{ id: layer.id, label: layer.label, detail: layer.detail ?? "" }];
+                const layerOn = layerNodes.some((node) => node.id === active);
+                return (
+                  <div
+                    key={layer.id}
+                    className={cn(
+                      "min-[1100px]:border-t min-[1100px]:px-4 min-[1100px]:pt-4",
+                      layerIndex === 0 && "min-[1100px]:pl-0",
+                    )}
+                  >
+                    <p className={cn("layer-label meta-label mb-3", layerOn && engaged && "is-on")}>{layer.label}</p>
+                    <div className="border-l border-line pl-4 min-[1100px]:border-l-0 min-[1100px]:pl-0">
+                      {layerNodes.map((node) => {
+                        const on = active === node.id;
+                        return (
+                          <button
+                            key={node.id}
+                            type="button"
+                            className={cn(
+                              "arch-node block w-full border-t border-line py-2.5 text-left text-sm tracking-tight transition-opacity duration-[var(--dur)]",
+                              on ? "is-on border-accent text-fg" : "text-muted hover:text-fg",
+                            )}
+                            aria-pressed={on}
+                            onMouseEnter={() => {
+                              setActive(node.id);
+                              setEngaged(true);
+                            }}
+                            onFocus={() => {
+                              setActive(node.id);
+                              setEngaged(true);
+                            }}
+                            onClick={() => setActive(node.id)}
+                          >
+                            {node.label}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+            <p className="mt-8 max-w-[var(--read)] min-h-[3.25rem] text-sm leading-relaxed text-muted md:text-base" aria-live="polite">
               {current.detail}
-            </motion.p>
-            <p className="mt-3 text-center font-mono text-[10px] tracking-[0.2em] text-subtle uppercase">
-              {systemArchitecture.length} layers · production contracts
             </p>
-          </DiagramFrame>
-        </Reveal>
+            <p className="meta-label mt-3">{layers.length} layers</p>
+          </div>
+        </div>
       </Container>
     </Section>
   );

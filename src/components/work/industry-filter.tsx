@@ -1,6 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/cn";
+
 export type IndustryFilterOption = {
   id: string;
   label: string;
@@ -20,16 +21,11 @@ export function IndustryFilter({
 
   return (
     <div
-      className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      className="-mx-1 flex gap-x-5 gap-y-2 overflow-x-auto px-1 pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       role="tablist"
       aria-label="Filter by industry"
     >
-      <FilterChip
-        selected={value === "all"}
-        onClick={() => onChange("all")}
-        label="All"
-        count={total}
-      />
+      <FilterChip selected={value === "all"} onClick={() => onChange("all")} label="All" count={total} />
       {industries.map((industry) => (
         <FilterChip
           key={industry.id}
@@ -62,16 +58,12 @@ function FilterChip({
       onClick={onClick}
       data-cursor="link"
       className={cn(
-        "inline-flex shrink-0 items-center gap-2 rounded-full border px-3.5 py-1.5 font-mono text-[11px] tracking-[0.16em] uppercase transition-colors duration-300",
-        selected
-          ? "border-accent bg-accent-soft text-accent"
-          : "border-line text-subtle hover:border-line-strong hover:text-fg",
+        "meta-label shrink-0 border-b pb-1 transition-colors duration-[var(--dur)]",
+        selected ? "border-accent text-fg" : "border-transparent text-subtle hover:text-fg",
       )}
     >
       {label}
-      <span className={cn("tabular-nums", selected ? "text-accent" : "text-subtle/80")}>
-        {count}
-      </span>
+      <span className="ml-1.5 tabular-nums">{count}</span>
     </button>
   );
 }

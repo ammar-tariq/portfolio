@@ -60,7 +60,7 @@ export function ActivityHeatmap({
               <span
                 key={day.date}
                 title={`${day.date}: ${format(day.count)}`}
-                className={cn("h-2.5 w-2.5 rounded-[3px]", fills[levelFromCount(day.count, max)])}
+                className={cn("h-2.5 w-2.5", fills[levelFromCount(day.count, max)])}
               />
             ))}
           </div>

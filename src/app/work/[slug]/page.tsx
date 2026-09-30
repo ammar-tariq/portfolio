@@ -63,7 +63,6 @@ export default async function WorkPage({
     <ContentProvider content={content}>
       <div className="min-h-svh bg-bg pb-20">
         <JsonLd data={projectGraphJsonLd(content, project)} />
-        <div className="grain" aria-hidden />
         <ProjectHero
           project={project}
           backHref="/portfolio"
@@ -119,13 +118,10 @@ export default async function WorkPage({
               <h2 className="font-mono text-[11px] tracking-[0.22em] text-accent uppercase">
                 Architecture
               </h2>
-              <ul className="mt-5 grid gap-3 md:grid-cols-2">
+              <ul className="mt-5 border-t border-line">
                 {project.architecture.map((item, i) => (
-                  <li
-                    key={item}
-                    className="rounded-2xl border border-line bg-bg-elevated/40 px-5 py-4 text-sm text-muted"
-                  >
-                    <span className="mr-3 font-mono text-[10px] text-subtle">
+                  <li key={item} className="border-b border-line py-3 text-sm text-muted">
+                    <span className="meta-label mr-3 text-accent">
                       {String(i + 1).padStart(2, "0")}
                     </span>
                     {item}
@@ -152,19 +148,10 @@ export default async function WorkPage({
             <h2 className="font-mono text-[11px] tracking-[0.22em] text-accent uppercase">
               Technologies
             </h2>
-            <div className="mt-5 flex flex-wrap gap-2">
-              {project.technologies.map((tech) => (
-                <span
-                  key={tech}
-                  className="rounded-full border border-line px-3 py-1.5 text-sm text-muted"
-                >
-                  {tech}
-                </span>
-              ))}
-            </div>
+            <p className="mt-5 max-w-[var(--read)] text-sm leading-relaxed text-fg/85">{project.technologies.join(" · ")}</p>
           </section>
           {project.outcome ? (
-            <section className="mt-14 rounded-3xl border border-line bg-bg-soft/50 p-6 md:p-8">
+            <section className="mt-14 border-t border-line pt-8">
               <h2 className="font-mono text-[11px] tracking-[0.22em] text-accent uppercase">
                 Outcome
               </h2>

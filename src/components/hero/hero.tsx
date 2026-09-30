@@ -1,96 +1,66 @@
 "use client";
 
-import { useRef } from "react";
-import { motion, useScroll, useSpring, useTransform } from "motion/react";
 import { useContent } from "@/components/providers/content-provider";
-import { ButtonLink } from "@/components/ui/button";
 import { Container } from "@/components/ui/section";
-import { useMotionEnabled } from "@/lib/use-motion-enabled";
-import { useIsDesktop, useIsFinePointer } from "@/lib/use-media-query";
+import { dossierEntry } from "@/lib/dossier";
+import { handleHomeSectionClick } from "@/lib/section-nav";
 
 export function Hero() {
   const { profile } = useContent();
-  const sectionRef = useRef<HTMLElement>(null);
-  const fine = useIsFinePointer();
-  const desktop = useIsDesktop();
-  const motionOn = useMotionEnabled();
-  const x1 = useSpring(0, { stiffness: 120, damping: 22, mass: 0.8 });
-  const y1 = useSpring(0, { stiffness: 120, damping: 22, mass: 0.8 });
-  const x2 = useSpring(0, { stiffness: 90, damping: 22, mass: 1 });
-  const y2 = useSpring(0, { stiffness: 90, damping: 22, mass: 1 });
-  const { scrollYProgress } = useScroll({
-    target: sectionRef,
-    offset: ["start start", "end start"],
-  });
-  const driftY = useTransform(scrollYProgress, [0, 1], [0, 110]);
-  const fade = useTransform(scrollYProgress, [0, 0.68], [1, 0]);
-  const scale = useTransform(scrollYProgress, [0, 1], [1, 0.96]);
+  const marker = dossierEntry("hero");
 
   return (
     <section
-      ref={sectionRef}
       id="hero"
-      className="relative min-h-dvh overflow-x-clip pt-[max(6rem,calc(env(safe-area-inset-top)+4.25rem))] md:overflow-hidden"
-      onPointerMove={(event) => {
-        if (!fine || !motionOn) return;
-        const rect = event.currentTarget.getBoundingClientRect();
-        const nx = ((event.clientX - rect.left) / rect.width - 0.5) * 2;
-        const ny = ((event.clientY - rect.top) / rect.height - 0.5) * 2;
-        x1.set(nx * -10);
-        y1.set(ny * -6);
-        x2.set(nx * -22);
-        y2.set(ny * -12);
-      }}
-      onPointerLeave={() => {
-        x1.set(0);
-        y1.set(0);
-        x2.set(0);
-        y2.set(0);
-      }}
+      className="relative flex min-h-[calc(100dvh-var(--header)-env(safe-area-inset-top,0px))] flex-col justify-center"
     >
-      <div className="hero-grid pointer-events-none absolute inset-0" />
-      <motion.div
-        className="relative z-10"
-        style={motionOn && desktop ? { y: driftY, opacity: fade, scale } : undefined}
-      >
-        <Container className="flex min-h-[calc(100dvh-6rem)] flex-col justify-center pb-28 md:pb-24">
-          <p className="mb-5 font-mono text-[11px] tracking-[0.28em] text-accent uppercase">
-            {profile.title}
+      <Container className="w-full py-12">
+        <div className="axis-grid">
+          <p className="meta-label axis-side mb-6 sm:mb-0 sm:pt-2">
+            <span className="settle block text-accent">{marker?.marker}</span>
+            <span className="settle settle-2 mt-1 block">{marker?.label}</span>
           </p>
-          <h1 className="max-w-3xl" style={{ perspective: "1200px" }}>
-            <motion.span
-              style={{ x: x1, y: y1 }}
-              className="block text-[clamp(2.8rem,10vw,8rem)] leading-[0.86] font-medium tracking-[-0.055em] text-fg will-change-transform"
-            >
-              {profile.firstName}
-            </motion.span>
-            <motion.span
-              style={{ x: x2, y: y2 }}
-              className="mt-1 block font-serif text-[clamp(3.2rem,12vw,8.6rem)] leading-[0.88] text-fg will-change-transform"
-            >
-              {profile.lastName}
-            </motion.span>
-          </h1>
-          <p className="mt-8 max-w-md text-lg leading-relaxed text-muted md:text-xl">
-            {profile.headline}
-          </p>
-          <div className="mt-10 flex flex-wrap items-center gap-3">
-            <ButtonLink href="/portfolio">View portfolio</ButtonLink>
-            <ButtonLink href="/contact" variant="ghost">
-              Contact
-            </ButtonLink>
+          <div className="axis-main">
+            <h1 className="hero-name settle settle-2 text-fg">
+              <span className="block">{profile.firstName}</span>
+              <span className="block">{profile.lastName}</span>
+            </h1>
+            <p className="meta-label settle settle-3 mt-5 text-fg">{profile.title}</p>
+            <p className="settle settle-4 mt-5 max-w-md text-base leading-relaxed text-muted md:text-lg">
+              {profile.headline}
+            </p>
+            <div className="settle settle-5 mt-7 flex flex-wrap gap-x-6 gap-y-3">
+              <a href="/portfolio" className="ctrl" onClick={(event) => handleHomeSectionClick(event, "/portfolio")}>
+                Selected work
+              </a>
+              <a href="/contact" className="ctrl" onClick={(event) => handleHomeSectionClick(event, "/contact")}>
+                Contact
+              </a>
+              <a href={profile.resumeUrl} className="ctrl">
+                Resume
+              </a>
+            </div>
+            <dl className="settle settle-5 mt-10 grid gap-x-8 gap-y-5 border-t border-line pt-6 sm:grid-cols-2 lg:grid-cols-4">
+              <Meta term="Location" value={profile.location} />
+              <Meta term="Practice" value={`${profile.yearsExperience}+ years`} />
+              <Meta term="Availability" value={profile.availability} />
+              <div>
+                <dt className="meta-label">Focus</dt>
+                <dd className="mt-1 text-sm leading-snug text-fg">{profile.focus.join(" · ")}</dd>
+              </div>
+            </dl>
           </div>
-          <div className="mt-16 flex flex-wrap gap-x-8 gap-y-2 font-mono text-[11px] tracking-[0.2em] text-subtle uppercase">
-            <span>{profile.location}</span>
-            <span>{profile.yearsExperience}+ years</span>
-            <span>{profile.availability}</span>
-          </div>
-        </Container>
-      </motion.div>
-      <div className="absolute right-8 bottom-8 hidden font-mono text-[10px] tracking-[0.22em] text-subtle uppercase md:block">
-        Scroll
-      </div>
-      <div className="pointer-events-none absolute bottom-0 left-1/2 z-10 hidden h-16 w-px -translate-x-1/2 bg-linear-to-b from-transparent to-accent/50 md:block" />
+        </div>
+      </Container>
     </section>
+  );
+}
+
+function Meta({ term, value }: { term: string; value: string }) {
+  return (
+    <div>
+      <dt className="meta-label">{term}</dt>
+      <dd className="mt-1 text-sm leading-snug text-fg">{value}</dd>
+    </div>
   );
 }

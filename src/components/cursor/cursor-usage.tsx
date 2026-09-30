@@ -1,6 +1,4 @@
-import { ArrowUpRight } from "lucide-react";
-import { Container, Section, SectionHeader } from "@/components/ui/section";
-import { ButtonLink } from "@/components/ui/button";
+import { Container, Section } from "@/components/ui/section";
 import { ActivityHeatmap } from "@/components/ui/activity-heatmap";
 import type { CursorProfile } from "@/lib/cursor-profile";
 
@@ -35,33 +33,28 @@ export function CursorUsage({ profile }: { profile: CursorProfile | null }) {
   ];
 
   return (
-    <Section id="cursor">
+    <Section id="cursor" className="pt-0">
       <Container>
-        <SectionHeader
-          eyebrow="Cursor"
-          title="Agent usage, in public."
-          kicker="Live from the public Cursor profile. They don’t offer an embed, so this graph is rendered here and links back to the source."
-        />
-        <div className="rounded-3xl border border-line bg-bg-elevated/40 p-5 sm:p-7">
-          <div className="flex flex-wrap items-center justify-between gap-4">
-            <div>
-              <p className="font-mono text-[11px] tracking-[0.18em] text-subtle uppercase">
-                {joinedLabel(profile.joinedDate)}
-              </p>
-              <p className="mt-1 font-serif text-2xl text-fg">@{profile.handle}</p>
-            </div>
-            <ButtonLink href={profile.profileUrl} variant="ghost" className="h-10 px-4 text-sm">
-              Open profile <ArrowUpRight className="h-4 w-4" />
-            </ButtonLink>
-          </div>
-          <dl className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-5">
-            {stats.map((item) => (
-              <div key={item.label} className="rounded-2xl border border-line bg-bg/40 px-3 py-3">
-                <dt className="font-mono text-[10px] tracking-[0.16em] text-subtle uppercase">{item.label}</dt>
-                <dd className="mt-1 font-serif text-xl text-fg">{item.value}</dd>
+        <div className="axis-grid">
+          <p className="meta-label axis-side mb-4 min-[1100px]:mb-0">Record</p>
+          <div className="axis-main">
+            <div className="flex flex-wrap items-baseline justify-between gap-4">
+              <div>
+                <h2 className="text-lg tracking-tight">@{profile.handle}</h2>
+                <p className="meta-label mt-2">{joinedLabel(profile.joinedDate)}</p>
               </div>
-            ))}
-          </dl>
+              <a href={profile.profileUrl} className="ctrl text-muted" target="_blank" rel="noopener noreferrer">
+                Open profile
+              </a>
+            </div>
+            <dl className="mt-6 flex flex-wrap gap-x-8 gap-y-3 border-t border-line pt-4">
+              {stats.map((item) => (
+                <div key={item.label}>
+                  <dt className="meta-label">{item.label}</dt>
+                  <dd className="mt-1 text-lg tabular-nums tracking-tight">{item.value}</dd>
+                </div>
+              ))}
+            </dl>
             <div className="mt-6">
               <ActivityHeatmap
                 days={profile.days}
@@ -69,6 +62,7 @@ export function CursorUsage({ profile }: { profile: CursorProfile | null }) {
                 formatCount={compact}
               />
             </div>
+          </div>
         </div>
       </Container>
     </Section>

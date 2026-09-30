@@ -1,141 +1,102 @@
 "use client";
 
 import { useState } from "react";
-import { motion } from "motion/react";
 import Link from "next/link";
-import { Container, Section, SectionHeader } from "@/components/ui/section";
-import { Reveal } from "@/components/ui/reveal";
-import { cn } from "@/lib/cn";
+import { Container, Section, SectionIntro } from "@/components/ui/section";
 import { useContent } from "@/components/providers/content-provider";
 import { projectHeroEyebrow } from "@/lib/project-helpers";
+import { dossierEntry } from "@/lib/dossier";
 import { shouldPassProjectClick, useProjectOpen } from "@/components/work/project-open";
 
 export function Experience() {
-  const { experience, projects, industries, profile } = useContent();
+  const { experience, projects, industries, profile, navItems } = useContent();
   const { openProject } = useProjectOpen();
-  const [active, setActive] = useState(experience[0]?.id ?? "");
-  const current = experience.find((item) => item.id === active) ?? experience[0];
-  if (!current) return null;
+  const entry = dossierEntry("experience");
+  const label = navItems.find((item) => item.id === "experience")?.label ?? entry?.label ?? "Experience";
+  const [openId, setOpenId] = useState(experience[0]?.id ?? "");
+  if (experience.length === 0) return null;
 
   return (
     <Section id="experience">
       <Container>
-        <SectionHeader
-          eyebrow="Experience"
+        <SectionIntro
+          marker={entry?.marker ?? "03"}
+          label={label}
           title="A career that compounds."
           kicker="From shipping React Native products to leading systems and AI-enabled platforms."
         />
-        <Reveal>
-          <div className="grid min-w-0 gap-10 lg:grid-cols-[0.9fr_1.1fr]">
-            <ol className="relative min-w-0 border-l border-line pl-6">
-              {experience.map((item) => {
-                const selected = item.id === active;
-                return (
-                  <li key={item.id} className="relative mb-8 last:mb-0">
-                    <span
-                      className={cn(
-                        "absolute top-2 -left-[31px] h-3 w-3 rounded-full border",
-                        selected
-                          ? "border-accent bg-accent shadow-[0_0_18px_var(--glow)]"
-                          : "border-line bg-bg",
-                      )}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setActive(item.id)}
-                      data-cursor="link"
-                      className="w-full text-left"
-                    >
-                      <p className="font-mono text-[11px] tracking-[0.2em] text-subtle uppercase">
-                        {item.year}
+        <ol className="border-t border-line">
+          {experience.map((item) => {
+            const open = item.id === openId;
+            return (
+              <li key={item.id} className="axis-grid border-b border-line py-7 md:py-9">
+                <p className="axis-side text-sm tabular-nums tracking-tight text-fg">{item.year}</p>
+                <div className="axis-main">
+                  <h3 className="text-xl tracking-tight md:text-2xl">{item.role}</h3>
+                      <p className="mt-1 text-sm text-muted">
+                        {item.company}
+                        {item.location ? ` · ${item.location}` : ""}
+                        <span className="text-subtle"> · {item.period}</span>
                       </p>
-                      <p
-                        className={cn(
-                          "mt-1 text-xl tracking-tight break-words",
-                          selected ? "text-fg" : "text-muted",
-                        )}
+                      <p className="mt-4 max-w-[var(--read)] leading-relaxed text-muted">{item.summary}</p>
+                      <button
+                        type="button"
+                        className="meta-label mt-4 text-fg"
+                        aria-expanded={open}
+                        onClick={() => setOpenId(open ? "" : item.id)}
                       >
-                        {item.role}
-                      </p>
-                      <p className="text-sm text-subtle">
-                        {item.company} · {item.period}
-                      </p>
-                    </button>
-                  </li>
-                );
-              })}
-            </ol>
-            <motion.div
-              key={current.id}
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4 }}
-              className="min-w-0 rounded-[24px] border border-line bg-bg-elevated/45 p-5 backdrop-blur-sm sm:rounded-[28px] md:p-8"
-            >
-              <p className="font-mono text-[11px] tracking-[0.2em] text-accent uppercase">
-                {current.period}
-              </p>
-              <h3 className="mt-3 font-serif text-2xl tracking-tight md:text-3xl">{current.role}</h3>
-              <p className="mt-1 text-muted">
-                {current.company}
-                {current.location ? ` · ${current.location}` : ""}
-              </p>
-              <p className="mt-5 leading-relaxed text-muted">{current.summary}</p>
-              <ul className="mt-6 space-y-3">
-                {current.responsibilities.map((item) => (
-                  <li key={item} className="border-l border-line pl-4 text-sm text-muted">
-                    {item}
-                  </li>
-                ))}
-              </ul>
-              <div className="mt-6 flex flex-wrap gap-2">
-                {current.technologies.map((tech) => (
-                  <span
-                    key={tech}
-                    className="rounded-full border border-line px-3 py-1 text-xs text-subtle"
-                  >
-                    {tech}
-                  </span>
-                ))}
-              </div>
-              {current.projects.length > 0 ? (
-                <div className="mt-8">
-                  <p className="font-mono text-[10px] tracking-[0.2em] text-subtle uppercase">
-                    Associated work
-                  </p>
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    {current.projects.map((slug) => {
-                      const project = projects.find((item) => item.slug === slug);
-                      if (!project) return null;
-                      return (
-                        <Link
-                          key={slug}
-                          href={`/work/${slug}`}
-                          data-cursor="view"
-                          className="rounded-full bg-fg/6 px-3 py-1.5 text-xs text-fg hover:bg-fg/10"
-                          onClick={(event) => {
-                            if (shouldPassProjectClick(event)) return;
-                            event.preventDefault();
-                            openProject({
-                              project,
-                              href: `/work/${slug}`,
-                              origin: event.currentTarget,
-                              eyebrow: projectHeroEyebrow(project, industries),
-                              backHref: "/portfolio",
-                              backLabel: `Back to ${profile.firstName}`,
-                            });
-                          }}
-                        >
-                          {project.title}
-                        </Link>
-                      );
-                    })}
-                  </div>
+                        {open ? "Hide scope" : "Scope"}
+                      </button>
+                      {open ? (
+                        <div className="mt-4">
+                          <ul className="max-w-[var(--read)] space-y-2">
+                            {item.responsibilities.map((line) => (
+                              <li key={line} className="text-sm leading-relaxed text-muted">
+                                {line}
+                              </li>
+                            ))}
+                          </ul>
+                          <p className="mt-4 text-sm text-fg/80">{item.technologies.join(" · ")}</p>
+                          {item.projects.length > 0 ? (
+                            <p className="mt-3 text-sm">
+                              <span className="meta-label mr-3">Work</span>
+                              {item.projects.map((slug, index) => {
+                                const project = projects.find((entryItem) => entryItem.slug === slug);
+                                if (!project) return null;
+                                return (
+                                  <span key={slug}>
+                                    {index > 0 ? <span className="text-subtle"> · </span> : null}
+                                    <Link
+                                      href={`/work/${slug}`}
+                                      data-cursor="view"
+                                      className="link-underline"
+                                      onClick={(event) => {
+                                        if (shouldPassProjectClick(event)) return;
+                                        event.preventDefault();
+                                        openProject({
+                                          project,
+                                          href: `/work/${slug}`,
+                                          origin: event.currentTarget,
+                                          eyebrow: projectHeroEyebrow(project, industries),
+                                          backHref: "/portfolio",
+                                          backLabel: `Back to ${profile.firstName}`,
+                                        });
+                                      }}
+                                    >
+                                      {project.title}
+                                    </Link>
+                                  </span>
+                                );
+                              })}
+                            </p>
+                          ) : null}
+                        </div>
+                      ) : null}
                 </div>
-              ) : null}
-            </motion.div>
-          </div>
-        </Reveal>
+              </li>
+              );
+            })}
+          </ol>
       </Container>
     </Section>
   );

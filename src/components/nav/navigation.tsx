@@ -1,34 +1,50 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { AnimatePresence, motion } from "motion/react";
+import { useEffect, useMemo, useState } from "react";
+import { useLenis } from "lenis/react";
+import Link from "next/link";
 import { useContent } from "@/components/providers/content-provider";
 import { useSite } from "@/components/providers/site-provider";
 import { ThemeToggle } from "./theme-toggle";
-import { BrandMark } from "@/components/ui/brand-mark";
-import { useLenis } from "lenis/react";
-import Link from "next/link";
-import { cn } from "@/lib/cn";
-import { easeOutExpo } from "@/lib/motion";
+import { DOSSIER } from "@/lib/dossier";
 import { HOME_SECTIONS } from "@/lib/home-sections";
 import { handleHomeSectionClick, syncHomeSectionUrl } from "@/lib/section-nav";
+import { cn } from "@/lib/cn";
+
+const HIGHLIGHT: Record<string, string> = {
+  faq: "about",
+  cursor: "open-source",
+};
 
 export function Navigation() {
   const { setCommandOpen } = useSite();
-  const { navItems, social, profile } = useContent();
+  const { navItems, profile } = useContent();
   const lenis = useLenis();
   const [open, setOpen] = useState(false);
-  const [compact, setCompact] = useState(false);
-  const [active, setActive] = useState<string>("hero");
+  const [active, setActive] = useState("hero");
 
-  useEffect(() => {
-    const onScroll = () => {
-      setCompact(window.scrollY > 24);
-    };
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
+  const items = useMemo(() => {
+    const known = new Set<string>(DOSSIER.map((item) => item.id));
+    const indexed = DOSSIER.filter((item) => item.id !== "hero").map((item) => {
+      const fromNav = navItems.find((nav) => nav.id === item.id);
+      return {
+        id: item.id,
+        label: fromNav?.label ?? item.label,
+        href: fromNav?.href ?? item.href,
+        external: Boolean(fromNav && "external" in fromNav && fromNav.external),
+      };
+    });
+    const extras = navItems
+      .filter((nav) => !known.has(nav.id))
+      .map((nav) => ({
+        id: nav.id,
+        label: nav.label,
+        href: nav.href,
+        external: Boolean("external" in nav && nav.external),
+      }));
+    const contact = indexed.pop();
+    return contact ? [...indexed, ...extras, contact] : [...indexed, ...extras];
+  }, [navItems]);
 
   useEffect(() => {
     const ids = HOME_SECTIONS.map((section) => section.id);
@@ -51,12 +67,14 @@ export function Navigation() {
         setActive(bestId);
         syncHomeSectionUrl(bestId);
       },
-      { rootMargin: "-28% 0px -52% 0px", threshold: [0.08, 0.18, 0.32, 0.5, 0.72] },
+      { rootMargin: "-20% 0px -55% 0px", threshold: [0.08, 0.18, 0.32, 0.5, 0.72] },
     );
-    ids.forEach((id) => {
+    for (const id of ids) {
       const el = document.getElementById(id);
       if (el) observer.observe(el);
-    });
+    }
+    const cursor = document.getElementById("cursor");
+    if (cursor) observer.observe(cursor);
     return () => observer.disconnect();
   }, []);
 
@@ -70,175 +88,105 @@ export function Navigation() {
     };
   }, [open, lenis]);
 
-  return (
-    <>
-      <motion.header
-        className="fixed inset-x-0 top-0 z-50 flex justify-center px-3 pt-[max(0.75rem,env(safe-area-inset-top))] md:px-6"
-        transition={{ duration: 0.45, ease: easeOutExpo }}
-      >
-        <nav
-          aria-label="Primary"
-          className={cn(
-            "flex w-full max-w-6xl items-center justify-between rounded-full border border-line bg-bg/55 px-3 py-2 backdrop-blur-xl transition-all duration-500 md:px-4",
-            compact ? "md:py-1.5" : "md:py-2.5",
-          )}
-        >
-          <Link
-            href="/"
-            scroll={false}
-            onClick={(event) => handleHomeSectionClick(event, "/")}
-            className="inline-flex shrink-0 items-center rounded-[8px]"
-            data-cursor="link"
-            aria-label={`${profile.name} — home`}
-          >
-            <BrandMark
-              className={cn("transition-all duration-500", compact ? "h-8 w-8" : "h-9 w-9 md:h-10 md:w-10")}
-              name={profile.name}
-            />
-          </Link>
-          <ul className="hidden items-center gap-1 lg:flex">
-            {navItems.map((item) => {
-              const external = "external" in item && item.external;
-              return (
-                <li key={item.id}>
-                  <a
-                    href={item.href}
-                    onClick={(event) => handleHomeSectionClick(event, item.href)}
-                    data-cursor={external ? "external" : "link"}
-                    {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
-                    className={cn(
-                      "rounded-full px-2.5 py-1.5 text-sm transition-colors",
-                      active === item.id ? "text-fg" : "text-muted hover:text-fg",
-                    )}
-                  >
-                    {item.label}
-                  </a>
-                </li>
-              );
-            })}
-          </ul>
-          <div className="flex items-center gap-1">
-            <ThemeToggle className="hidden lg:inline-flex" />
-            <button
-              type="button"
-              onClick={() => setCommandOpen(true)}
-              className="hidden rounded-full border border-line px-3 py-1.5 font-mono text-[11px] text-muted transition-colors hover:text-fg lg:inline-flex"
-              data-cursor="link"
-            >
-              ⌘K
-            </button>
-            <Link
-              href="/contact"
-              scroll={false}
-              onClick={(event) => handleHomeSectionClick(event, "/contact")}
-              className={cn(
-                "hidden rounded-full px-4 py-1.5 text-sm font-medium lg:inline-flex",
-                active === "contact" ? "btn-solid bg-[var(--accent)]" : "btn-solid",
-              )}
-              data-cursor="link"
-            >
-              Contact
-            </Link>
-            <button
-              type="button"
-              className="inline-flex h-10 w-10 items-center justify-center rounded-full text-fg lg:hidden"
-              aria-label={open ? "Close menu" : "Open menu"}
-              aria-expanded={open}
-              onClick={() => setOpen((v) => !v)}
-            >
-              <span className="sr-only">Menu</span>
-              <span className="relative block h-3 w-4">
-                <span
-                  className={cn(
-                    "absolute inset-x-0 top-0 h-px bg-fg transition-transform",
-                    open && "translate-y-[5px] rotate-45",
-                  )}
-                />
-                <span
-                  className={cn(
-                    "absolute inset-x-0 bottom-0 h-px bg-fg transition-transform",
-                    open && "-translate-y-[6px] -rotate-45",
-                  )}
-                />
-              </span>
-            </button>
-          </div>
-        </nav>
-      </motion.header>
+  const current = HIGHLIGHT[active] ?? active;
 
-      <AnimatePresence>
-        {open ? (
-          <motion.div
-            className="fixed inset-0 z-[46] bg-bg md:hidden"
-            data-lenis-prevent
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
+  return (
+    <header className="fixed inset-x-0 top-0 z-40 border-b border-line bg-bg">
+      <div className="site-bar">
+        <Link
+          href="/"
+          scroll={false}
+          onClick={(event) => {
+            handleHomeSectionClick(event, "/");
+            setOpen(false);
+          }}
+          className="shrink-0 text-sm tracking-tight"
+        >
+          {profile.name}
+        </Link>
+        <nav aria-label="Primary" className="hidden min-w-0 flex-1 overflow-x-auto min-[1000px]:block [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <IndexList items={items} current={current} className="flex-row gap-x-4" />
+        </nav>
+        <div className="ml-auto flex shrink-0 items-center gap-4">
+          <ThemeToggle />
+          <button type="button" onClick={() => setCommandOpen(true)} className="meta-label hidden text-fg min-[1000px]:inline">
+            Search
+          </button>
+          <button
+            type="button"
+            className="meta-label text-fg min-[1000px]:hidden"
+            aria-expanded={open}
+            aria-controls="site-index"
+            onClick={() => setOpen((value) => !value)}
           >
-            <div className="flex h-full flex-col justify-between px-5 pt-[max(6rem,calc(env(safe-area-inset-top)+4.75rem))] pb-[max(2.5rem,env(safe-area-inset-bottom))] sm:px-6">
-              <ul className="flex flex-col gap-1">
-                {navItems.map((item, i) => {
-                  const external = "external" in item && item.external;
-                  return (
-                    <li key={item.id}>
-                      <motion.a
-                        href={item.href}
-                        onClick={(event) => {
-                          handleHomeSectionClick(event, item.href);
-                          setOpen(false);
-                        }}
-                        initial={{ opacity: 0, y: 16 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.05 * i, duration: 0.5, ease: easeOutExpo }}
-                        className="block py-2 text-3xl font-medium tracking-tight sm:text-4xl"
-                        {...(external
-                          ? { target: "_blank", rel: "noopener noreferrer" }
-                          : {})}
-                      >
-                        {item.label}
-                      </motion.a>
-                    </li>
-                  );
-                })}
-                <li>
-                  <motion.div
-                    initial={{ opacity: 0, y: 16 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.05 * navItems.length, duration: 0.5, ease: easeOutExpo }}
-                  >
-                    <Link
-                      href="/contact"
-                      scroll={false}
-                      onClick={(event) => {
-                        handleHomeSectionClick(event, "/contact");
-                        setOpen(false);
-                      }}
-                      className="block py-2 text-3xl font-medium tracking-tight sm:text-4xl"
-                    >
-                      Contact
-                    </Link>
-                  </motion.div>
-                </li>
-              </ul>
-              <div className="flex flex-col gap-3 text-sm text-muted">
-                <ThemeToggle className="self-start" />
-                <a href={`mailto:${profile.email}`} className="text-fg">
-                  {profile.email}
-                </a>
-                <div className="flex flex-wrap gap-x-4 gap-y-2">
-                  <a href={social.github}>GitHub</a>
-                  <Link href="/blog">Blogs</Link>
-                  <a href={social.linkedin}>LinkedIn</a>
-                  <a href={social.upwork}>Upwork</a>
-                  <a href={social.calendly}>Calendly</a>
-                  <a href={social.whatsapp}>WhatsApp</a>
-                  <a href={profile.resumeUrl}>Resume</a>
-                </div>
-              </div>
-            </div>
-          </motion.div>
-        ) : null}
-      </AnimatePresence>
-    </>
+            {open ? "Close" : "Index"}
+          </button>
+        </div>
+      </div>
+      {open ? (
+        <nav
+          id="site-index"
+          aria-label="Primary"
+          className="max-h-[70dvh] overflow-y-auto border-t border-line px-[var(--page-x)] py-3 min-[1000px]:hidden"
+        >
+          <IndexList items={items} current={current} onNavigate={() => setOpen(false)} />
+          <button
+            type="button"
+            onClick={() => {
+              setOpen(false);
+              setCommandOpen(true);
+            }}
+            className="meta-label mt-4 text-fg"
+          >
+            Search
+          </button>
+        </nav>
+      ) : null}
+    </header>
+  );
+}
+
+function IndexList({
+  items,
+  current,
+  onNavigate,
+  className,
+}: {
+  items: {
+    id: string;
+    label: string;
+    href: string;
+    external: boolean;
+  }[];
+  current: string;
+  onNavigate?: () => void;
+  className?: string;
+}) {
+  return (
+    <ul className={cn("flex flex-col", className)}>
+      {items.map((item) => {
+        const selected = current === item.id;
+        return (
+          <li key={item.id}>
+            <a
+              href={item.href}
+              aria-current={selected ? "true" : undefined}
+              data-cursor={item.external ? "external" : "link"}
+              {...(item.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+              onClick={(event) => {
+                handleHomeSectionClick(event, item.href);
+                onNavigate?.();
+              }}
+              className={cn(
+                "block py-1.5 text-[13px] tracking-tight whitespace-nowrap transition-colors duration-[var(--dur)] min-[1000px]:py-0",
+                selected ? "text-fg" : "text-subtle hover:text-fg",
+              )}
+            >
+              {item.label}
+            </a>
+          </li>
+        );
+      })}
+    </ul>
   );
 }

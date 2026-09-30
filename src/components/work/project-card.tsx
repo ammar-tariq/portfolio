@@ -1,136 +1,123 @@
 "use client";
 
-import { useRef } from "react";
+import { useState } from "react";
 import Link from "next/link";
-import { ArrowUpRight } from "lucide-react";
-import { motion, useReducedMotion } from "motion/react";
 import type { Project } from "@/types/content";
 import { industryLabel, projectHeroEyebrow } from "@/lib/project-helpers";
+import { coverImage } from "@/lib/project-media";
 import { useContent } from "@/components/providers/content-provider";
-import { ProjectVisual } from "./project-visual";
+import { RemoteImage } from "@/components/ui/remote-image";
+import { useSkillFocus } from "@/components/skills/skill-focus";
 import { shouldPassProjectClick, useProjectOpen } from "./project-open";
-import { TiltCard } from "@/components/ui/tilt";
 import { cn } from "@/lib/cn";
-import { easeOutExpo } from "@/lib/motion";
 
 export function ProjectCard({
   project,
   index,
   href,
+  onActivate,
 }: {
   project: Project;
   index: number;
   href?: string;
+  onActivate?: (project: Project | null) => void;
 }) {
   const { industries, profile } = useContent();
   const { openProject, pendingSlug } = useProjectOpen();
-  const visualRef = useRef<HTMLDivElement>(null);
-  const reduced = useReducedMotion();
-  const reverse = index % 2 === 1;
-  const visualFrom = reverse ? 40 : -40;
-  const copyFrom = reverse ? -28 : 28;
+  const { skill } = useSkillFocus();
+  const [recordOpen, setRecordOpen] = useState(false);
   const target = href ?? `/work/${project.slug}`;
   const opening = pendingSlug === project.slug;
-
-  const body = (
-    <motion.div
-      className="group grid w-full gap-8 text-left lg:grid-cols-2 lg:items-center lg:gap-16"
-      initial={reduced ? false : "hidden"}
-      whileInView="visible"
-      viewport={{ once: true, amount: 0.28, margin: "0px 0px -8% 0px" }}
-      variants={{
-        hidden: {},
-        visible: {
-          transition: { staggerChildren: 0.12, delayChildren: 0.04 },
-        },
-      }}
-    >
-      <motion.div
-        className={cn("[perspective:1600px]", reverse && "lg:order-2")}
-        variants={{
-          hidden: reduced ? { opacity: 1 } : { opacity: 0, x: visualFrom, filter: "blur(8px)" },
-          visible: {
-            opacity: 1,
-            x: 0,
-            filter: "blur(0px)",
-            transition: { duration: 0.9, ease: easeOutExpo },
-          },
-        }}
-      >
-        <TiltCard>
-          <div
-            ref={visualRef}
-            className={cn(
-              "overflow-hidden rounded-[24px] border border-line bg-bg-elevated/40 shadow-[0_24px_80px_rgba(0,0,0,0.35)] transition-[border-color,box-shadow] duration-500 group-hover:border-line-strong group-hover:shadow-[0_28px_90px_rgba(0,0,0,0.45)]",
-              opening && "invisible",
-            )}
-          >
-            <div className="relative h-[220px] overflow-hidden sm:h-[280px] md:h-[380px]">
-              <div className="h-full origin-center transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] will-change-transform group-hover:scale-[1.045] motion-reduce:transform-none motion-reduce:transition-none">
-                <ProjectVisual project={project} caption={false} />
-              </div>
-            </div>
-          </div>
-        </TiltCard>
-      </motion.div>
-      <motion.div
-        className={cn("relative", reverse && "lg:order-1")}
-        variants={{
-          hidden: reduced ? { opacity: 1 } : { opacity: 0, x: copyFrom },
-          visible: {
-            opacity: 1,
-            x: 0,
-            transition: { duration: 0.85, ease: easeOutExpo },
-          },
-        }}
-      >
-        <p className="font-serif text-5xl leading-none text-fg/8 transition-colors duration-500 group-hover:text-fg/14 sm:text-6xl md:text-8xl">
-          {String(index + 1).padStart(2, "0")}
-        </p>
-        <p className="mt-4 font-mono text-[11px] tracking-[0.22em] text-subtle uppercase">
-          {[industryLabel(project, industries), project.year, project.role.split("·")[0].trim()]
-            .filter(Boolean)
-            .join(" · ")}
-        </p>
-        <h3 className="mt-3 font-serif text-3xl tracking-tight md:text-5xl">{project.title}</h3>
-        <p className="mt-4 max-w-md text-lg text-muted">{project.tagline}</p>
-        <p className="mt-5 break-words font-mono text-[11px] tracking-[0.12em] text-subtle uppercase sm:tracking-[0.16em]">
-          {project.technologies.slice(0, 4).join("  /  ")}
-        </p>
-        <p className="mt-8 inline-flex items-center gap-2 text-sm text-accent transition-[gap] duration-500 group-hover:gap-3">
-          Case study
-          <ArrowUpRight className="h-4 w-4 transition-transform duration-500 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-        </p>
-      </motion.div>
-    </motion.div>
-  );
+  const image = coverImage(project);
+  const related = skill
+    ? project.technologies.some((tech) => tech.toLowerCase() === skill.toLowerCase())
+    : false;
 
   return (
-    <article className="border-t border-line py-10 md:py-14">
-      <Link
-        href={target}
-        data-cursor="view"
-        className="block"
-        onPointerEnter={() => {
-          if (!project.banner) return;
-          const img = new window.Image();
-          img.src = project.banner;
-        }}
-        onClick={(event) => {
-          if (shouldPassProjectClick(event)) return;
-          event.preventDefault();
-          openProject({
-            project,
-            href: target,
-            origin: visualRef.current,
-            eyebrow: projectHeroEyebrow(project, industries),
-            backHref: "/portfolio",
-            backLabel: `Back to ${profile.firstName}`,
-          });
-        }}
-      >
-        {body}
-      </Link>
+    <article
+      className={cn(
+        "group axis-grid border-t border-line py-7 transition-opacity duration-[var(--dur)] last:border-b md:py-8",
+        skill && !related && "opacity-35",
+        related && "border-accent",
+      )}
+      onMouseEnter={() => onActivate?.(project)}
+      onMouseLeave={() => onActivate?.(null)}
+      onFocus={() => onActivate?.(project)}
+      onBlur={(event) => {
+        if (!event.currentTarget.contains(event.relatedTarget as Node | null)) onActivate?.(null);
+      }}
+    >
+      <p className="meta-label axis-side pt-1 text-accent">{String(index + 1).padStart(2, "0")}</p>
+      <div className="axis-main">
+        <Link
+          href={target}
+          data-cursor="view"
+          className="relative block"
+          onPointerEnter={() => {
+            if (!image) return;
+            const preload = new window.Image();
+            preload.src = image;
+          }}
+          onClick={(event) => {
+            if (shouldPassProjectClick(event)) return;
+            event.preventDefault();
+            openProject({
+              project,
+              href: target,
+              origin: event.currentTarget.querySelector("[data-project-origin]") as HTMLElement | null,
+              eyebrow: projectHeroEyebrow(project, industries),
+              backHref: "/portfolio",
+              backLabel: `Back to ${profile.firstName}`,
+            });
+          }}
+        >
+          <h3 className="max-w-[16ch] text-[clamp(1.45rem,2.2vw,2rem)] leading-none font-medium tracking-[-0.03em] sm:max-w-none">
+            {project.title}
+          </h3>
+          <p className="meta-label mt-3 normal-case tracking-[0.12em]">
+            {[industryLabel(project, industries), project.year].filter(Boolean).join("  ·  ")}
+          </p>
+          <p className="mt-3 max-w-xl text-sm leading-relaxed text-muted md:text-base">{project.tagline}</p>
+          <p className="mt-3 max-w-xl pr-48 text-sm text-fg/80 max-[719px]:pr-0">{project.technologies.join("  ·  ")}</p>
+          <span className="ctrl mt-4 text-muted group-hover:text-fg">Case study</span>
+          {image ? (
+            <div
+              data-project-origin
+              className={cn(
+                "fine-only pointer-events-none absolute top-0 right-0 z-[1] h-28 w-44 overflow-hidden opacity-0 transition-opacity duration-[var(--dur)] group-hover:opacity-100 group-focus-within:opacity-100",
+                opening && "invisible",
+              )}
+            >
+              <RemoteImage
+                src={image}
+                alt=""
+                fill
+                sizes="224px"
+                className="object-cover object-left-top"
+              />
+            </div>
+          ) : (
+            <span data-project-origin className="sr-only" />
+          )}
+        </Link>
+        {image ? (
+          <div className="coarse-only mt-4">
+          <button
+            type="button"
+            className="meta-label text-fg"
+            aria-expanded={recordOpen}
+            onClick={() => setRecordOpen((value) => !value)}
+          >
+            {recordOpen ? "Hide record" : "View record"}
+          </button>
+          {recordOpen ? (
+            <div className="relative mt-3 aspect-[16/10] max-w-md overflow-hidden">
+              <RemoteImage src={image} alt={`${project.title} preview`} fill sizes="(max-width: 768px) 100vw, 28rem" className="object-cover object-left-top" />
+            </div>
+          ) : null}
+        </div>
+      ) : null}
+      </div>
     </article>
   );
 }

@@ -32,7 +32,7 @@ export default async function WorkIndexPage() {
           </Link>
           <div className="mt-10">
             <Eyebrow>Work</Eyebrow>
-            <h1 className="mt-4 font-serif text-[1.85rem] tracking-tight sm:text-4xl md:text-6xl">
+            <h1 className="mt-4 max-w-[16ch] text-[clamp(1.85rem,4vw,3.4rem)] leading-[1.02] font-medium tracking-[-0.03em]">
               Projects by {content.profile.name}
             </h1>
             <p className="mt-4 max-w-2xl text-muted">{content.seo.description}</p>

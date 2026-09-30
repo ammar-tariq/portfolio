@@ -5,7 +5,6 @@ import { AnimatePresence, motion } from "motion/react";
 import { Calendar, Mail, MessageCircle, X } from "lucide-react";
 import { useSite } from "@/components/providers/site-provider";
 import { useContent } from "@/components/providers/content-provider";
-import { cn } from "@/lib/cn";
 import { easeOutExpo } from "@/lib/motion";
 
 function WhatsAppIcon({ className }: { className?: string }) {
@@ -124,11 +123,11 @@ export function ConnectFab() {
                       className="group flex items-center gap-2.5 sm:gap-3"
                       onClick={() => setOpen(false)}
                     >
-                      <span className="max-w-[46vw] truncate rounded-full border border-line bg-bg/90 px-3 py-1.5 text-sm text-fg shadow-[0_12px_40px_rgba(0,0,0,0.28)] backdrop-blur-md sm:max-w-none">
+                      <span className="border-b border-line bg-bg px-2 py-1 text-sm text-fg">
                         {action.label}
                       </span>
-                      <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-line bg-bg-elevated text-accent shadow-[0_12px_40px_rgba(0,0,0,0.28)] transition-colors group-hover:border-accent group-hover:bg-accent group-hover:text-bg sm:h-11 sm:w-11">
-                        <Icon className="h-4 w-4" />
+                      <span className="meta-label inline-flex h-9 w-9 shrink-0 items-center justify-center border border-line text-accent">
+                        <Icon className="h-3.5 w-3.5" />
                       </span>
                     </a>
                   </motion.li>
@@ -143,10 +142,7 @@ export function ConnectFab() {
           aria-label={open ? "Close connect menu" : "Connect"}
           data-cursor="link"
           onClick={() => setOpen((value) => !value)}
-          className={cn(
-            "inline-flex h-12 items-center justify-center gap-2 rounded-full px-4 text-sm font-medium shadow-[0_16px_50px_rgba(21,88,210,0.35)] transition-colors sm:h-14 sm:px-5",
-            open ? "bg-fg text-bg" : "bg-accent text-bg hover:bg-[#1a8ee8]",
-          )}
+          className="inline-flex items-center gap-2 border border-line bg-bg px-3 py-2 text-sm text-fg transition-colors duration-[var(--dur)] hover:border-accent hover:text-accent"
         >
           {open ? <X className="h-5 w-5" /> : <MessageCircle className="h-5 w-5" />}
           <span className="pr-0.5">{open ? "Close" : "Connect"}</span>

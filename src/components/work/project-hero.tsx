@@ -96,7 +96,7 @@ export function ProjectHeroChrome({
         >
           <Link
             href={backHref}
-            className="pointer-events-auto inline-flex items-center gap-3 rounded-full border border-line bg-bg/55 px-3 py-1.5 text-sm text-muted backdrop-blur-xl hover:text-fg"
+            className="pointer-events-auto inline-flex items-center gap-3 text-sm text-muted hover:text-fg"
           >
             <BrandMark className="h-7 w-7" name={backLabel} />
             {backLabel}
@@ -111,7 +111,7 @@ export function ProjectHeroChrome({
         >
           {project.logo ? (
             <div className="relative mb-4 inline-block">
-              <div className="relative h-14 w-14 overflow-hidden rounded-[22.5%] border border-white/15 shadow-[0_12px_32px_rgba(0,0,0,0.35)] sm:h-16 sm:w-16">
+              <div className="relative h-14 w-14 overflow-hidden border border-line sm:h-16 sm:w-16">
                 <RemoteImage src={project.logo} alt={`${project.title} app icon`} fill sizes="64px" className="object-cover" />
               </div>
               <MediaDownloadButton

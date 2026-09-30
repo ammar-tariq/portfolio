@@ -1,17 +1,21 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowUpRight } from "lucide-react";
-import { Container, Section, SectionHeader } from "@/components/ui/section";
+import { Container, Section, SectionIntro } from "@/components/ui/section";
 import { useContent } from "@/components/providers/content-provider";
 import { activeIndustries, featuredProjects, hasIndustry, listedProjects } from "@/lib/project-helpers";
+import { dossierEntry } from "@/lib/dossier";
 import { IndustryFilter } from "./industry-filter";
 import { ButtonLink } from "@/components/ui/button";
 import { ProjectCard } from "./project-card";
+import type { Project } from "@/types/content";
 
 export function Work() {
   const [industry, setIndustry] = useState<string | "all">("all");
-  const { projects, industries } = useContent();
+  const [active, setActive] = useState<Project | null>(null);
+  const { projects, industries, navItems } = useContent();
+  const entry = dossierEntry("portfolio");
+  const label = navItems.find((item) => item.id === "portfolio")?.label ?? entry?.label ?? "Work";
   const listed = listedProjects(projects);
   const featured = featuredProjects(projects);
   const filters = activeIndustries(featured, industries).map((item) => ({
@@ -25,30 +29,49 @@ export function Work() {
   return (
     <Section id="portfolio">
       <Container>
-        <SectionHeader
-          eyebrow="Work"
+        <SectionIntro
+          marker={entry?.marker ?? "02"}
+          label={label}
           title="Products I can still explain."
           kicker="Selected case studies across mobile, web, backend, and AI — with the architecture behind them."
+          aside={
+            <span aria-live="polite">
+              {active
+                ? `${active.title}${active.year ? ` · ${active.year}` : ""}`
+                : `${visible.length} records`}
+            </span>
+          }
         />
-        <div className="mb-8">
-          <IndustryFilter value={industry} onChange={setIndustry} industries={filters} />
+        <div className="axis-grid mb-2">
+          <div className="axis-side max-[719px]:hidden" aria-hidden />
+          <div className="axis-main">
+            <IndustryFilter value={industry} onChange={setIndustry} industries={filters} />
+          </div>
         </div>
-        <div className="flex flex-col">
-          {visible.map((project, index) => (
-            <ProjectCard
-              key={project.slug}
-              project={project}
-              index={index}
-              href={`/work/${project.slug}`}
-            />
-          ))}
+        <div>
+          {visible.length === 0 ? (
+            <p className="axis-grid border-t border-line py-8 text-sm text-muted">
+              <span className="axis-side max-[719px]:hidden" aria-hidden />
+              <span className="axis-main">No records in this filter.</span>
+            </p>
+          ) : (
+            visible.map((project) => (
+              <ProjectCard
+                key={project.slug}
+                project={project}
+                index={featured.findIndex((item) => item.slug === project.slug)}
+                href={`/work/${project.slug}`}
+                onActivate={setActive}
+              />
+            ))
+          )}
         </div>
         {listed.length > visible.length ? (
-          <div className="mt-4 flex justify-center border-t border-line pt-10">
-            <ButtonLink href="/work">
-              View all {listed.length} projects
-              <ArrowUpRight className="h-4 w-4" />
-            </ButtonLink>
+          <div className="axis-grid mt-8">
+            <div className="axis-side max-[719px]:hidden" aria-hidden />
+            <div className="axis-main">
+              <ButtonLink href="/work">View all {listed.length} projects</ButtonLink>
+            </div>
           </div>
         ) : null}
       </Container>
