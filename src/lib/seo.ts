@@ -144,6 +144,8 @@ export function professionalServiceJsonLd(content: SiteContent) {
     serviceType: [
       "React Native full-stack development",
       "React Native development",
+      "Remote React Native development",
+      "Freelance mobile app development",
       "Full-stack engineering",
       "TypeScript application development",
       "NestJS backend development",

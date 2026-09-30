@@ -85,14 +85,13 @@ export function Hero() {
                         <span className="shot-frame relative block h-full w-full" style={{ transform: `rotate(${[-3, -1, 1, 3][index] ?? 0}deg)` }}>
                           <RemoteImage
                             src={src}
-                            alt=""
+                            alt={`${project.title} screenshot`}
                             fill
                             sizes="112px"
                             className="zoom-shot object-cover object-top"
                           />
                         </span>
                       </span>
-                      <span className="sr-only">{project.title}</span>
                     </Link>
                   ))}
                 </motion.div>

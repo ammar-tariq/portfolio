@@ -40,7 +40,7 @@ export function About() {
                 <figure className="relative aspect-[3/4] w-36 overflow-hidden rounded-2xl border border-line min-[900px]:w-full">
                   <RemoteImage
                     src={photo}
-                    alt={profile.name}
+                    alt={`${profile.name}, ${profile.title}`}
                     fill
                     sizes="208px"
                     className="object-cover object-[center_20%] grayscale"

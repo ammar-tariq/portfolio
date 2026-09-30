@@ -42,7 +42,7 @@ export default async function ResumePage() {
               // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={photo}
-                alt=""
+                alt={`${profile.name}, ${profile.title}`}
                 width={72}
                 height={72}
                 className="h-[72px] w-[72px] shrink-0 rounded-xl object-cover object-[center_20%] grayscale contrast-[1.08] print:grayscale"

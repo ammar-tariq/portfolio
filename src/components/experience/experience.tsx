@@ -58,9 +58,8 @@ export function Experience() {
                                 key={slug}
                                 href={`/work/${slug}`}
                                 className="shot-frame relative h-16 w-11 bg-bg-elevated"
-                                aria-label={project.title}
                               >
-                                <RemoteImage src={src} alt="" fill sizes="44px" className="zoom-shot object-cover object-top" />
+                                <RemoteImage src={src} alt={`${project.title} screenshot`} fill sizes="44px" className="zoom-shot object-cover object-top" />
                               </Link>
                             );
                           })}
