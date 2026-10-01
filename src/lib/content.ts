@@ -216,14 +216,14 @@ function buildCommands(settings: SiteSettings): CommandItem[] {
   const { profile, social } = settings;
   return [
     { id: "services", label: "Services", hint: "React Native, React, Node.js", href: "/services" },
-    { id: "portfolio", label: "View portfolio", hint: "Case studies", href: "/portfolio" },
+    { id: "portfolio", label: "Portfolio", hint: "Case studies", href: "/portfolio" },
     { id: "open-source", label: "Open source", hint: "Public repositories", href: "/open-source" },
-    { id: "experience", label: "View Experience", hint: "Career timeline", href: "/experience" },
-    { id: "skills", label: "View Skills", hint: "Technology ecosystem", href: "/skills" },
+    { id: "experience", label: "Experience", hint: "Career timeline", href: "/experience" },
+    { id: "skills", label: "Skills", hint: "Technology ecosystem", href: "/skills" },
     { id: "about", label: "About", hint: "Profile", href: "/about" },
     { id: "blogs", label: "Blogs", hint: "Medium", href: BLOG_PATH },
     { id: "contact", label: "Contact", hint: "Start a conversation", href: "/contact" },
-    { id: "ai", label: "AI Systems", hint: "LLM orchestration", href: "/ai" },
+    { id: "ai", label: "AI systems", hint: "LLM orchestration", href: "/ai" },
     { id: "architecture", label: "Architecture", hint: "System map", href: "/architecture" },
     { id: "github", label: "GitHub", hint: social.githubHandle, href: social.github, external: true },
     { id: "whatsapp", label: "WhatsApp", hint: "Message on WhatsApp", href: social.whatsapp, external: true },

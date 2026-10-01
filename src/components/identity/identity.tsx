@@ -38,7 +38,7 @@ export function Identity() {
       <Container>
         <SectionIntro
           marker={entry?.marker ?? "05"}
-          label={entry?.label ?? "Systems"}
+          label={entry?.label ?? "Practice"}
           title="One spine. Four surfaces."
           kicker="Mobile, web, backend, and AI — held together by architecture."
         />

@@ -87,14 +87,14 @@ export function staticContent(): SiteContent {
     architecture: staticArchitecture(),
     openSourceProjects: openSourceProjects.map((item, index) => ({ ...item, sortOrder: index })),
     commands: [
-      { id: "portfolio", label: "View portfolio", hint: "Case studies", href: "/portfolio" },
+      { id: "portfolio", label: "Portfolio", hint: "Case studies", href: "/portfolio" },
       { id: "open-source", label: "Open source", hint: "Public repositories", href: "/open-source" },
-      { id: "experience", label: "View Experience", hint: "Career timeline", href: "/experience" },
-      { id: "skills", label: "View Skills", hint: "Technology ecosystem", href: "/skills" },
+      { id: "experience", label: "Experience", hint: "Career timeline", href: "/experience" },
+      { id: "skills", label: "Skills", hint: "Technology ecosystem", href: "/skills" },
       { id: "about", label: "About", hint: "Profile", href: "/about" },
       { id: "blogs", label: "Blogs", hint: "Medium", href: "/blog" },
       { id: "contact", label: "Contact", hint: "Start a conversation", href: "/contact" },
-      { id: "ai", label: "AI Systems", hint: "LLM orchestration", href: "/ai" },
+      { id: "ai", label: "AI systems", hint: "LLM orchestration", href: "/ai" },
       { id: "architecture", label: "Architecture", hint: "System map", href: "/architecture" },
       {
         id: "github",

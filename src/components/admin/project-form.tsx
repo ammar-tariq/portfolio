@@ -374,7 +374,7 @@ export function ProjectForm({
           onChange={(v) => update("featured", v)}
         />
         <Toggle
-          label="Listed in View all"
+          label="Listed in the full portfolio"
           checked={project.listed !== false}
           onChange={(v) => update("listed", v)}
         />

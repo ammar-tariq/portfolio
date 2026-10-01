@@ -15,7 +15,7 @@ export function Work() {
   const [active, setActive] = useState<Project | null>(null);
   const { projects, industries, navItems } = useContent();
   const entry = dossierEntry("portfolio");
-  const label = navItems.find((item) => item.id === "portfolio")?.label ?? entry?.label ?? "Work";
+  const label = navItems.find((item) => item.id === "portfolio")?.label ?? entry?.label ?? "Portfolio";
   const listed = listedProjects(projects);
   const featured = featuredProjects(projects);
   const filters = activeIndustries(featured, industries).map((item) => ({
@@ -70,7 +70,7 @@ export function Work() {
           <div className="axis-grid mt-8">
             <div className="axis-side max-[719px]:hidden" aria-hidden />
             <div className="axis-main">
-              <ButtonLink href="/work">View all {listed.length} projects</ButtonLink>
+              <ButtonLink href="/work">Full portfolio</ButtonLink>
             </div>
           </div>
         ) : null}

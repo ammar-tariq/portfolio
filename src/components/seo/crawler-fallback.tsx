@@ -29,7 +29,7 @@ export function CrawlerFallback({
           ))}
           <Link href="/services">Services</Link>
           {" · "}
-          <Link href="/work">Projects</Link>
+          <Link href="/work">Portfolio</Link>
           {" · "}
           <Link href="/resume">Resume</Link>
         </nav>
@@ -46,7 +46,7 @@ export function CrawlerFallback({
           <a href={social.linkedin}>LinkedIn</a> ·{" "}
           <a href={social.calendly}>Calendly</a> · <a href={social.whatsapp}>WhatsApp</a> ·{" "}
           <a href={social.upwork}>Upwork</a> · <Link href="/resume">Resume</Link> ·{" "}
-          <Link href="/services">Services</Link> · <Link href="/work">Projects</Link>
+          <Link href="/services">Services</Link> · <Link href="/work">Portfolio</Link>
         </p>
         <h2>Skills</h2>
         {skillCategories.map((category) => (
@@ -70,7 +70,7 @@ export function CrawlerFallback({
             <p>Technologies: {item.technologies.join(", ")}</p>
           </section>
         ))}
-        <h2>Projects</h2>
+        <h2>Portfolio</h2>
         <ul>
           {publicProjects(projects).map((project) => (
             <li key={project.slug}>
@@ -79,7 +79,7 @@ export function CrawlerFallback({
           ))}
         </ul>
         <p>
-          <Link href="/work">View all work</Link>
+          <Link href="/work">Full portfolio</Link>
         </p>
         <h2>Open source</h2>
         <ul>

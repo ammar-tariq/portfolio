@@ -134,7 +134,7 @@ export default async function ResumePage() {
         <section className="border-t border-line py-8">
           <h2 className="inline-flex items-center gap-2 font-mono text-[11px] tracking-[0.22em] text-accent uppercase">
             <FolderKanban className="h-3.5 w-3.5" aria-hidden />
-            Selected work
+            Portfolio
           </h2>
           <ul className="mt-4 space-y-2 text-sm text-muted">
             {publicProjects(projects)

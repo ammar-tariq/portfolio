@@ -69,7 +69,7 @@ ${current ? `- Current role: ${current.role} at ${current.company} (${current.pe
 - Portfolio: ${siteUrl}/portfolio
 - Experience: ${siteUrl}/experience
 - Skills: ${siteUrl}/skills
-- Portfolio (case studies): ${siteUrl}/work
+- Portfolio: ${siteUrl}/work
 - Architecture: ${siteUrl}/architecture
 - AI: ${siteUrl}/ai
 - Philosophy: ${siteUrl}/philosophy

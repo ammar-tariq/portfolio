@@ -26,7 +26,7 @@ export function AiSection() {
       <Container>
         <SectionIntro
           marker={entry?.marker ?? "07"}
-          label={entry?.label ?? "AI"}
+          label={entry?.label ?? "AI systems"}
           title="Models are components. Products are the system."
           kicker="A real pipeline — user, product, orchestration, model, tools, result."
         />

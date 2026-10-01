@@ -87,7 +87,7 @@ export function Experience() {
                           <p className="mt-4 text-sm text-fg/80">{item.technologies.join(" · ")}</p>
                           {item.projects.length > 0 ? (
                             <p className="mt-3 text-sm">
-                              <span className="meta-label mr-3">Work</span>
+                              <span className="meta-label mr-3">Portfolio</span>
                               {item.projects.map((slug, index) => {
                                 const project = projects.find((entryItem) => entryItem.slug === slug);
                                 if (!project) return null;

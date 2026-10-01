@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { LayoutGrid } from "lucide-react";
 import { Container } from "@/components/ui/section";
 import { BrandMark } from "@/components/ui/brand-mark";
 import { JsonLd } from "@/components/seo/json-ld";
@@ -13,10 +12,10 @@ export async function generateMetadata(): Promise<Metadata> {
   const content = await getSiteContent();
   const description = `Case studies by ${content.profile.name}: React Native, React, TypeScript, and Node.js products, including backends and AI features where the project used them.`;
   return routeMetadata(content, {
-    title: "React Native Full-Stack Projects",
+    title: "Portfolio",
     description,
     path: "/work",
-    ogTitle: `React Native Full-Stack Projects — ${content.profile.name}`,
+    ogTitle: `Portfolio — ${content.profile.name}`,
     keywords: [
       "React Native full-stack",
       "React Native projects",
@@ -42,12 +41,8 @@ export default async function WorkIndexPage() {
             <span>{content.profile.name}</span>
           </Link>
           <div className="relative z-[1] mt-10">
-            <p className="meta-label inline-flex items-center gap-1.5">
-              <LayoutGrid className="h-3.5 w-3.5 text-accent" aria-hidden />
-              Work
-            </p>
-            <h1 className="settle mt-4 max-w-[16ch] text-[clamp(1.85rem,4vw,3.4rem)] leading-[1.02] font-medium tracking-[-0.03em]">
-              Projects by {content.profile.name}
+            <h1 className="settle max-w-[16ch] text-[clamp(1.85rem,4vw,3.4rem)] leading-[1.02] font-medium tracking-[-0.03em]">
+              Portfolio
             </h1>
             <p className="settle settle-3 mt-4 max-w-2xl text-muted">{content.seo.description}</p>
           </div>

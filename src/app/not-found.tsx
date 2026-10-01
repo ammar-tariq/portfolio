@@ -18,7 +18,7 @@ export default function NotFound() {
           Return home
         </Link>
         <Link href="/work" className="ctrl">
-          Projects
+          Portfolio
         </Link>
         <Link href="/services" className="ctrl">
           Services

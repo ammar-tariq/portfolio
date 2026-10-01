@@ -223,7 +223,7 @@ export default async function WorkPage({
               <section className="glass-quiet mt-14 rounded-2xl border p-5 md:p-6">
                 <h2 className="inline-flex items-center gap-2 font-mono text-[11px] tracking-[0.22em] text-accent uppercase">
                   <ArrowUpRight className="h-3.5 w-3.5" aria-hidden />
-                  More work
+                  More in the portfolio
                 </h2>
                 <ul className="mt-5 space-y-2">
                   {related.map((item) => {

@@ -57,7 +57,7 @@ export function Hero() {
                 </p>
                 <div className="settle settle-5 mt-7 flex flex-wrap gap-x-6 gap-y-3">
                   <Link href="/portfolio" scroll={false} className="ctrl" onClick={(event) => handleHomeSectionClick(event, "/portfolio")}>
-                    Selected work
+                    Portfolio
                     <ArrowUpRight className="h-3.5 w-3.5" aria-hidden />
                   </Link>
                   <Link

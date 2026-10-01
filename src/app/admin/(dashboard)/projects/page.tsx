@@ -8,7 +8,7 @@ export default async function ProjectsAdminPage() {
       <AdminPageHeader
         eyebrow="Portfolio"
         title="Projects"
-        description="Featured projects appear on the homepage. The rest show under View all."
+        description="Featured projects appear on the homepage. The rest show in the full portfolio."
         actions={<AdminLink href="/admin/projects/new" variant="primary">New project</AdminLink>}
       />
       <AdminPanel>
@@ -26,7 +26,7 @@ export default async function ProjectsAdminPage() {
                   <p className="mt-1 flex flex-wrap items-center gap-2 text-sm text-muted">
                     <span className="font-mono text-[12px]">/work/{project.slug}</span>
                     {project.listed === false ? <AdminBadge>Hidden</AdminBadge> : null}
-                    {project.featured ? <AdminBadge tone="accent">Homepage</AdminBadge> : <AdminBadge>View all</AdminBadge>}
+                    {project.featured ? <AdminBadge tone="accent">Homepage</AdminBadge> : <AdminBadge>Full portfolio</AdminBadge>}
                   </p>
                 </a>
               </li>

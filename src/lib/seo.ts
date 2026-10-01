@@ -325,7 +325,7 @@ export function workIndexJsonLd(content: SiteContent) {
   return {
     "@type": "ItemList",
     "@id": `${siteUrl}/work#list`,
-    name: `Projects by ${content.profile.name}`,
+    name: `Portfolio — ${content.profile.name}`,
     itemListElement: publicProjects(content.projects).map((project, index) => ({
       "@type": "ListItem",
       position: index + 1,
@@ -358,7 +358,7 @@ export function workPageGraphJsonLd(content: SiteContent) {
       workIndexJsonLd(content),
       breadcrumbJsonLd(siteUrl, [
         { name: content.profile.name, url: siteUrl },
-        { name: "Projects", url: `${siteUrl}/work` },
+        { name: "Portfolio", url: `${siteUrl}/work` },
       ]),
     ],
   };
@@ -374,7 +374,7 @@ export function projectGraphJsonLd(content: SiteContent, project: Project) {
       caseStudyArticleJsonLd(content, project),
       breadcrumbJsonLd(siteUrl, [
         { name: content.profile.name, url: siteUrl },
-        { name: "Projects", url: `${siteUrl}/work` },
+        { name: "Portfolio", url: `${siteUrl}/work` },
         { name: project.seoLabel, url: `${siteUrl}/work/${project.slug}` },
       ]),
     ],

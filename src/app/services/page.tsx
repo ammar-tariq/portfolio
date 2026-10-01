@@ -49,14 +49,13 @@ export default async function ServicesPage() {
             Services
           </h1>
           <p className="settle settle-3 mt-4 text-lg text-muted">{profile.summary}</p>
-          <p className="mt-4 text-sm text-muted">{profile.availability}.</p>
           <div className="mt-6 flex flex-wrap gap-x-6 gap-y-3">
             <Link href="/contact" className="ctrl">
               Contact {profile.firstName}
               <ArrowUpRight className="h-3.5 w-3.5" aria-hidden />
             </Link>
             <Link href="/work" className="ctrl">
-              Projects
+              Portfolio
               <ArrowUpRight className="h-3.5 w-3.5" aria-hidden />
             </Link>
             <Link href="/experience" className="ctrl">

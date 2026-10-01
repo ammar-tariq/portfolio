@@ -15,7 +15,7 @@ export function Skills() {
   const { skillCategories, projects, navItems } = useContent();
   const { skill, setSkill } = useSkillFocus();
   const entry = dossierEntry("skills");
-  const label = navItems.find((item) => item.id === "skills")?.label ?? entry?.label ?? "Inventory";
+  const label = navItems.find((item) => item.id === "skills")?.label ?? entry?.label ?? "Skills";
   const listed = listedProjects(projects);
 
   return (

@@ -57,7 +57,7 @@ function mergeCounts(rows: { key: string; count: number }[]) {
 
 export function pageLabel(path: string, titles: Map<string, string>) {
   if (path === "/") return "Home";
-  if (path === "/work") return "Work";
+  if (path === "/work") return "Portfolio";
   if (path === "/resume") return "Resume";
   if (path === "/blog") return "Blogs";
   const section = homeSectionFromPathname(path);

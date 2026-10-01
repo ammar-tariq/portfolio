@@ -98,7 +98,7 @@ export function SiteShell({
                   </Link>
                   <Link href="/work" className="inline-flex items-center gap-1.5 link-underline">
                     <FolderKanban className="h-3.5 w-3.5" aria-hidden />
-                    Projects
+                    Portfolio
                   </Link>
                   <Link href="/resume" className="inline-flex items-center gap-1.5 link-underline" onClick={() => trackEvent("resume_click", { method: "footer" })}>
                     <FileText className="h-3.5 w-3.5" aria-hidden />
